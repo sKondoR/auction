@@ -1,0 +1,14 @@
+node_modules
+.next
+dist
+coverage
+.env
+.env.local
+*.tsbuildinfo
+.turbo
+next-env.d.ts
+
+# Локальные отчёты
+STAGE1_REPORT.md
+
+local data
