@@ -1,0 +1,332 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-30T12:00:00+03:00",
+  "title": "Design System: auction",
+  "extensions": {
+    "colorMeta": {
+      "bottle-green": {
+        "role": "primary",
+        "displayName": "Бутылочное стекло",
+        "tonalRamp": [
+          "#0E1A13",
+          "#132A1D",
+          "#1D3B2A",
+          "#2E5540",
+          "#4C7560",
+          "#7C9C89",
+          "#B3C6B8",
+          "#E4EBDF"
+        ]
+      },
+      "sealing-wax": {
+        "role": "secondary",
+        "displayName": "Сургуч",
+        "tonalRamp": [
+          "#4A0709",
+          "#700B0F",
+          "#A01015",
+          "#C3161C",
+          "#DB4A4E",
+          "#EA8385",
+          "#F5BDBE",
+          "#FBE7E6"
+        ]
+      },
+      "brass": {
+        "role": "tertiary",
+        "displayName": "Латунь",
+        "tonalRamp": [
+          "#3F2E0E",
+          "#5E4516",
+          "#8A6621",
+          "#B8892E",
+          "#CFA758",
+          "#E0C58C",
+          "#EEDDB8",
+          "#F5ECD8"
+        ]
+      },
+      "pastel-sage": {
+        "role": "tertiary",
+        "displayName": "Шалфей"
+      },
+      "pastel-peach": {
+        "role": "tertiary",
+        "displayName": "Персик"
+      },
+      "pastel-powder": {
+        "role": "tertiary",
+        "displayName": "Пудра"
+      },
+      "pastel-butter": {
+        "role": "tertiary",
+        "displayName": "Масло"
+      },
+      "pastel-blush": {
+        "role": "tertiary",
+        "displayName": "Румянец"
+      },
+      "daylight": {
+        "role": "neutral",
+        "displayName": "Дневной свет"
+      },
+      "photo-well": {
+        "role": "neutral",
+        "displayName": "Фотоколодец"
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Чернила"
+      },
+      "pastel-sage-deep": {
+        "role": "tertiary",
+        "displayName": "Шалфей, глубокая"
+      },
+      "pastel-peach-deep": {
+        "role": "tertiary",
+        "displayName": "Персик, глубокая"
+      },
+      "pastel-powder-deep": {
+        "role": "tertiary",
+        "displayName": "Пудра, глубокая"
+      },
+      "pastel-butter-deep": {
+        "role": "tertiary",
+        "displayName": "Масло, глубокая"
+      },
+      "pastel-blush-deep": {
+        "role": "tertiary",
+        "displayName": "Румянец, глубокая"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Только хиро витрины."
+      },
+      "section-title": {
+        "displayName": "Заголовок секции",
+        "purpose": "По центру над сетками витрины (R, C, E), слева в полосах из двух колонок."
+      },
+      "price": {
+        "displayName": "Цена",
+        "purpose": "Цены, ставки, таймеры; табличные цифры."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Навигация категорий, бейджи, шапки таблиц, подписи преимуществ; прописные. Без «бровей» над заголовками."
+      }
+    },
+    "shadows": [
+      {
+        "name": "lift",
+        "value": "0 1px 2px rgba(27,31,28,.06), 0 8px 24px -8px rgba(27,31,28,.14)",
+        "purpose": "Hover карточки, меню, поповеры."
+      },
+      {
+        "name": "modal",
+        "value": "0 24px 64px -16px rgba(27,31,28,.28)",
+        "purpose": "Модальные окна, нижние листы."
+      },
+      {
+        "name": "showcase-layer",
+        "value": "0 2px 4px rgba(27,31,28,.05), 0 18px 40px -12px rgba(27,31,28,.18)",
+        "purpose": "Слои витрины: пастельные панели, паспарту."
+      },
+      {
+        "name": "wax-layer",
+        "value": "0 2px 4px rgba(60,4,6,.18), 0 22px 44px -14px rgba(60,4,6,.55)",
+        "purpose": "Паспарту на сургучном поле."
+      },
+      {
+        "name": "wax-tag",
+        "value": "0 1px 2px rgba(60,4,6,.2), 0 10px 22px -10px rgba(60,4,6,.5)",
+        "purpose": "Бирки коллажа на сургучном поле."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-standard",
+        "value": "ease",
+        "purpose": "Переходы состояний кнопок, полей, чипов, 180ms."
+      },
+      {
+        "name": "ease-out-soft",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Подъём карточек и плиток (300–350ms), фото (450–600ms), появление коллажа (900ms, шаг 110ms)."
+      },
+      {
+        "name": "pulse",
+        "value": "2.4s infinite",
+        "purpose": "Точка ленты событий и бейдж «В эфире»; выключается при reduced motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      },
+      {
+        "name": "xl",
+        "value": "1280px"
+      },
+      {
+        "name": "2xl",
+        "value": "1536px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Главная кнопка",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Единственный цвет действия.",
+      "html": "<button class=\"ds-btn-primary\">Сделать ставку</button>",
+      "css": ".ds-btn-primary{font-family:'Golos Text',system-ui,sans-serif;background:#1D3B2A;color:#fff;border:0;border-radius:8px;height:48px;padding:0 24px;font-size:16px;font-weight:600;cursor:pointer;transition:background .18s}.ds-btn-primary:hover{background:#132A1D}.ds-btn-primary:focus-visible{outline:2px solid #1D3B2A;outline-offset:2px}"
+    },
+    {
+      "name": "Вторичная кнопка",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Белая с зелёной рамкой.",
+      "html": "<button class=\"ds-btn-secondary\">Все лоты категории</button>",
+      "css": ".ds-btn-secondary{font-family:'Golos Text',system-ui,sans-serif;background:#fff;color:#1D3B2A;border:1px solid #1D3B2A;border-radius:8px;height:48px;padding:0 23px;font-size:16px;font-weight:600;cursor:pointer;transition:background .18s}.ds-btn-secondary:hover{background:#E4EBDF}.ds-btn-secondary:focus-visible{outline:2px solid #1D3B2A;outline-offset:2px}"
+    },
+    {
+      "name": "Срочная кнопка",
+      "kind": "button",
+      "refersTo": "button-urgent",
+      "description": "Сургуч: блиц-покупка и ставка в последние минуты торгов.",
+      "html": "<button class=\"ds-btn-urgent\">Купить по блиц-цене 12 000 ₽</button>",
+      "css": ".ds-btn-urgent{font-family:'Golos Text',system-ui,sans-serif;background:#C3161C;color:#fff;border:0;border-radius:8px;height:48px;padding:0 24px;font-size:16px;font-weight:600;font-variant-numeric:tabular-nums;cursor:pointer;transition:background .18s}.ds-btn-urgent:hover{background:#A01015}.ds-btn-urgent:focus-visible{outline:2px solid #C3161C;outline-offset:2px}"
+    },
+    {
+      "name": "Кнопка на цветном хиро",
+      "kind": "button",
+      "refersTo": "button-on-field",
+      "description": "Белая рамка на сургуче, прописные; hover — белая заливка.",
+      "html": "<div style=\"background:#C3161C;padding:24px\"><button class=\"ds-btn-field\">Смотреть торги</button></div>",
+      "css": ".ds-btn-field{font-family:'Golos Text',system-ui,sans-serif;background:transparent;color:#fff;border:1px solid #fff;border-radius:8px;height:48px;padding:0 23px;font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:background .18s,color .18s}.ds-btn-field:hover{background:#fff;color:#C3161C}.ds-btn-field:focus-visible{outline:2px solid #fff;outline-offset:2px}"
+    },
+    {
+      "name": "Чипы-фильтры",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Таблетки; выбранный — зелёный.",
+      "html": "<div class=\"ds-chips\"><button class=\"ds-chip ds-chip--on\">Все</button><button class=\"ds-chip\">Монеты СССР</button><button class=\"ds-chip\">Империя</button></div>",
+      "css": ".ds-chips{display:flex;gap:8px;flex-wrap:wrap}.ds-chip{font-family:'Golos Text',system-ui,sans-serif;background:#fff;color:#1B1F1C;border:1px solid #E5E1D8;border-radius:999px;height:36px;padding:0 16px;font-size:14px;font-weight:500;cursor:pointer}.ds-chip:hover{border-color:#CFC9BC}.ds-chip--on{background:#1D3B2A;border-color:#1D3B2A;color:#fff}.ds-chip:focus-visible{outline:2px solid #1D3B2A;outline-offset:2px}"
+    },
+    {
+      "name": "Поле поиска",
+      "kind": "input",
+      "refersTo": "search-field",
+      "description": "Поиск-таблетка с лупой.",
+      "html": "<label class=\"ds-search\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\"><circle cx=\"11\" cy=\"11\" r=\"7\"/><path d=\"m20 20-3.5-3.5\"/></svg><input placeholder=\"Монета, значок, самовар…\"></label>",
+      "css": ".ds-search{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #E5E1D8;border-radius:999px;height:48px;padding:0 20px;color:#5D645F;max-width:420px}.ds-search:focus-within{border-color:#1D3B2A;box-shadow:0 0 0 3px #E4EBDF}.ds-search input{font-family:'Golos Text',system-ui,sans-serif;border:0;outline:0;flex:1;font-size:16px;color:#1B1F1C;background:transparent}"
+    },
+    {
+      "name": "Карточка лота",
+      "kind": "card",
+      "refersTo": "lot-card",
+      "description": "Без собственного фона: фото на фотоколодце, бейдж формата, сердце (сургуч в избранном), цена и время до конца.",
+      "html": "<a class=\"ds-lot\" href=\"#\"><div class=\"ds-lot__ph\"><span class=\"ds-lot__badge\">Аукцион</span><span class=\"ds-lot__fav\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#1B1F1C\" stroke-width=\"1.5\"><path d=\"M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z\"/></svg></span></div><div class=\"ds-lot__t\">Рубль 1924 года, серебро, состояние XF</div><div class=\"ds-lot__p\">4 350 ₽</div><div class=\"ds-lot__m\">12 ставок · <b>47 мин</b></div></a>",
+      "css": ".ds-lot{font-family:'Golos Text',system-ui,sans-serif;display:block;width:220px;color:#1B1F1C;text-decoration:none}.ds-lot__ph{position:relative;aspect-ratio:1;background:#F3F1EB;border-radius:12px;transition:box-shadow .2s,transform .2s}.ds-lot:hover .ds-lot__ph{box-shadow:0 1px 2px rgba(27,31,28,.06),0 8px 24px -8px rgba(27,31,28,.14);transform:translateY(-3px)}.ds-lot:focus-visible{outline:2px solid #1D3B2A;outline-offset:4px;border-radius:12px}.ds-lot__badge{position:absolute;top:10px;left:10px;background:#fff;border-radius:4px;padding:4px 8px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}.ds-lot__fav{position:absolute;top:10px;right:10px;width:36px;height:36px;border-radius:50%;background:#fff;display:grid;place-items:center}.ds-lot__t{margin-top:12px;font-size:15px;font-weight:500;line-height:1.35}.ds-lot__p{margin-top:8px;font-size:18px;font-weight:600;font-variant-numeric:tabular-nums}.ds-lot__m{margin-top:4px;font-size:14px;color:#5D645F;font-variant-numeric:tabular-nums}.ds-lot__m b{color:#C3161C;font-weight:500}.ds-lot__fav:hover svg{stroke:#C3161C}"
+    },
+    {
+      "name": "Плитка категории",
+      "kind": "custom",
+      "refersTo": "category-tile",
+      "description": "Пастель категории, подложка-смещение, серифное название, линейный рисунок предмета.",
+      "html": "<div class=\"ds-cat\"><div class=\"ds-cat__n\">Монеты и боны</div><div class=\"ds-cat__c\">Империя, СССР, банкноты</div><svg viewBox=\"0 0 100 100\" fill=\"none\" stroke=\"#1B1F1C\" stroke-width=\"1.25\"><circle cx=\"50\" cy=\"55\" r=\"30\"/><circle cx=\"50\" cy=\"55\" r=\"24\" stroke-dasharray=\"1.5 3\"/><path d=\"M40 62c4-12 16-12 20 0M50 42v6\"/></svg></div>",
+      "css": ".ds-cat{position:relative;width:220px;height:260px;background:#F3E9C8;border-radius:20px;padding:24px;box-shadow:12px 12px 0 #E3D6AE;transition:transform .2s}.ds-cat:hover{transform:translate(-3px,-3px);box-shadow:15px 15px 0 #E3D6AE}.ds-cat__n{font-family:'Old Standard TT','Times New Roman',serif;font-size:22px;font-weight:700;line-height:1.25;color:#1B1F1C}.ds-cat__c{font-family:'Golos Text',system-ui,sans-serif;font-size:14px;color:#1B1F1C;margin-top:6px}.ds-cat svg{position:absolute;right:20px;bottom:16px;width:140px;height:140px}"
+    },
+    {
+      "name": "Шапка",
+      "kind": "nav",
+      "refersTo": "utility-bar",
+      "description": "Три яруса: служебная полоса, главная строка, строка категорий.",
+      "html": "<header class=\"ds-hd\"><div class=\"ds-hd__u\">Выставить лот — бесплатно. Комиссия 1% только с продажи</div><div class=\"ds-hd__m\"><span class=\"ds-hd__s\">Поиск</span><span class=\"ds-hd__l\">auction<i></i></span><span class=\"ds-hd__a\">Войти</span></div><nav class=\"ds-hd__c\"><a>Монеты</a><a>Боны</a><a>Марки</a><a>Значки</a><a>Фарфор</a><a class=\"ds-hd__live\">Идут сейчас</a></nav></header>",
+      "css": ".ds-hd{font-family:'Golos Text',system-ui,sans-serif;background:#fff;width:100%}.ds-hd__u{background:#1D3B2A;color:#fff;font-size:13px;height:36px;display:flex;align-items:center;padding:0 24px}.ds-hd__m{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:72px;padding:0 24px}.ds-hd__s{color:#8A908B;border:1px solid #E5E1D8;border-radius:999px;padding:10px 20px;justify-self:start}.ds-hd__l{font-family:'Old Standard TT','Times New Roman',serif;font-size:30px;color:#1B1F1C}.ds-hd__a{justify-self:end;color:#1D3B2A;font-weight:600}.ds-hd__c{display:flex;justify-content:center;gap:32px;height:48px;align-items:center;border-top:1px solid #E5E1D8;border-bottom:1px solid #E5E1D8}.ds-hd__c a{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#1B1F1C;cursor:pointer}.ds-hd__c a:hover{box-shadow:inset 0 -2px #1D3B2A}.ds-hd__c .ds-hd__live{color:#C3161C}.ds-hd__l i{display:inline-block;width:7px;height:7px;border-radius:50%;background:#C3161C;margin-left:6px;transform:translateY(-2px)}"
+    },
+    {
+      "name": "Бирка лота",
+      "kind": "custom",
+      "refersTo": "lot-tag",
+      "description": "Ярлык под паспарту в коллаже сургучного хиро: цена, время, вспышка при ставке, «Продлено +5 мин».",
+      "html": "<div style=\"background:#C3161C;padding:32px\"><div class=\"ds-tag\"><span class=\"ds-tag__n\">Самовар «рюмка», Тула</span><span class=\"ds-tag__r\"><span class=\"ds-tag__p\">7 450 ₽</span><span class=\"ds-tag__t\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 6v6l4 2\"/></svg>05:00</span></span><span class=\"ds-tag__x\">Продлено +5 мин</span></div></div>",
+      "css": ".ds-tag{position:relative;display:inline-block;min-width:180px;max-width:250px;background:#fff;color:#1B1F1C;border-radius:4px;padding:10px 12px 10px 26px;box-shadow:0 1px 2px rgba(60,4,6,.2),0 10px 22px -10px rgba(60,4,6,.5);transform:rotate(3deg);font-family:'Golos Text',system-ui,sans-serif;transition:background .5s}.ds-tag:hover{background:#E4EBDF}.ds-tag::before{content:'';position:absolute;left:10px;top:50%;width:7px;height:7px;margin-top:-4px;border-radius:50%;border:1.5px solid #CFC9BC}.ds-tag__n{display:block;font-size:13px;font-weight:500;color:#5D645F;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ds-tag__r{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-top:2px}.ds-tag__p{font-size:18px;font-weight:600;font-variant-numeric:tabular-nums}.ds-tag__t{display:inline-flex;gap:4px;align-items:center;font-size:13px;font-weight:500;color:#C3161C;font-variant-numeric:tabular-nums}.ds-tag__x{display:block;margin-top:4px;font-size:12px;font-weight:600;color:#C3161C}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Лавка при дневном свете",
+    "overview": "Антикварная лавка с распахнутыми окнами: бутылочно-зелёная вывеска, латунь, шрифт старой русской книги и линейные иконки, но светлый прилавок и ровный дневной свет. Два регистра: многослойная пастельная витрина (главная, категории, баннеры) и плоский плотный прилавок (поиск, лот, ставки, кабинет, админка). Эталон витрины — принятый концепт «Сургучное поле» (frontend-ideas/07).",
+    "keyCharacteristics": [
+      "Светлый фон, вещи на фотоколодце",
+      "Зелёный — единственный цвет действия",
+      "Сургуч — только срочность торгов и закрытый список исключений",
+      "Пастели — отделы-категории",
+      "Old Standard TT для заголовков, Golos Text для рабочего",
+      "Многослойность только в витрине"
+    ],
+    "rules": [
+      {
+        "name": "Правило одного голоса",
+        "body": "Зелёный — единственный цвет действия; единственное неинтерактивное применение — итоговая сумма расчёта, одна на блок.",
+        "section": "colors"
+      },
+      {
+        "name": "Правило сургуча",
+        "body": "Красный — только время или событие торгов; одно красное хиро на страницу. Закрытый список исключений: сердце «в избранном», точка логотипа, ошибки форм.",
+        "section": "colors"
+      },
+      {
+        "name": "Правило прилавка",
+        "body": "Фото лота на прилавке всегда лежит на фотоколодце, не на пастели.",
+        "section": "colors"
+      },
+      {
+        "name": "Правило двух голосов",
+        "body": "Серифом говорит площадка, гротеском — торги.",
+        "section": "typography"
+      },
+      {
+        "name": "Правило табличных цифр",
+        "body": "Цены, ставки и таймеры набираются табличными цифрами.",
+        "section": "typography"
+      },
+      {
+        "name": "Правило плоского прилавка",
+        "body": "На экранах торгов нет теней в покое.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do держать фон страницы #FBFAF6, а фото лотов — на фотоколодце #F3F1EB; карточка лота своего фона не имеет",
+      "Do отдавать зелёному #1D3B2A каждое главное действие и только его",
+      "Do закреплять за категорией одну пастель и один линейный рисунок",
+      "Do строить главную по полиритму H → S → R → C → E → T → R → D → P",
+      "Do набирать цены, ставки и таймеры Golos Text с табличными цифрами",
+      "Do дублировать красный цвет срочности иконкой или словом",
+      "Do подписывать примерные лоты, цены и ставки на витрине и давать паузу живому демо",
+      "Do тонировать тень под цвет поля, на котором лежит слой"
+    ],
+    "donts": [
+      "Don't ставить красный вне срочности и событий торгов, кроме закрытого списка исключений",
+      "Don't класть фото лота на пастель на страницах прилавка",
+      "Don't набирать названия лотов, цены и таймеры серифом",
+      "Don't смешивать стили иконок",
+      "Don't выдумывать статистику, отзывы и логотипы партнёров",
+      "Don't использовать тени в покое на рабочих экранах",
+      "Don't ставить прописные «брови» над заголовками секций и хиро"
+    ]
+  }
+}

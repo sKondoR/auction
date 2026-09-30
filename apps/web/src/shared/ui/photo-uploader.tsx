@@ -70,10 +70,10 @@ export function PhotoUploader({
       <input type="hidden" name={name} value={photos.map((p) => p.id).join(",")} />
       <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
         {photos.map((p, i) => (
-          <div key={p.id} className={cn("group relative aspect-square overflow-hidden rounded-md border bg-muted", i === 0 && "ring-2 ring-accent")}>
+          <div key={p.id} className={cn("group relative aspect-square overflow-hidden rounded-md border bg-muted", i === 0 && "ring-2 ring-primary")}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={p.thumbUrl} alt="" className="h-full w-full object-cover" />
-            {i === 0 && <span className="absolute left-1 top-1 rounded-sm bg-accent px-1 text-[10px] text-white">обложка</span>}
+            {i === 0 && <span className="absolute left-1.5 top-1.5 rounded-xs bg-surface px-1.5 py-0.5 text-[0.6875rem] font-semibold uppercase tracking-[0.08em]">обложка</span>}
             <div className="absolute inset-x-0 bottom-0 flex justify-between bg-black/50 p-1 opacity-0 transition-opacity group-hover:opacity-100">
               <button type="button" onClick={() => move(i, -1)} className="text-white" aria-label="Левее">
                 <ArrowLeft className="h-4 w-4" />
@@ -96,7 +96,7 @@ export function PhotoUploader({
           <button
             type="button"
             onClick={() => input.current?.click()}
-            className="flex aspect-square flex-col items-center justify-center gap-1 rounded-md border border-dashed bg-surface text-xs text-muted-foreground hover:border-accent hover:text-foreground"
+            className="flex aspect-square flex-col items-center justify-center gap-1 rounded-md border border-dashed bg-surface text-xs text-muted-foreground hover:border-primary hover:text-foreground"
           >
             <ImagePlus className="h-6 w-6" />
             Добавить

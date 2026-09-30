@@ -1,23 +1,25 @@
 "use client";
 
+import { AlertCircle, Check } from "lucide-react";
 import { type ComponentProps, createContext, type ReactNode, useContext, useEffect, useRef, useTransition } from "react";
 import { useFormStatus } from "react-dom";
 import { cn } from "../lib";
 import { Button } from "./button";
 
+/** Поле по DESIGN.md: белое, рамка line, 8px, 48px; фокус — зелёная рамка и кольцо шалфейной дымки. */
 const control =
-  "w-full rounded-md border bg-surface px-3 text-sm placeholder:text-muted-foreground/70 disabled:opacity-60 focus:border-accent focus:outline-none";
+  "w-full rounded-md border border-border bg-surface px-4 text-base text-foreground transition-[border-color,box-shadow] duration-200 placeholder:text-faint hover:border-border-strong focus:border-primary focus:shadow-[0_0_0_3px_var(--color-sage-mist)] focus:outline-none disabled:opacity-60 aria-[invalid=true]:border-wax";
 
 export function Input({ className, ...props }: ComponentProps<"input">) {
-  return <input className={cn(control, "h-10", className)} {...props} />;
+  return <input className={cn(control, "h-12", className)} {...props} />;
 }
 
 export function Textarea({ className, ...props }: ComponentProps<"textarea">) {
-  return <textarea className={cn(control, "min-h-24 py-2", className)} {...props} />;
+  return <textarea className={cn(control, "min-h-28 py-3", className)} {...props} />;
 }
 
 export function Select({ className, ...props }: ComponentProps<"select">) {
-  return <select className={cn(control, "h-10", className)} {...props} />;
+  return <select className={cn(control, "h-12 cursor-pointer pr-10", className)} {...props} />;
 }
 
 export function Label({ className, ...props }: ComponentProps<"label">) {
@@ -39,15 +41,15 @@ export function Field({
     <div className={cn("flex flex-col gap-1.5", className)}>
       <span className="text-sm font-medium">{label}</span>
       {children}
-      {hint && <span className="text-xs text-muted-foreground">{hint}</span>}
+      {hint && <span className="text-sm text-muted-foreground">{hint}</span>}
     </div>
   );
 }
 
 export function Checkbox({ label, className, ...props }: ComponentProps<"input"> & { label: ReactNode }) {
   return (
-    <label className={cn("inline-flex items-center gap-2 text-sm cursor-pointer", className)}>
-      <input type="checkbox" className="h-4 w-4 accent-[var(--color-primary)]" {...props} />
+    <label className={cn("inline-flex min-h-11 cursor-pointer items-center gap-2.5 text-base", className)}>
+      <input type="checkbox" className="size-5 accent-[var(--color-primary)]" {...props} />
       {label}
     </label>
   );
@@ -96,7 +98,7 @@ export function SubmitButton({ children, pendingText, ...props }: ComponentProps
   const formPending = useContext(FormPendingContext);
   const pending = useFormStatus().pending || formPending;
   return (
-    <Button type="submit" disabled={pending || props.disabled} {...props}>
+    <Button type="submit" disabled={pending || props.disabled} aria-busy={pending || undefined} {...props}>
       {pending ? (pendingText ?? "Подождите…") : children}
     </Button>
   );
@@ -105,10 +107,20 @@ export function SubmitButton({ children, pendingText, ...props }: ComponentProps
 export function FormMessage({ state }: { state: { ok: boolean; error?: string; message?: string } | null | undefined }) {
   if (!state) return null;
   if (!state.ok && state.error) {
-    return <p className="rounded-md bg-danger-soft px-3 py-2 text-sm text-danger" role="alert">{state.error}</p>;
+    return (
+      <p className="flex items-start gap-2 text-[0.9375rem] text-wax" role="alert">
+        <AlertCircle className="mt-0.5 size-4 shrink-0" strokeWidth={1.5} />
+        {state.error}
+      </p>
+    );
   }
   if (state.ok && state.message) {
-    return <p className="rounded-md bg-success-soft px-3 py-2 text-sm text-success">{state.message}</p>;
+    return (
+      <p className="flex items-start gap-2 text-[0.9375rem] text-success" role="status">
+        <Check className="mt-0.5 size-4 shrink-0" strokeWidth={1.5} />
+        {state.message}
+      </p>
+    );
   }
   return null;
 }

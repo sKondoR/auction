@@ -39,11 +39,11 @@ export async function NotificationsPage() {
               </>
             );
             return n.link ? (
-              <Link key={n.id} href={n.link} className={cn("block px-4 py-3 hover:bg-muted/50", !n.readAt && "bg-accent-soft/40")}>
+              <Link key={n.id} href={n.link} className={cn("block px-4 py-3 hover:bg-sage-mist", !n.readAt && "bg-sage-mist/60")}>
                 {body}
               </Link>
             ) : (
-              <div key={n.id} className={cn("px-4 py-3", !n.readAt && "bg-accent-soft/40")}>
+              <div key={n.id} className={cn("px-4 py-3", !n.readAt && "bg-sage-mist/60")}>
                 {body}
               </div>
             );

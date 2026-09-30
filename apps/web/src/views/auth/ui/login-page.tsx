@@ -10,7 +10,7 @@ export async function LoginPage({ next }: { next?: string }) {
     <div className="mx-auto mt-6 max-w-md">
       <Card>
         <CardSection className="p-6 sm:p-8">
-          <h1 className="text-2xl font-semibold">Вход и регистрация</h1>
+          <h1 className="headline">Вход и регистрация</h1>
           <p className="mb-6 mt-1 text-sm text-muted-foreground">По номеру телефона — без пароля. Новый аккаунт создаётся автоматически.</p>
           <PhoneLoginForm next={safeNext} />
           {process.env.NODE_ENV !== "production" && (

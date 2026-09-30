@@ -3,7 +3,7 @@ import { incrementViews, recentlyViewed, recordView, sellerAlsoSells, similarLot
 import { Lock, MapPin, Truck } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { FormatBadge, LotGrid, LotStatusBadge } from "@/entities/lot";
+import { FormatBadge, LotRow, LotStatusBadge } from "@/entities/lot";
 import { getLotDetails } from "@/entities/lot/server";
 import { RatingBadge, UserLink } from "@/entities/user";
 import { removeLotAction } from "@/features/admin";
@@ -43,13 +43,13 @@ export async function LotPage({ id, flash }: { id: number; flash?: string }) {
   const hasSales = lot.bidCount > 0 || lot.quantitySold > 0;
 
   return (
-    <div className="flex flex-col gap-8">
-      {flash && <p className="rounded-md bg-success-soft px-4 py-3 text-sm text-success">{flash}</p>}
+    <div className="flex flex-col gap-10">
+      {flash && <p role="status" className="rounded-lg bg-success-soft px-4 py-3 text-success">{flash}</p>}
       {lot.status === "removed" && (
-        <p className="rounded-md bg-danger-soft px-4 py-3 text-sm text-danger">Лот снят модератором: {lot.removedReason}</p>
+        <p className="rounded-lg bg-wax-soft px-4 py-3 text-wax-deep">Лот снят модератором: {lot.removedReason}</p>
       )}
 
-      <nav className="text-sm text-muted-foreground">
+      <nav aria-label="Хлебные крошки" className="-mb-4 text-sm text-muted-foreground">
         <Link href="/search" className="hover:text-foreground">
           Лоты
         </Link>{" "}
@@ -59,23 +59,23 @@ export async function LotPage({ id, flash }: { id: number; flash?: string }) {
         </Link>
       </nav>
 
-      <div className="grid gap-8 lg:grid-cols-[1fr_380px]">
-        <div className="flex min-w-0 flex-col gap-6">
+      <div className="grid gap-8 lg:grid-cols-12 lg:gap-6">
+        <div className="flex min-w-0 flex-col gap-8 lg:col-span-7">
           <LotGallery photos={d.photos} title={lot.title} />
           <div>
-            <div className="mb-2 flex flex-wrap items-center gap-2">
-              <FormatBadge format={lot.format} />
+            <div className="mb-3 flex flex-wrap items-center gap-2">
+              <FormatBadge format={lot.format} className="border border-border" />
               <LotStatusBadge status={lot.status} format={lot.format} startsAt={lot.startsAt} endsAt={lot.endsAt} />
-              <span className="text-xs text-muted-foreground">Лот №{lot.id}</span>
+              <span className="tabular text-sm text-muted-foreground">Лот №{lot.id}</span>
             </div>
-            <h1 className="text-2xl font-semibold sm:text-3xl">{lot.title}</h1>
+            <h1 className="headline">{lot.title}</h1>
           </div>
 
           {d.attributes.length > 0 && (
-            <dl className="grid grid-cols-2 gap-x-6 gap-y-2 rounded-lg border bg-surface p-4 text-sm sm:grid-cols-3">
+            <dl className="grid grid-cols-2 gap-x-6 gap-y-4 rounded-lg border border-border bg-surface p-4 sm:grid-cols-3 sm:p-6">
               {d.attributes.map((a) => (
                 <div key={a.name}>
-                  <dt className="text-muted-foreground">{a.name}</dt>
+                  <dt className="text-sm text-muted-foreground">{a.name}</dt>
                   <dd className="font-medium">{a.value}</dd>
                 </div>
               ))}
@@ -83,22 +83,22 @@ export async function LotPage({ id, flash }: { id: number; flash?: string }) {
           )}
 
           <section>
-            <h2 className="mb-2 text-xl font-semibold">Описание</h2>
-            <div className="whitespace-pre-line leading-relaxed">{lot.description || <span className="text-muted-foreground">Продавец не добавил описание.</span>}</div>
+            <h2 className="mb-3 font-serif text-[1.375rem] font-bold leading-tight">Описание</h2>
+            <div className="max-w-[70ch] whitespace-pre-line">{lot.description || <span className="text-muted-foreground">Продавец не добавил описание.</span>}</div>
             {d.addenda.map((a) => (
-              <div key={a.id} className="mt-4 border-l-2 border-accent bg-accent-soft/50 px-4 py-3">
-                <p className="text-xs font-medium text-muted-foreground">Дополнение от {formatDateTime(a.createdAt)}</p>
+              <div key={a.id} className="mt-4 max-w-[70ch] rounded-lg bg-brass-soft px-4 py-3">
+                <p className="text-sm font-medium text-muted-foreground">Дополнение от {formatDateTime(a.createdAt)}</p>
                 <p className="mt-1 whitespace-pre-line">{a.text}</p>
               </div>
             ))}
           </section>
 
-          <section className="grid gap-3 rounded-lg border bg-surface p-4 text-sm sm:grid-cols-2">
+          <section className="grid gap-3 rounded-lg border border-border bg-surface p-4 sm:grid-cols-2 sm:p-6">
             <p className="flex items-start gap-2">
-              <MapPin className="mt-0.5 h-4 w-4 text-muted-foreground" /> {lot.city}
+              <MapPin className="mt-0.5 size-5 shrink-0 text-muted-foreground" strokeWidth={1.5} /> {lot.city}
             </p>
             <div className="flex items-start gap-2">
-              <Truck className="mt-0.5 h-4 w-4 text-muted-foreground" />
+              <Truck className="mt-0.5 size-5 shrink-0 text-muted-foreground" strokeWidth={1.5} />
               <div>
                 <p>{lot.deliveryMethods.map((m) => DELIVERY_METHOD_LABELS[m as DeliveryMethod] ?? m).join(", ")}</p>
                 {lot.deliveryCost && <p className="text-muted-foreground">{lot.deliveryCost}</p>}
@@ -108,16 +108,16 @@ export async function LotPage({ id, flash }: { id: number; flash?: string }) {
 
           {lot.format === "english" && (
             <section>
-              <h2 className="mb-3 text-xl font-semibold">История ставок</h2>
+              <h2 className="mb-4 font-serif text-[1.375rem] font-bold leading-tight">История ставок</h2>
               {d.bids.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Ставок пока нет — начните торги.</p>
+                <p className="text-muted-foreground">Ставок пока нет — начните торги.</p>
               ) : (
-                <div className="overflow-hidden rounded-lg border bg-surface">
-                  <table className="w-full text-sm">
+                <div className="overflow-hidden rounded-lg border border-border bg-surface">
+                  <table className="tabular w-full text-[0.9375rem]">
                     <tbody>
                       {d.bids.map((b, i) => (
-                        <tr key={b.id} className={b.cancelledAt ? "text-muted-foreground line-through" : i === 0 ? "bg-success-soft/40" : ""}>
-                          <td className="px-3 py-2">
+                        <tr key={b.id} className={b.cancelledAt ? "text-muted-foreground line-through" : i === 0 ? "bg-sage-mist" : ""}>
+                          <td className="px-4 py-3">
                             {b.bidderId === viewer?.id ? <b>Вы</b> : b.bidderName}
                             {b.isAuto && <Badge className="ml-2">авто</Badge>}
                             {b.cancelledAt && (
@@ -126,8 +126,8 @@ export async function LotPage({ id, flash }: { id: number; flash?: string }) {
                               </span>
                             )}
                           </td>
-                          <td className="tabular px-3 py-2 text-right font-medium">{formatRub(b.amount)}</td>
-                          <td className="px-3 py-2 text-right text-xs text-muted-foreground">{formatDateTime(b.createdAt)}</td>
+                          <td className="px-4 py-3 text-right font-semibold">{formatRub(b.amount)}</td>
+                          <td className="px-4 py-3 text-right text-sm text-muted-foreground">{formatDateTime(b.createdAt)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -135,7 +135,7 @@ export async function LotPage({ id, flash }: { id: number; flash?: string }) {
                 </div>
               )}
               {isSeller && phase === "open" && activeBidders.size > 0 && (
-                <div className="mt-3 rounded-md border bg-surface p-3 text-sm">
+                <div className="mt-3 rounded-lg border border-border bg-surface p-4">
                   <p className="mb-2 text-muted-foreground">Отмена ставок участника (с указанием причины):</p>
                   <ul className="flex flex-col gap-1">
                     {[...activeBidders].map(([bidderId, name]) => (
@@ -152,12 +152,12 @@ export async function LotPage({ id, flash }: { id: number; flash?: string }) {
           )}
 
           <section id="questions">
-            <h2 className="mb-3 text-xl font-semibold">Вопросы и ответы</h2>
+            <h2 className="mb-4 font-serif text-[1.375rem] font-bold leading-tight">Вопросы и ответы</h2>
             <div className="flex flex-col gap-3">
-              {d.questions.length === 0 && <p className="text-sm text-muted-foreground">Вопросов пока нет.</p>}
+              {d.questions.length === 0 && <p className="text-muted-foreground">Вопросов пока нет.</p>}
               {d.questions.map((q) => (
-                <div key={q.id} className="rounded-lg border bg-surface p-4 text-sm">
-                  <p className="flex items-center gap-2 text-xs text-muted-foreground">
+                <div key={q.id} className="rounded-lg border border-border bg-surface p-4 sm:p-5">
+                  <p className="flex items-center gap-2 text-sm text-muted-foreground">
                     {q.askerName} · {formatDateTime(q.createdAt)}
                     {q.isPrivate && (
                       <span className="inline-flex items-center gap-1 text-warning">
@@ -167,22 +167,22 @@ export async function LotPage({ id, flash }: { id: number; flash?: string }) {
                   </p>
                   <p className="mt-1">{q.text}</p>
                   {q.answer ? (
-                    <div className="mt-2 border-l-2 border-primary pl-3">
-                      <p className="text-xs text-muted-foreground">Ответ продавца · {formatDateTime(q.answeredAt!)}</p>
+                    <div className="mt-3 rounded-md bg-well px-4 py-3">
+                      <p className="text-sm text-muted-foreground">Ответ продавца · {formatDateTime(q.answeredAt!)}</p>
                       <p>{q.answer}</p>
                     </div>
                   ) : isSeller ? (
                     <AnswerQuestionForm questionId={q.id} lotId={lot.id} />
                   ) : (
-                    <p className="mt-1 text-xs text-muted-foreground">Ожидает ответа продавца</p>
+                    <p className="mt-1 text-sm text-muted-foreground">Ожидает ответа продавца</p>
                   )}
                   {viewer && !isSeller && <div className="mt-2"><ComplainButton targetType="question" targetId={q.id} /></div>}
                 </div>
               ))}
               {viewer && !isSeller && lot.status !== "removed" && <AskQuestionForm lotId={lot.id} />}
               {!viewer && (
-                <p className="text-sm">
-                  <Link href={`/login?next=/lots/${lot.id}`} className="text-primary underline">
+                <p>
+                  <Link href={`/login?next=/lots/${lot.id}`} className="font-medium text-primary underline">
                     Войдите
                   </Link>
                   , чтобы задать вопрос.
@@ -192,7 +192,7 @@ export async function LotPage({ id, flash }: { id: number; flash?: string }) {
           </section>
         </div>
 
-        <aside className="flex flex-col gap-4 lg:sticky lg:top-4 lg:self-start">
+        <aside className="flex flex-col gap-4 lg:sticky lg:top-24 lg:col-span-5 lg:self-start">
           <Card>
             <CardSection>
               <TradePanel
@@ -217,30 +217,30 @@ export async function LotPage({ id, flash }: { id: number; flash?: string }) {
                 viewer={viewer ? { id: viewer.id, phoneVerified: viewer.phoneNumberVerified } : null}
               />
             </CardSection>
-            <div className="flex flex-wrap items-center justify-between gap-2 border-t px-4 py-3">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border px-4 py-2 sm:px-6">
               <FavoriteButton lotId={lot.id} initial={d.isFavorite} loggedIn={!!viewer} />
               {viewer && !isSeller && <ComplainButton targetType="lot" targetId={lot.id} />}
             </div>
             {!isSeller && (
-              <div className="border-t p-3">
+              <div className="border-t border-border p-4 sm:px-6">
                 <ContactSellerForm lotId={lot.id} sellerId={lot.sellerId} loggedIn={!!viewer} />
               </div>
             )}
           </Card>
 
           <Card>
-            <CardSection className="flex flex-col gap-1 text-sm">
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">Продавец</p>
+            <CardSection className="flex flex-col gap-1.5">
+              <p className="label-caps text-muted-foreground">Продавец</p>
               <UserLink id={d.seller.id} name={d.seller.name} deleted={d.seller.deleted} />
               <RatingBadge {...d.sellerRating} />
-              <p className="text-xs text-muted-foreground">На площадке с {formatDate(d.seller.createdAt)}</p>
+              <p className="text-sm text-muted-foreground">На площадке с {formatDate(d.seller.createdAt)}</p>
             </CardSection>
           </Card>
 
           {isSeller && (
             <Card>
               <CardSection className="flex flex-col gap-3">
-                <p className="text-sm font-medium">Управление лотом</p>
+                <p className="font-serif text-[1.375rem] font-bold leading-tight">Управление лотом</p>
                 {phase === "open" ? (
                   <div className="flex flex-wrap gap-2">
                     <ButtonLink href={`/lots/${lot.id}/edit`} variant="outline" size="sm">
@@ -258,15 +258,15 @@ export async function LotPage({ id, flash }: { id: number; flash?: string }) {
                 ) : (
                   <p className="text-sm text-muted-foreground">Торги завершены.</p>
                 )}
-                <p className="text-xs text-muted-foreground">Просмотров: {lot.viewCount}</p>
+                <p className="tabular text-sm text-muted-foreground">Просмотров: {lot.viewCount}</p>
               </CardSection>
             </Card>
           )}
 
           {canModerate && lot.status !== "removed" && (
-            <Card className="border-danger/40">
+            <Card>
               <CardSection>
-                <p className="mb-2 text-sm font-medium text-danger">Модерация</p>
+                <p className="mb-3 font-serif text-[1.375rem] font-bold leading-tight">Модерация</p>
                 <ActionForm action={removeLotAction} submit="Снять лот" submitVariant="danger" confirmText="Снять лот с торгов?">
                   <input type="hidden" name="lotId" value={lot.id} />
                   <Input name="reason" placeholder="Причина (увидит продавец)" required />
@@ -279,20 +279,20 @@ export async function LotPage({ id, flash }: { id: number; flash?: string }) {
 
       {alsoSells.length > 0 && (
         <section>
-          <h2 className="mb-4 text-xl font-semibold">Продавец также продаёт</h2>
-          <LotGrid lots={alsoSells.slice(0, 5)} />
+          <h2 className="section-title mb-8">Продавец также продаёт</h2>
+          <LotRow lots={alsoSells} />
         </section>
       )}
       {similar.length > 0 && (
         <section>
-          <h2 className="mb-4 text-xl font-semibold">Похожие лоты</h2>
-          <LotGrid lots={similar.slice(0, 5)} />
+          <h2 className="section-title mb-8">Похожие лоты</h2>
+          <LotRow lots={similar} />
         </section>
       )}
       {viewed.length > 0 && (
         <section>
-          <h2 className="mb-4 text-xl font-semibold">Вы недавно смотрели</h2>
-          <LotGrid lots={viewed.slice(0, 5)} />
+          <h2 className="section-title mb-8">Вы недавно смотрели</h2>
+          <LotRow lots={viewed} />
         </section>
       )}
     </div>

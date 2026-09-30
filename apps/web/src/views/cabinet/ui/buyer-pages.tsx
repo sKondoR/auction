@@ -36,9 +36,9 @@ export async function CabinetOverviewPage() {
       )}
       <div className="grid gap-3 sm:grid-cols-3">
         {tiles.map((t) => (
-          <Link key={t.label} href={t.href} className="rounded-lg border bg-surface p-4 hover:border-accent">
+          <Link key={t.label} href={t.href} className="rounded-lg border border-border bg-surface p-4 transition-colors hover:border-border-strong hover:bg-sage-mist/40">
             <p className="text-sm text-muted-foreground">{t.label}</p>
-            <p className="tabular mt-1 font-serif text-3xl">{t.value}</p>
+            <p className="tabular mt-1 text-3xl font-semibold">{t.value}</p>
           </Link>
         ))}
       </div>

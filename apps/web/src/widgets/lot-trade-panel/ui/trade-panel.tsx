@@ -1,11 +1,12 @@
 "use client";
 
 import { type BidStepGrid, type LotFormat, type LotStatus, isBlitzAvailable, lotPhase, minNextBid } from "@auction/domain";
-import { Crown } from "lucide-react";
+import { Clock, Crown } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { Countdown, useLotLive } from "@/entities/lot";
 import { BidForm, BlitzForm, BuyFixedForm, OfferForm } from "@/features/lot-trading";
-import { formatDateTime, formatRub, plural } from "@/shared/lib";
+import { cn, formatDateTime, formatRub, plural } from "@/shared/lib";
 import { ButtonLink } from "@/shared/ui";
 
 export interface TradePanelProps {
@@ -48,13 +49,22 @@ export function TradePanel({ lot, bidSteps, viewer }: TradePanelProps) {
   const state = { startPrice: lot.startPrice, currentPrice: live.currentPrice, leaderId: live.leaderId, leaderMax: null };
   const minBid = minNextBid(state, bidSteps);
   const available = lot.quantity - (live.quantitySold ?? lot.quantitySold);
+  const [now, setNow] = useState<number | null>(null);
+  useEffect(() => {
+    setNow(Date.now());
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
+  const leftMs = now === null ? Infinity : new Date(live.endsAt).getTime() - now;
+  /** Последние 5 минут: срочная кнопка ставки и подсветка таймера (DESIGN.md → сургуч). */
+  const lastMinutes = phase === "open" && leftMs > 0 && leftMs <= 5 * 60_000;
 
   const cta = !viewer ? (
     <ButtonLink href={`/login?next=/lots/${lot.id}`} size="lg" className="w-full">
       Войдите, чтобы {lot.format === "english" ? "сделать ставку" : "купить"}
     </ButtonLink>
   ) : isSeller ? (
-    <p className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">Это ваш лот.</p>
+    <p className="rounded-md bg-well px-4 py-3 text-muted-foreground">Это ваш лот.</p>
   ) : null;
 
   return (
@@ -63,24 +73,24 @@ export function TradePanel({ lot, bidSteps, viewer }: TradePanelProps) {
         <>
           <div>
             <p className="text-sm text-muted-foreground">{live.currentPrice === null ? "Стартовая цена" : "Текущая ставка"}</p>
-            <p className="tabular font-serif text-4xl font-semibold">{formatRub(live.currentPrice ?? lot.startPrice)}</p>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="tabular text-4xl font-semibold leading-tight">{formatRub(live.currentPrice ?? lot.startPrice)}</p>
+            <p className="tabular mt-1 text-sm text-muted-foreground">
               {live.bidCount > 0 ? `${live.bidCount} ${plural(live.bidCount, "ставка", "ставки", "ставок")}` : "Ставок пока нет"}
             </p>
           </div>
           {isLeader && phase === "open" && (
-            <p className="flex items-center gap-2 rounded-md bg-success-soft px-3 py-2 text-sm text-success">
-              <Crown className="h-4 w-4" /> Вы лидируете{lot.leaderMax ? `, автоставка до ${formatRub(lot.leaderMax)}` : ""}
+            <p className="flex items-center gap-2 rounded-md bg-sage-mist px-4 py-3 text-[0.9375rem] font-medium text-primary">
+              <Crown className="size-5 shrink-0" strokeWidth={1.5} /> Вы лидируете{lot.leaderMax ? `, автоставка до ${formatRub(lot.leaderMax)}` : ""}
             </p>
           )}
           {!isLeader && viewer && !isSeller && live.leaderId && phase === "open" && lot.bidCount > 0 && (
-            <p className="text-sm text-muted-foreground">Лидирует другой участник.</p>
+            <p className="text-[0.9375rem] text-muted-foreground">Лидирует другой участник.</p>
           )}
         </>
       ) : (
         <div>
           <p className="text-sm text-muted-foreground">Цена{lot.quantity > 1 ? " за штуку" : ""}</p>
-          <p className="tabular font-serif text-4xl font-semibold">{formatRub(lot.startPrice)}</p>
+          <p className="tabular text-4xl font-semibold leading-tight">{formatRub(lot.startPrice)}</p>
           {lot.quantity > 1 && (
             <p className="mt-1 text-sm text-muted-foreground">
               В наличии {available} из {lot.quantity} шт.
@@ -89,11 +99,11 @@ export function TradePanel({ lot, bidSteps, viewer }: TradePanelProps) {
         </div>
       )}
 
-      <div className="flex items-center justify-between rounded-md bg-muted/60 px-3 py-2 text-sm">
+      <div className={cn("flex min-h-12 items-center justify-between gap-3 rounded-md px-4 py-2 text-[0.9375rem] transition-colors", lastMinutes ? "bg-wax-soft" : "bg-well")}>
         {phase === "open" ? (
           <>
             <span className="text-muted-foreground">{lot.format === "english" ? "До окончания торгов" : "До окончания размещения"}</span>
-            <Countdown endsAt={live.endsAt} className="text-base" />
+            <Countdown endsAt={live.endsAt} className="text-lg font-semibold" />
           </>
         ) : phase === "upcoming" ? (
           <span>Начало: {formatDateTime(lot.startsAt)}</span>
@@ -102,8 +112,11 @@ export function TradePanel({ lot, bidSteps, viewer }: TradePanelProps) {
         )}
       </div>
       {lot.format === "english" && phase === "open" && (
-        <p className="-mt-2 text-xs text-muted-foreground">
-          Окончание: {formatDateTime(live.endsAt)} МСК. Ставка в последние 5 минут продлевает торги на 5 минут.
+        <p className="-mt-2 flex items-start gap-2 text-sm text-muted-foreground">
+          <Clock className="mt-0.5 size-4 shrink-0" strokeWidth={1.5} aria-hidden />
+          <span>
+            Окончание: {formatDateTime(live.endsAt)} МСК. Ставка в последние 5 минут продлевает торги на 5 минут.
+          </span>
         </p>
       )}
 
@@ -111,7 +124,7 @@ export function TradePanel({ lot, bidSteps, viewer }: TradePanelProps) {
         (cta ??
           (lot.format === "english" ? (
             <>
-              <BidForm lotId={lot.id} minBid={minBid} currentMax={isLeader ? lot.leaderMax : null} />
+              <BidForm lotId={lot.id} minBid={minBid} currentMax={isLeader ? lot.leaderMax : null} urgent={lastMinutes} />
               {isBlitzAvailable(lot.blitzPrice, live.currentPrice) && <BlitzForm lotId={lot.id} price={lot.blitzPrice!} />}
             </>
           ) : (
@@ -122,7 +135,7 @@ export function TradePanel({ lot, bidSteps, viewer }: TradePanelProps) {
           )))}
 
       {phase === "open" && viewer && !isSeller && !viewer.phoneVerified && (
-        <p className="text-sm text-warning">
+        <p className="text-[0.9375rem] text-warning">
           Подтвердите телефон, чтобы участвовать в торгах. <Link href="/cabinet/settings" className="underline">Настройки</Link>
         </p>
       )}

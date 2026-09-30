@@ -193,13 +193,13 @@ export async function CabinetInvoicesPage() {
         <Card>
           <CardSection>
             <p className="text-sm text-muted-foreground">Начислено, ещё не в счёте</p>
-            <p className="tabular font-serif text-3xl">{formatRub(balance)}</p>
+            <p className="tabular text-3xl font-semibold">{formatRub(balance)}</p>
           </CardSection>
         </Card>
         <Card className={unpaid.some((i) => i.status === "overdue") ? "border-danger" : undefined}>
           <CardSection>
             <p className="text-sm text-muted-foreground">К оплате по счетам</p>
-            <p className="tabular font-serif text-3xl">{formatRub(unpaid.reduce((s, i) => s + i.amount, 0))}</p>
+            <p className="tabular text-3xl font-semibold">{formatRub(unpaid.reduce((s, i) => s + i.amount, 0))}</p>
           </CardSection>
         </Card>
       </div>

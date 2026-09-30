@@ -47,9 +47,9 @@ export async function SearchPage({ searchParams }: { searchParams: Params }) {
   };
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
-      <aside>
-        <form action="/search" className="flex flex-col gap-4 rounded-lg border bg-surface p-4">
+    <div className="grid gap-8 lg:grid-cols-12 lg:gap-6">
+      <aside className="lg:col-span-3">
+        <form action="/search" className="flex flex-col gap-4 rounded-lg border border-border bg-surface p-4 sm:p-6">
           <Field label="Запрос">
             <Input name="q" defaultValue={filters.q} placeholder="Например: рубль 1924" />
           </Field>
@@ -110,15 +110,15 @@ export async function SearchPage({ searchParams }: { searchParams: Params }) {
               {filters.q && <option value="relevance">По релевантности</option>}
             </Select>
           </Field>
-          <Button type="submit">Показать</Button>
+          <Button type="submit" className="w-full">Показать</Button>
         </form>
       </aside>
 
-      <div>
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <h1 className="text-2xl font-semibold">
+      <div className="lg:col-span-9">
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+          <h1 className="headline">
             {filters.q ? `«${filters.q}»` : filters.status === "ended" ? "Архив торгов" : "Лоты"}
-            <span className="ml-2 text-base font-normal text-muted-foreground">
+            <span className="tabular ml-3 font-sans text-base font-normal tracking-normal text-muted-foreground">
               {result.total} {plural(result.total, "лот", "лота", "лотов")}
             </span>
           </h1>
@@ -126,7 +126,7 @@ export async function SearchPage({ searchParams }: { searchParams: Params }) {
         </div>
         {result.items.length ? (
           <>
-            <LotGrid lots={result.items} />
+            <LotGrid lots={result.items} className="lg:grid-cols-3 xl:grid-cols-4" />
             <Pagination page={page} total={result.total} pageSize={pageSize} href={href} />
           </>
         ) : (

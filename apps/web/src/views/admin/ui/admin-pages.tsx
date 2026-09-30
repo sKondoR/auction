@@ -96,7 +96,7 @@ export async function AdminDashboardPage() {
           <Card key={label}>
             <CardSection>
               <p className="text-sm text-muted-foreground">{label}</p>
-              <p className="tabular font-serif text-3xl">{Number(n ?? 0)}</p>
+              <p className="tabular text-3xl font-semibold">{Number(n ?? 0)}</p>
             </CardSection>
           </Card>
         ))}
@@ -164,7 +164,7 @@ export async function AdminComplaintsPage({ status }: { status?: string }) {
                     )}
                   </p>
                   <p>{c.reason}</p>
-                  {quoted && <blockquote className="border-l-2 pl-3 text-muted-foreground">{quoted}</blockquote>}
+                  {quoted && <blockquote className="rounded-md bg-well px-3 py-2 text-muted-foreground">{quoted}</blockquote>}
                   {c.resolution && <p className="text-muted-foreground">Решение: {c.resolution}</p>}
                   {c.status === "open" && (
                     <div className="flex flex-wrap gap-4">

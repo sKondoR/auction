@@ -1,5 +1,5 @@
 import { isStaff } from "@auction/domain";
-import { Bell, Gavel, MessageSquare, Plus, Search, User } from "lucide-react";
+import { Bell, Clock, Heart, Menu, MessageCircle, Plus, Search, User } from "lucide-react";
 import Link from "next/link";
 import { getCategoryTree } from "@/entities/category/server";
 import { unreadConversationCount } from "@/entities/conversation/server";
@@ -9,15 +9,32 @@ import { getViewer } from "@/shared/api";
 import { ButtonLink } from "@/shared/ui";
 import { UserLive } from "./user-live";
 
-function CountDot({ n }: { n: number }) {
+const iconBtn =
+  "relative inline-grid size-11 place-items-center rounded-full text-foreground transition-colors hover:bg-sage-mist [&_svg]:size-5";
+
+function CountDot({ n, label }: { n: number; label: string }) {
   if (n <= 0) return null;
   return (
-    <span className="absolute -right-1 -top-1 min-w-4 rounded-full bg-primary px-1 text-center text-[10px] font-semibold leading-4 text-primary-foreground">
+    <span className="tabular absolute right-0.5 top-0.5 min-w-5 rounded-full bg-primary px-1 text-center text-[0.6875rem] font-semibold leading-5 text-primary-foreground">
       {n > 99 ? "99+" : n}
+      <span className="sr-only"> {label}</span>
     </span>
   );
 }
 
+function Logo() {
+  return (
+    <Link href="/" aria-label="Аукцион — на главную" className="flex items-baseline gap-1.5 font-serif text-[1.625rem] leading-none text-foreground md:text-[2rem]">
+      Аукцион
+      <i aria-hidden className="inline-block size-[7px] -translate-y-0.5 rounded-full bg-wax" />
+    </Link>
+  );
+}
+
+/**
+ * Шапка в три яруса (DESIGN.md → Layout → Шапка): служебная полоса, липкая главная строка,
+ * строка категорий. Возвращает соседние элементы, чтобы главная строка липла к окну.
+ */
 export async function Header() {
   const viewer = await getViewer();
   const [tree, notif, msgs] = await Promise.all([
@@ -27,103 +44,197 @@ export async function Header() {
   ]);
 
   return (
-    <header className="border-b bg-surface">
-      <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4">
-        <Link href="/" className="flex shrink-0 items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-            <Gavel className="h-4 w-4" />
+    <>
+      <div className="bg-primary text-[0.8125rem] leading-tight text-white">
+        <div className="wrap flex min-h-9 items-center justify-between gap-6">
+          <span className="truncate">
+            <span className="hidden sm:inline">Выставить лот — бесплатно. Комиссия 1% только с продажи</span>
+            <span className="sm:hidden">Лот бесплатно · 1% с продажи</span>
           </span>
-          <span className="hidden font-serif text-xl font-semibold sm:inline">Аукцион</span>
-        </Link>
-
-        <form action="/search" className="relative mx-2 flex-1">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <input
-            name="q"
-            placeholder="Монеты, банкноты, фарфор…"
-            className="h-10 w-full rounded-md border bg-background pl-9 pr-3 text-sm focus:border-accent focus:outline-none"
-          />
-        </form>
-
-        <ButtonLink href="/lots/new" size="md" className="hidden md:inline-flex">
-          <Plus className="h-4 w-4" /> Продать
-        </ButtonLink>
-
-        {viewer ? (
-          <div className="flex items-center gap-1">
-            <UserLive />
-            <Link href="/messages" className="relative rounded-md p-2 hover:bg-muted" aria-label="Сообщения">
-              <MessageSquare className="h-5 w-5" />
-              <CountDot n={msgs} />
+          <nav aria-label="Служебное меню" className="hidden gap-6 md:flex">
+            <Link href="/buyout/new" className="opacity-90 hover:underline hover:opacity-100">
+              Продать администрации
             </Link>
-            <Link href="/notifications" className="relative rounded-md p-2 hover:bg-muted" aria-label="Уведомления">
-              <Bell className="h-5 w-5" />
-              <CountDot n={notif} />
+            <Link href="/rules" className="opacity-90 hover:underline hover:opacity-100">
+              Помощь
             </Link>
-            <details className="relative">
-              <summary className="flex cursor-pointer list-none items-center gap-2 rounded-md p-2 hover:bg-muted">
-                <User className="h-5 w-5" />
-                <span className="hidden max-w-32 truncate text-sm lg:inline">{viewer.name}</span>
-              </summary>
-              <div className="absolute right-0 z-30 mt-1 w-56 rounded-md border bg-surface p-1 text-sm shadow-lg [&>a]:block [&>a]:rounded [&>a]:px-3 [&>a]:py-2 [&>a:hover]:bg-muted">
-                <Link href="/cabinet">Личный кабинет</Link>
-                <Link href="/cabinet/bids">Мои ставки</Link>
-                <Link href="/cabinet/lots">Мои лоты</Link>
-                <Link href="/cabinet/deals">Сделки</Link>
-                <Link href="/cabinet/favorites">Избранное</Link>
-                <Link href={`/users/${viewer.id}`}>Моя страница продавца</Link>
-                <Link href="/lots/new" className="md:hidden">
-                  Продать
-                </Link>
-                {isStaff(viewer.role) && (
-                  <Link href="/admin" className="font-medium text-primary">
-                    Администрирование
-                  </Link>
-                )}
-                <Link href="/cabinet/settings">Настройки</Link>
-                <div className="my-1 border-t" />
-                <div className="rounded px-3 py-2 hover:bg-muted">
-                  <SignOutButton />
-                </div>
-              </div>
-            </details>
-          </div>
-        ) : (
-          <ButtonLink href="/login" variant="outline">
-            Войти
-          </ButtonLink>
-        )}
+          </nav>
+        </div>
       </div>
-      <nav className="mx-auto flex max-w-7xl gap-5 overflow-x-auto px-4 pb-2 text-sm text-muted-foreground">
-        {tree.map((c) => (
-          <Link key={c.id} href={`/search?category=${c.id}`} className="whitespace-nowrap hover:text-foreground">
-            {c.name}
-          </Link>
-        ))}
-        <Link href="/search?status=ended" className="whitespace-nowrap hover:text-foreground">
-          Архив торгов
-        </Link>
+
+      <header className="sticky top-0 z-30 border-b border-border bg-surface">
+        <div className="wrap grid min-h-16 grid-cols-[auto_1fr_auto] items-center gap-2 md:min-h-[72px] md:grid-cols-[1fr_auto_1fr] md:gap-6">
+          <details className="group relative md:hidden">
+            <summary className={`${iconBtn} cursor-pointer list-none [&::-webkit-details-marker]:hidden`} aria-label="Меню">
+              <Menu strokeWidth={1.5} />
+            </summary>
+            <nav
+              aria-label="Категории"
+              className="absolute left-0 top-full z-40 mt-2 w-[min(20rem,calc(100vw-2rem))] rounded-lg border border-border bg-surface p-2 shadow-lift [&>a]:flex [&>a]:min-h-11 [&>a]:items-center [&>a]:rounded-md [&>a]:px-3 [&>a:hover]:bg-sage-mist"
+            >
+              {tree.map((c) => (
+                <Link key={c.id} href={`/search?category=${c.id}`}>
+                  {c.name}
+                </Link>
+              ))}
+              <Link href="/search?format=english&sort=ending" className="text-wax">
+                Идут сейчас
+              </Link>
+              <div className="my-1 border-t border-border" />
+              <Link href="/lots/new">Выставить лот</Link>
+              <Link href="/buyout/new">Продать администрации</Link>
+              <Link href="/rules">Помощь</Link>
+            </nav>
+          </details>
+
+          <form action="/search" role="search" className="hidden md:block">
+            <label className="flex h-12 max-w-[340px] items-center gap-2.5 rounded-full border border-border bg-surface px-5 text-muted-foreground transition-[border-color,box-shadow] focus-within:border-primary focus-within:shadow-[0_0_0_3px_var(--color-sage-mist)]">
+              <Search className="size-5 shrink-0" strokeWidth={1.5} />
+              <span className="sr-only">Поиск лотов</span>
+              <input
+                name="q"
+                type="search"
+                placeholder="Монета 1899, самовар, марки СССР"
+                className="w-full bg-transparent text-[0.9375rem] text-foreground outline-none placeholder:text-faint"
+              />
+            </label>
+          </form>
+
+          <div className="justify-self-start md:justify-self-center">
+            <Logo />
+          </div>
+
+          <div className="flex items-center justify-end gap-1">
+            <Link href="/search" className={`${iconBtn} md:hidden`} aria-label="Поиск">
+              <Search strokeWidth={1.5} />
+            </Link>
+            {viewer ? (
+              <>
+                <UserLive />
+                <Link href="/notifications" className={iconBtn} aria-label="Уведомления">
+                  <Bell strokeWidth={1.5} />
+                  <CountDot n={notif} label="новых" />
+                </Link>
+                <Link href="/cabinet/favorites" className={`${iconBtn} hidden lg:inline-grid`} aria-label="Избранное">
+                  <Heart strokeWidth={1.5} />
+                </Link>
+                <Link href="/messages" className={`${iconBtn} hidden sm:inline-grid`} aria-label="Сообщения">
+                  <MessageCircle strokeWidth={1.5} />
+                  <CountDot n={msgs} label="непрочитанных" />
+                </Link>
+                <details className="relative">
+                  <summary
+                    className="flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-full px-2.5 hover:bg-sage-mist [&::-webkit-details-marker]:hidden"
+                    aria-label="Меню пользователя"
+                  >
+                    <User className="size-5" strokeWidth={1.5} />
+                    <span className="hidden max-w-32 truncate text-[0.9375rem] font-medium xl:inline">{viewer.name}</span>
+                  </summary>
+                  <div className="absolute right-0 z-40 mt-2 w-60 rounded-lg border border-border bg-surface p-2 text-[0.9375rem] shadow-lift [&>a]:flex [&>a]:min-h-10 [&>a]:items-center [&>a]:rounded-md [&>a]:px-3 [&>a:hover]:bg-sage-mist">
+                    <Link href="/cabinet">Личный кабинет</Link>
+                    <Link href="/cabinet/bids">Мои ставки</Link>
+                    <Link href="/cabinet/lots">Мои лоты</Link>
+                    <Link href="/cabinet/deals">Сделки</Link>
+                    <Link href="/cabinet/favorites">Избранное</Link>
+                    <Link href="/messages" className="sm:hidden">
+                      Сообщения
+                    </Link>
+                    <Link href={`/users/${viewer.id}`}>Моя страница продавца</Link>
+                    {isStaff(viewer.role) && (
+                      <Link href="/admin" className="font-semibold text-primary">
+                        Администрирование
+                      </Link>
+                    )}
+                    <Link href="/cabinet/settings">Настройки</Link>
+                    <div className="my-1 border-t border-border" />
+                    <div className="flex min-h-10 items-center rounded-md px-3 hover:bg-sage-mist">
+                      <SignOutButton />
+                    </div>
+                  </div>
+                </details>
+              </>
+            ) : (
+              <Link href="/login" className="hidden min-h-11 items-center rounded-md px-3 font-medium hover:bg-sage-mist sm:inline-flex">
+                Войти
+              </Link>
+            )}
+            <ButtonLink href="/lots/new" size="sm" className="ml-2 hidden md:inline-flex">
+              <Plus strokeWidth={1.5} /> Выставить лот
+            </ButtonLink>
+            {!viewer && (
+              <Link href="/login" className={`${iconBtn} sm:hidden`} aria-label="Войти">
+                <User strokeWidth={1.5} />
+              </Link>
+            )}
+          </div>
+        </div>
+      </header>
+
+      <nav aria-label="Категории" className="border-b border-border bg-surface">
+        <div className="wrap">
+          <ul className="no-scrollbar flex gap-8 overflow-x-auto label-caps lg:justify-center">
+            {tree.map((c) => (
+              <li key={c.id}>
+                <Link
+                  href={`/search?category=${c.id}`}
+                  className="flex h-12 items-center whitespace-nowrap border-b-2 border-transparent text-foreground hover:border-primary"
+                >
+                  {c.name}
+                </Link>
+              </li>
+            ))}
+            <li>
+              <Link
+                href="/search?format=english&sort=ending"
+                className="flex h-12 items-center gap-1.5 whitespace-nowrap border-b-2 border-transparent text-wax hover:border-wax"
+              >
+                <Clock className="size-4" strokeWidth={1.5} />
+                Идут сейчас
+              </Link>
+            </li>
+          </ul>
+        </div>
       </nav>
-    </header>
+    </>
   );
 }
 
 export function Footer() {
+  const cols: [string, [string, string][]][] = [
+    ["О площадке", [["Правила торгов", "/rules"], ["Архив торгов", "/search?status=ended"]]],
+    ["Покупателям", [["Идут сейчас", "/search?format=english&sort=ending"], ["Сохранённые поиски", "/cabinet/searches"], ["Избранное", "/cabinet/favorites"]]],
+    ["Продавцам", [["Выставить лот", "/lots/new"], ["Продать администрации", "/buyout/new"], ["Счета и комиссия", "/cabinet/invoices"]]],
+    ["Помощь", [["Как сделать ставку", "/rules"], ["Сделки и отзывы", "/cabinet/deals"]]],
+  ];
   return (
-    <footer className="mt-16 border-t bg-surface">
-      <div className="mx-auto grid max-w-7xl gap-6 px-4 py-8 text-sm text-muted-foreground sm:grid-cols-3">
+    <footer className="on-dark bg-primary text-white">
+      <div className="wrap grid grid-cols-1 gap-8 pb-12 pt-16 min-[480px]:grid-cols-2 lg:grid-cols-5">
+        {cols.map(([title, links]) => (
+          <div key={title}>
+            <h2 className="mb-4 font-serif text-xl font-bold leading-tight">{title}</h2>
+            <ul className="grid gap-2.5">
+              {links.map(([label, href]) => (
+                <li key={href + label}>
+                  <Link href={href} className="text-sm text-white/80 hover:text-white hover:underline">
+                    {label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
         <div>
-          <p className="font-serif text-base text-foreground">Аукцион</p>
-          <p className="mt-2">Площадка торгов предметами коллекционирования и антиквариата. Работаем в России, в рублях.</p>
+          <h2 className="mb-4 font-serif text-xl font-bold leading-tight">Связь</h2>
+          <p className="text-sm text-white/80">Вопросы о правилах — в разделе помощи. Споры о деньгах площадка не разрешает: расчёты идут напрямую.</p>
         </div>
-        <div className="flex flex-col gap-1">
-          <Link href="/rules" className="hover:text-foreground">Правила площадки</Link>
-          <Link href="/buyout/new" className="hover:text-foreground">Продать площадке</Link>
-          <Link href="/search?status=ended" className="hover:text-foreground">Архив торгов</Link>
+      </div>
+      <div className="bg-primary-hover text-[0.8125rem] text-white/72">
+        <div className="wrap flex flex-wrap justify-between gap-x-6 gap-y-3 py-5">
+          <span>Площадка не участвует в расчётах между покупателем и продавцом. Комиссия с продаж — 1%.</span>
+          <Link href="/rules" className="underline">
+            Правила площадки
+          </Link>
         </div>
-        <p>
-          Площадка не участвует в расчётах между покупателем и продавцом и не разрешает денежные споры. Комиссия с продаж — 1%.
-        </p>
       </div>
     </footer>
   );

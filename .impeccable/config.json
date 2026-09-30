@@ -1,0 +1,26 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "clipped-overflow-container",
+        "value": "*",
+        "files": [
+          "frontend-ideas/07/index.html"
+        ],
+        "createdAt": "2026-09-23T22:32:48.082Z",
+        "reason": "Claude: hero collage and photo masks intentionally clip rotated frames and scaled images; no popovers live inside"
+      },
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          "frontend-ideas/07/index.html"
+        ],
+        "createdAt": "2026-09-23T22:40:12.808Z",
+        "reason": "Claude: full-bleed bands carry their inset on the inner .wrap (24/20/16px gutter); fields are fixed-height flex rows; verified in desktop/mobile captures"
+      }
+    ]
+  }
+}

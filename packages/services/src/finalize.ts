@@ -1,6 +1,6 @@
 import { type Db, lots, offers } from "@auction/db";
 import { DAY_MS, FIXED_EXPIRY_REMINDER_DAYS, formatRub, needsFinalization, shouldAutoRelist } from "@auction/domain";
-import { and, asc, eq, inArray, isNull, lte, sql } from "drizzle-orm";
+import { and, asc, eq, gt, inArray, isNull, lte } from "drizzle-orm";
 import { createDeal } from "./deals";
 import { publishLotEvent } from "./infra/redis";
 import { relistLot } from "./lots";
@@ -121,7 +121,7 @@ export async function sendExpiryReminders(db: Db, now = new Date()): Promise<num
         eq(lots.format, "fixed"),
         isNull(lots.expiryReminderSentAt),
         lte(lots.endsAt, horizon),
-        sql`${lots.endsAt} > ${now}`,
+        gt(lots.endsAt, now),
       ),
     )
     .limit(500);

@@ -3,25 +3,30 @@ import Link from "next/link";
 import type { ComponentProps } from "react";
 import { cn } from "../lib";
 
+/** Кнопки по DESIGN.md: 8px, 48px, зелёный — единственный цвет действия, сургуч — только срочность. */
 export const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 cursor-pointer",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-semibold leading-tight transition-colors duration-200 disabled:pointer-events-none disabled:opacity-50 cursor-pointer [&_svg]:size-5 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         primary: "bg-primary text-primary-foreground hover:bg-primary-hover",
-        secondary: "bg-muted text-foreground hover:bg-border",
-        outline: "border bg-surface hover:bg-muted",
-        ghost: "hover:bg-muted",
-        danger: "bg-danger text-white hover:opacity-90",
-        link: "text-primary underline-offset-4 hover:underline px-0",
+        secondary: "border border-primary bg-surface text-primary hover:bg-sage-mist",
+        outline: "border border-border bg-surface text-foreground hover:border-border-strong hover:bg-sage-mist",
+        ghost: "text-foreground hover:bg-sage-mist",
+        urgent: "bg-wax text-white hover:bg-wax-deep",
+        danger: "border border-wax bg-surface text-wax hover:bg-wax-soft",
+        light: "bg-surface text-primary hover:bg-sage-mist",
+        field: "border border-white bg-transparent text-white text-[0.8125rem] uppercase tracking-[0.08em] hover:bg-white hover:text-wax",
+        link: "px-0 font-medium text-primary underline decoration-1 underline-offset-[3px] hover:decoration-2",
       },
       size: {
-        sm: "h-8 px-3",
-        md: "h-10 px-4",
-        lg: "h-12 px-6 text-base",
-        icon: "h-9 w-9",
+        sm: "min-h-10 px-4 text-[0.9375rem]",
+        md: "min-h-12 px-6 text-base",
+        lg: "min-h-12 px-6 text-base",
+        icon: "size-11 rounded-full",
       },
     },
+    compoundVariants: [{ variant: "link", className: "min-h-0 px-0" }],
     defaultVariants: { variant: "primary", size: "md" },
   },
 );

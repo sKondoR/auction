@@ -5,7 +5,7 @@ import { SideNav } from "@/widgets/side-nav";
 export async function CabinetLayout({ children }: { children: ReactNode }) {
   await requireViewer("/cabinet");
   return (
-    <div className="grid gap-6 lg:grid-cols-[220px_1fr]">
+    <div className="grid gap-8 lg:grid-cols-[240px_1fr]">
       <aside>
         <SideNav
           groups={[

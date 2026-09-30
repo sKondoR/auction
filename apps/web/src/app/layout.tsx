@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
-import { PT_Sans, PT_Serif } from "next/font/google";
+import { Golos_Text, Old_Standard_TT } from "next/font/google";
 import type { ReactNode } from "react";
 import { Footer, Header } from "@/widgets/header";
 import "./globals.css";
 
-const body = PT_Sans({ subsets: ["latin", "cyrillic"], weight: ["400", "700"], variable: "--font-body" });
-const display = PT_Serif({ subsets: ["latin", "cyrillic"], weight: ["400", "700"], variable: "--font-display" });
+const body = Golos_Text({ subsets: ["latin", "cyrillic"], weight: ["400", "500", "600", "700"], variable: "--font-body" });
+const display = Old_Standard_TT({
+  subsets: ["latin", "cyrillic"],
+  weight: ["400", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-display",
+});
 
 export const metadata: Metadata = {
   title: { default: "Аукцион — торги для коллекционеров", template: "%s · Аукцион" },
@@ -15,9 +20,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ru" className={`${body.variable} ${display.variable}`}>
-      <body className="flex min-h-screen flex-col antialiased">
+      <body className="flex min-h-screen flex-col">
         <Header />
-        <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6">{children}</main>
+        <main className="wrap flex-1 pt-8 pb-16">{children}</main>
         <Footer />
       </body>
     </html>

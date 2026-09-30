@@ -1,5 +1,6 @@
 "use client";
 
+import { Lock } from "lucide-react";
 import { useActionState, useState } from "react";
 import { formatRub, kopecksToInput } from "@/shared/lib";
 import { Button, Field, Form, FormMessage, Input, SubmitButton, Textarea } from "@/shared/ui";
@@ -12,30 +13,43 @@ import {
   respondOfferAction,
 } from "../api/actions";
 
-export function BidForm({ lotId, minBid, currentMax }: { lotId: number; minBid: number; currentMax: number | null }) {
+/** Форма ставки. `urgent` — последние 5 минут торгов: кнопка становится сургучной (DESIGN.md → Buttons). */
+export function BidForm({ lotId, minBid, currentMax, urgent = false }: { lotId: number; minBid: number; currentMax: number | null; urgent?: boolean }) {
   const [state, action] = useActionState(placeBidAction, null);
   const [auto, setAuto] = useState(currentMax !== null);
   return (
     <Form action={action} state={state} className="flex flex-col gap-3">
       <input type="hidden" name="lotId" value={lotId} />
-      <Field label="Ваша ставка, ₽" hint={`Минимальная ставка — ${formatRub(minBid)}`}>
-        <div className="flex gap-2">
-          <Input name="amount" inputMode="decimal" defaultValue={kopecksToInput(minBid)} key={minBid} className="tabular text-base" required />
-          <SubmitButton className="shrink-0" pendingText="Ставка…">
-            Сделать ставку
-          </SubmitButton>
+      <Field label="Ваша ставка" hint={`Минимальная ставка ${formatRub(minBid)}`}>
+        <div className="flex h-14 items-center rounded-md border border-border bg-surface px-4 transition-[border-color,box-shadow] hover:border-border-strong focus-within:border-primary focus-within:shadow-[0_0_0_3px_var(--color-sage-mist)]">
+          <input
+            name="amount"
+            inputMode="decimal"
+            defaultValue={kopecksToInput(minBid)}
+            key={minBid}
+            required
+            aria-label="Сумма ставки, рублей"
+            className="tabular w-full min-w-0 bg-transparent text-2xl font-semibold outline-none"
+          />
+          <span className="text-xl font-semibold text-muted-foreground">₽</span>
         </div>
       </Field>
-      <label className="flex items-center gap-2 text-sm">
-        <input type="checkbox" checked={auto} onChange={(e) => setAuto(e.target.checked)} className="accent-[var(--color-primary)]" />
-        Автоставка — система будет повышать мою ставку на шаг до максимума
+      <SubmitButton variant={urgent ? "urgent" : "primary"} className="w-full" pendingText="Ставка…">
+        Сделать ставку
+      </SubmitButton>
+      <label className="flex min-h-11 cursor-pointer items-start gap-2.5 text-[0.9375rem]">
+        <input type="checkbox" checked={auto} onChange={(e) => setAuto(e.target.checked)} className="mt-1 size-5 shrink-0 accent-[var(--color-primary)]" />
+        Автоставка: система будет поднимать мою ставку на шаг до максимума
       </label>
       {auto && (
         <Field label="Мой максимум, ₽" hint={currentMax ? `Сейчас ваш максимум — ${formatRub(currentMax)}. Его видите только вы.` : "Максимум никто не видит."}>
           <Input name="maxAmount" inputMode="decimal" placeholder="Например, 5000" className="tabular" />
         </Field>
       )}
-      <p className="text-xs text-muted-foreground">Ставку нельзя отозвать. Выигрыш обязывает выкупить лот.</p>
+      <p className="flex items-start gap-2 text-sm text-muted-foreground">
+        <Lock className="mt-0.5 size-4 shrink-0" strokeWidth={1.5} aria-hidden />
+        Ставку нельзя отозвать. Выигрыш обязывает выкупить лот.
+      </p>
       <FormMessage state={state} />
     </Form>
   );
@@ -47,13 +61,13 @@ export function BlitzForm({ lotId, price }: { lotId: number; price: number }) {
     <Form
       action={action} state={state}
       onSubmit={(e) => {
-        if (!confirm(`Купить лот сейчас за ${formatRub(price)}? Покупка обязывает выкупить лот.`)) e.preventDefault();
+        if (!confirm(`Купить лот по блиц-цене ${formatRub(price)}? Покупка обязывает выкупить лот.`)) e.preventDefault();
       }}
       className="flex flex-col gap-2"
     >
       <input type="hidden" name="lotId" value={lotId} />
-      <SubmitButton variant="outline" className="w-full">
-        Купить сейчас за {formatRub(price)}
+      <SubmitButton variant="urgent" className="tabular w-full">
+        Купить по блиц-цене {formatRub(price)}
       </SubmitButton>
       <FormMessage state={state} />
     </Form>
@@ -96,7 +110,7 @@ export function OfferForm({ lotId, available }: { lotId: number; available: numb
     );
   }
   return (
-    <Form action={action} state={state} className="flex flex-col gap-3 rounded-md border bg-muted/40 p-3">
+    <Form action={action} state={state} className="flex flex-col gap-3 rounded-lg bg-well p-4">
       <input type="hidden" name="lotId" value={lotId} />
       <div className="flex gap-2">
         <Field label="Ваша цена за шт., ₽" className="flex-1">
@@ -136,16 +150,16 @@ export function CancelBidsForm({ lotId, bidderId, bidderName }: { lotId: number;
   const [open, setOpen] = useState(false);
   if (!open) {
     return (
-      <button className="text-xs text-danger hover:underline" onClick={() => setOpen(true)}>
+      <button className="min-h-11 text-sm text-wax underline underline-offset-[3px]" onClick={() => setOpen(true)}>
         отменить
       </button>
     );
   }
   return (
-    <Form action={action} state={state} className="mt-2 flex flex-col gap-2 rounded-md border bg-danger-soft/40 p-2">
+    <Form action={action} state={state} className="mt-2 flex flex-col gap-3 rounded-lg bg-wax-soft p-4">
       <input type="hidden" name="lotId" value={lotId} />
       <input type="hidden" name="bidderId" value={bidderId} />
-      <span className="text-xs">Отменить все ставки участника «{bidderName}»</span>
+      <span className="text-sm">Отменить все ставки участника «{bidderName}»</span>
       <Input name="reason" placeholder="Причина (увидит участник)" required />
       <div className="flex gap-2">
         <SubmitButton size="sm" variant="danger">

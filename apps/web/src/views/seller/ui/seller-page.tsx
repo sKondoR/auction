@@ -33,7 +33,7 @@ export async function SellerPage({ id }: { id: string }) {
       <Card>
         <CardSection className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex flex-col gap-1">
-            <h1 className="text-3xl font-semibold">{u.name}</h1>
+            <h1 className="headline">{u.name}</h1>
             <RatingBadge {...rating} />
             <p className="text-sm text-muted-foreground">
               {u.city && `${u.city} · `}На площадке с {formatDate(u.createdAt)} · {Number(subscribers[0]?.n ?? 0)} подписчиков

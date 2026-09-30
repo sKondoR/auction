@@ -24,7 +24,7 @@ export async function ConversationView({ id, viewer, staffMode = false }: { id: 
     <div className="mx-auto flex max-w-3xl flex-col gap-4">
       <ConversationLive conversationId={id} />
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">{otherName}</h1>
+        <h1 className="font-serif text-[1.75rem] leading-tight">{otherName}</h1>
         {!staffMode && !t.sellerIsService && (
           <Link href={`/users/${meIsBuyer ? t.c.sellerId : t.c.buyerId}`} className="text-sm text-primary hover:underline">
             Профиль
@@ -35,7 +35,7 @@ export async function ConversationView({ id, viewer, staffMode = false }: { id: 
         {t.messages.length === 0 && <p className="text-sm text-muted-foreground">Сообщений пока нет.</p>}
         {t.messages.map(({ m, lotTitle, senderName }) =>
           m.isSystem ? (
-            <div key={m.id} className="mx-auto max-w-lg rounded-md border border-accent/40 bg-accent-soft/60 px-4 py-2 text-center text-sm">
+            <div key={m.id} className="mx-auto max-w-lg rounded-md bg-brass-soft px-4 py-2 text-center text-sm">
               <p className="whitespace-pre-line">{m.text}</p>
               {m.dealId && (
                 <Link href={`/deals/${m.dealId}`} className="text-xs text-primary underline">

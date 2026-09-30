@@ -22,7 +22,7 @@ export async function BuyoutNewPage() {
 export function RulesPage() {
   return (
     <article className="mx-auto max-w-3xl space-y-4 leading-relaxed">
-      <h1 className="text-3xl font-semibold">Правила площадки</h1>
+      <h1 className="headline">Правила площадки</h1>
       <p className="text-sm text-muted-foreground">Черновик. Полная редакция оферты и правил будет опубликована до запуска.</p>
       <h2 className="pt-2 text-xl font-semibold">Расчёты</h2>
       <p>
