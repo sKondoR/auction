@@ -3,20 +3,20 @@ import Link from "next/link";
 import type { ComponentProps } from "react";
 import { cn } from "../lib";
 
-/** Кнопки по DESIGN.md: 8px, 48px, зелёный — единственный цвет действия, сургуч — только срочность. */
+/** Кнопки по DESIGN.md: 8px, 48px, синий action — единственный цвет действия, сургуч — только срочность. */
 export const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-semibold leading-tight transition-colors duration-200 disabled:pointer-events-none disabled:opacity-50 cursor-pointer [&_svg]:size-5 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        primary: "bg-primary text-primary-foreground hover:bg-primary-hover",
+        primary: "bg-action text-white hover:bg-action-hover",
         secondary: "border border-primary bg-surface text-primary hover:bg-sage-mist",
         outline: "border border-border bg-surface text-foreground hover:border-border-strong hover:bg-sage-mist",
         ghost: "text-foreground hover:bg-sage-mist",
         urgent: "bg-wax text-white hover:bg-wax-deep",
         danger: "border border-wax bg-surface text-wax hover:bg-wax-soft",
         light: "bg-surface text-primary hover:bg-sage-mist",
-        field: "border border-white bg-transparent text-white text-[0.8125rem] uppercase tracking-[0.08em] hover:bg-white hover:text-wax",
+        field: "border border-gold-light bg-transparent text-white text-[0.8125rem] uppercase tracking-[0.08em] hover:border-gold hover:bg-gold hover:text-primary-hover",
         link: "px-0 font-medium text-primary underline decoration-1 underline-offset-[3px] hover:decoration-2",
       },
       size: {

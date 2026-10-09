@@ -13,7 +13,7 @@ const display = Old_Standard_TT({
 });
 
 export const metadata: Metadata = {
-  title: { default: "Аукцион — торги для коллекционеров", template: "%s · Аукцион" },
+  title: { default: "aucs.online — торги для коллекционеров", template: "%s · aucs.online" },
   description: "Площадка торгов монетами, банкнотами, марками и антиквариатом.",
 };
 

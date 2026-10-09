@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Дизайн-концепты</title>
+<script src="switcher.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+  // Вход в концепты: открываем последний концепт с локальными страницами.
+  var withPages = (window.__ideasConcepts || []).filter(function (c) { return c.pages; });
+  var last = withPages[withPages.length - 1];
+  if (last) location.replace(last.n + '/' + last.pages[0][0]);
+</script>
+</head>
+<body style="font:16px system-ui,sans-serif;padding:24px">
+<noscript>Включите JavaScript или откройте концепт напрямую, например <a href="09/index.html">09</a>.</noscript>
+</body>
+</html>

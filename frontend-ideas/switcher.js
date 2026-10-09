@@ -1,7 +1,8 @@
 /*
  * Панель-переключатель концептов frontend-ideas.
  * Подключение в начале HTML концепта: <script src="../switcher.js" defer></script>
- * Новый концепт добавьте в CONCEPTS ниже. Работает при открытии файлов локально;
+ * Новый концепт добавьте в CONCEPTS ниже. Работает при открытии файлов локально
+ * и на GitHub Pages (<base>/design/, см. .github/workflows/pages.yml);
  * в опубликованных артефактах скрипта нет, и панель просто не появляется.
  */
 (function () {
@@ -16,6 +17,7 @@
 
   if (window.__ideasSwitcher) return;
   window.__ideasSwitcher = true;
+  window.__ideasConcepts = CONCEPTS; // для frontend-ideas/index.html
 
   var parts = decodeURIComponent(location.pathname).replace(/\\/g, '/').split('/');
   var file = parts.pop() || 'index.html';

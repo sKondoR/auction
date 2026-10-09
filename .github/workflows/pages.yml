@@ -37,6 +37,10 @@ jobs:
         env:
           # Сайт проекта открывается по адресу https://<owner>.github.io/<repo>/.
           DEMO_BASE_PATH: ${{ steps.pages.outputs.base_path }}
+      # Дизайн-концепты frontend-ideas — по адресу <base>/design/ с тем же переключателем.
+      - run: |
+          mkdir -p apps/web/out/design
+          cp -r frontend-ideas/[0-9][0-9] frontend-ideas/switcher.js frontend-ideas/index.html apps/web/out/design/
       - uses: actions/upload-pages-artifact@v4
         with:
           path: apps/web/out

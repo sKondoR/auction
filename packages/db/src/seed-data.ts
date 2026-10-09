@@ -1,16 +1,16 @@
 /**
- * Начальные данные: дерево категорий с атрибутами, настройки площадки,
+ * Начальные данные: дерево категорий из categories.ts с атрибутами, настройки площадки,
  * служебный аккаунт, сотрудники и демо-лоты.
  * Идемпотентен: повторный запуск не создаёт дубликатов.
  */
 import { DAY_MS, MINUTE_MS, rub } from "@auction/domain";
-import { eq } from "drizzle-orm";
-import type { Db } from "./client";
-import { bids, categories, categoryAttributes, lots, user } from "./schema";
+import { eq, inArray, sql } from "drizzle-orm";
+import { CATEGORY_TREE, type CategoryNode } from "./categories";
+import type { Db, DbOrTx } from "./client";
+import { bids, categories, categoryAttributes, lots, savedSearches, user } from "./schema";
 import { DEFAULT_SETTINGS, type PlatformSettings, setSetting } from "./settings";
 
 type Attr = { key: string; name: string; type?: "text" | "number" | "select"; options?: string[]; unit?: string };
-type Cat = { slug: string; name: string; attrs?: Attr[]; children?: Cat[] };
 
 const condition: Attr = {
   key: "condition",
@@ -19,96 +19,102 @@ const condition: Attr = {
   options: ["UNC", "AU", "XF", "VF", "F", "VG", "G"],
 };
 
-const TREE: Cat[] = [
-  {
-    slug: "coins",
-    name: "Монеты",
-    attrs: [
-      { key: "year", name: "Год", type: "number" },
-      { key: "denomination", name: "Номинал" },
-      { key: "metal", name: "Металл", type: "select", options: ["Золото", "Серебро", "Медь", "Биллон", "Никель", "Другой"] },
-      condition,
-    ],
-    children: [
-      { slug: "coins-russia-empire", name: "Российская империя" },
-      { slug: "coins-ussr", name: "СССР" },
-      { slug: "coins-russia", name: "Современная Россия" },
-      { slug: "coins-world", name: "Иностранные монеты" },
-      { slug: "coins-ancient", name: "Античные монеты" },
-    ],
-  },
-  {
-    slug: "banknotes",
-    name: "Банкноты",
-    attrs: [
-      { key: "year", name: "Год", type: "number" },
-      { key: "denomination", name: "Номинал" },
-      { key: "condition", name: "Состояние", type: "select", options: ["UNC", "aUNC", "XF", "VF", "F", "VG"] },
-    ],
-    children: [
-      { slug: "banknotes-russia", name: "Россия и СССР" },
-      { slug: "banknotes-world", name: "Иностранные банкноты" },
-    ],
-  },
-  {
-    slug: "stamps",
-    name: "Марки",
-    attrs: [
-      { key: "year", name: "Год", type: "number" },
-      { key: "country", name: "Страна" },
-      { key: "cancelled", name: "Гашение", type: "select", options: ["Чистая", "Гашёная"] },
-    ],
-  },
-  {
-    slug: "medals",
-    name: "Знаки, медали, значки",
-    attrs: [
-      { key: "material", name: "Материал" },
-      { key: "period", name: "Период" },
-    ],
-  },
-  {
-    slug: "antiques",
-    name: "Антиквариат",
-    attrs: [
-      { key: "period", name: "Период", type: "select", options: ["до 1800", "1800–1917", "1917–1945", "1945–1991", "после 1991"] },
-      { key: "material", name: "Материал" },
-    ],
-    children: [
-      { slug: "antiques-porcelain", name: "Фарфор и керамика" },
-      { slug: "antiques-silver", name: "Серебро" },
-      { slug: "antiques-icons", name: "Иконы" },
-      { slug: "antiques-furniture", name: "Мебель" },
-      { slug: "antiques-clocks", name: "Часы" },
-    ],
-  },
-  {
-    slug: "postcards",
-    name: "Открытки и фотографии",
-    attrs: [{ key: "year", name: "Год", type: "number" }],
-  },
-  {
-    slug: "books",
-    name: "Букинистика",
-    attrs: [
-      { key: "year", name: "Год издания", type: "number" },
-      { key: "author", name: "Автор" },
-    ],
-  },
-];
+/** Атрибуты фильтров по slug. Категория получает свои атрибуты и атрибуты родителя. */
+const ATTRS: Record<string, Attr[]> = {
+  antiques: [
+    { key: "period", name: "Период", type: "select", options: ["до 1800", "1800–1917", "1917–1945", "1945–1991", "после 1991"] },
+    { key: "material", name: "Материал" },
+  ],
+  "antiques-books": [
+    { key: "year", name: "Год издания", type: "number" },
+    { key: "author", name: "Автор" },
+  ],
+  coins: [
+    { key: "year", name: "Год", type: "number" },
+    { key: "denomination", name: "Номинал" },
+    { key: "metal", name: "Металл", type: "select", options: ["Золото", "Серебро", "Медь", "Биллон", "Никель", "Другой"] },
+    condition,
+  ],
+  banknotes: [
+    { key: "year", name: "Год", type: "number" },
+    { key: "denomination", name: "Номинал" },
+    { key: "condition", name: "Состояние", type: "select", options: ["UNC", "aUNC", "XF", "VF", "F", "VG"] },
+  ],
+  stamps: [
+    { key: "year", name: "Год", type: "number" },
+    { key: "country", name: "Страна" },
+    { key: "cancelled", name: "Гашение", type: "select", options: ["Чистая", "Гашёная"] },
+  ],
+  medals: [
+    { key: "material", name: "Материал" },
+    { key: "period", name: "Период" },
+  ],
+  postcards: [{ key: "year", name: "Год", type: "number" }],
+};
 
-async function upsertCategory(db: Db, c: Cat, parentId: number | null, position: number): Promise<void> {
-  const [existing] = await db.select().from(categories).where(eq(categories.slug, c.slug));
-  const id =
-    existing?.id ??
-    (await db.insert(categories).values({ slug: c.slug, name: c.name, parentId, position }).returning())[0]!.id;
-  for (const [i, a] of (c.attrs ?? []).entries()) {
+/** Куда уходят лоты и сохранённые поиски из категорий прежнего дерева, которых нет в CATEGORY_TREE. */
+const RETIRED: Record<string, string> = {
+  books: "antiques-books",
+};
+/** Категория для удаляемых, у которых нет ни записи в RETIRED, ни предка в новом дереве. */
+const RETIRED_FALLBACK = "collectibles-other";
+
+async function upsertCategory(db: DbOrTx, c: CategoryNode, parentId: number | null, position: number): Promise<void> {
+  const [row] = await db
+    .insert(categories)
+    .values({ slug: c.slug, name: c.name, parentId, position })
+    .onConflictDoUpdate({ target: categories.slug, set: { name: c.name, parentId, position } })
+    .returning({ id: categories.id });
+  const id = row!.id;
+  for (const [i, a] of (ATTRS[c.slug] ?? []).entries()) {
     await db
       .insert(categoryAttributes)
       .values({ categoryId: id, key: a.key, name: a.name, type: a.type ?? "text", options: a.options ?? null, unit: a.unit ?? null, position: i })
       .onConflictDoNothing();
   }
   for (const [i, child] of (c.children ?? []).entries()) await upsertCategory(db, child, id, i);
+}
+
+/**
+ * Приводит таблицу категорий к CATEGORY_TREE: создаёт и обновляет узлы по slug (id сохраняются),
+ * а категории не из дерева удаляет. Их лоты и сохранённые поиски переходят в категорию из RETIRED,
+ * иначе в ближайшего предка, оставшегося в дереве, иначе в RETIRED_FALLBACK.
+ */
+export async function syncCategories(db: Db): Promise<void> {
+  await db.transaction(async (tx) => {
+    for (const [i, c] of CATEGORY_TREE.entries()) await upsertCategory(tx, c, null, i);
+
+    const keep = new Set<string>();
+    const walk = (nodes: CategoryNode[]) => {
+      for (const n of nodes) {
+        keep.add(n.slug);
+        walk(n.children ?? []);
+      }
+    };
+    walk(CATEGORY_TREE);
+
+    const rows = await tx.select({ id: categories.id, slug: categories.slug, parentId: categories.parentId }).from(categories);
+    const byId = new Map(rows.map((r) => [r.id, r]));
+    const idBySlug = new Map(rows.map((r) => [r.slug, r.id]));
+    const target = (r: (typeof rows)[number]): number => {
+      if (RETIRED[r.slug]) return idBySlug.get(RETIRED[r.slug]!)!;
+      for (let p = r.parentId ? byId.get(r.parentId) : undefined; p; p = p.parentId ? byId.get(p.parentId) : undefined) {
+        if (keep.has(p.slug)) return p.id;
+      }
+      return idBySlug.get(RETIRED_FALLBACK)!;
+    };
+
+    const retired = rows.filter((r) => !keep.has(r.slug));
+    for (const r of retired) {
+      const to = target(r);
+      await tx.update(lots).set({ categoryId: to }).where(eq(lots.categoryId, r.id));
+      await tx
+        .update(savedSearches)
+        .set({ filters: sql`jsonb_set(${savedSearches.filters}, '{categoryId}', to_jsonb(${to}::int))` })
+        .where(sql`(${savedSearches.filters}->>'categoryId')::int = ${r.id}`);
+    }
+    if (retired.length) await tx.delete(categories).where(inArray(categories.id, retired.map((r) => r.id)));
+  });
 }
 
 async function upsertUser(db: Db, p: { id: string; name: string; phone: string; role?: string; isService?: boolean; city?: string }) {
@@ -129,7 +135,7 @@ async function upsertUser(db: Db, p: { id: string; name: string; phone: string; 
 
 /** `lots: false` — без демо-лотов (их создаёт демо-сид для GitHub Pages). */
 export async function seed(db: Db, opts: { lots?: boolean } = {}): Promise<void> {
-  for (const [i, c] of TREE.entries()) await upsertCategory(db, c, null, i);
+  await syncCategories(db);
   for (const [key, value] of Object.entries(DEFAULT_SETTINGS)) {
     await setSetting(db, key as keyof PlatformSettings, value as never);
   }
@@ -168,7 +174,7 @@ export async function seed(db: Db, opts: { lots?: boolean } = {}): Promise<void>
         lot({
           title: "1 рубль 1924 года, ПЛ, серебро",
           description: "Серебряный рубль 1924 года. Состояние на фото. Оригинал, гарантия подлинности.",
-          categoryId: await cat("coins-ussr"),
+          categoryId: await cat("coins"),
           attributes: { year: 1924, denomination: "1 рубль", metal: "Серебро", condition: "XF" },
           startPrice: rub(1),
           blitzPrice: rub(15_000),
@@ -177,7 +183,7 @@ export async function seed(db: Db, opts: { lots?: boolean } = {}): Promise<void>
         lot({
           title: "5 копеек 1911 СПБ ЭБ",
           description: "Медная монета Российской империи, хорошая сохранность, приятная патина.",
-          categoryId: await cat("coins-russia-empire"),
+          categoryId: await cat("coins"),
           attributes: { year: 1911, denomination: "5 копеек", metal: "Медь", condition: "VF" },
           startPrice: rub(500),
           days: 0.01, // ~15 минут: для проверки продления торгов и финализации
@@ -185,7 +191,7 @@ export async function seed(db: Db, opts: { lots?: boolean } = {}): Promise<void>
         lot({
           title: "Рубль 1898 АГ, Николай II",
           description: "Серебро 900 пробы. Небольшие потёртости, без дефектов гурта.",
-          categoryId: await cat("coins-russia-empire"),
+          categoryId: await cat("coins"),
           attributes: { year: 1898, denomination: "1 рубль", metal: "Серебро", condition: "VF" },
           startPrice: rub(20_000),
           days: 7,
@@ -194,7 +200,7 @@ export async function seed(db: Db, opts: { lots?: boolean } = {}): Promise<void>
           format: "fixed",
           title: "Набор разменных монет СССР 1961–1991, 150 шт.",
           description: "Погодовка, все монеты в альбоме. Состояние разное. Продаю по фиксированной цене, рассмотрю предложения.",
-          categoryId: await cat("coins-ussr"),
+          categoryId: await cat("coins"),
           attributes: { metal: "Никель" },
           startPrice: rub(3_500),
           quantity: 3,
@@ -205,7 +211,7 @@ export async function seed(db: Db, opts: { lots?: boolean } = {}): Promise<void>
           format: "fixed",
           title: "Банкнота 100 рублей 1910 года, «Катенька»",
           description: "Государственный кредитный билет, подписи Шипов — Метц.",
-          categoryId: await cat("banknotes-russia"),
+          categoryId: await cat("banknotes"),
           attributes: { year: 1910, denomination: "100 рублей", condition: "VF" },
           startPrice: rub(4_200),
           days: 2,

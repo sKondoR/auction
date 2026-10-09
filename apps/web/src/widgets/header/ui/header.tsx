@@ -22,11 +22,23 @@ function CountDot({ n, label }: { n: number; label: string }) {
   );
 }
 
+/**
+ * Логотип aucs.online: точка домена — золотой шарик с бликом, от которого раз в 2,2 с расходится
+ * кольцо («площадка онлайн, торги идут»). Размер точки в целых пикселях, чтобы не съезжала.
+ */
 function Logo() {
   return (
-    <Link href="/" aria-label="Аукцион — на главную" className="flex items-baseline gap-1.5 font-serif text-[1.625rem] leading-none text-foreground md:text-[2rem]">
-      Аукцион
-      <i aria-hidden className="inline-block size-[7px] -translate-y-0.5 rounded-full bg-wax" />
+    <Link
+      href="/"
+      aria-label="aucs.online — на главную"
+      className="flex items-baseline whitespace-nowrap font-serif text-[1.875rem] leading-none tracking-[-0.01em] text-foreground md:text-[2.375rem]"
+    >
+      aucs
+      <i
+        aria-hidden
+        className="relative mx-0.5 ml-[3px] inline-block size-2 shrink-0 rounded-full bg-[radial-gradient(circle_at_35%_30%,#fbe38c,var(--color-gold)_55%,var(--color-gold-deep))] shadow-[inset_0_0_0_1px_rgba(150,100,10,0.55)] after:pointer-events-none after:absolute after:inset-0 after:rounded-full after:border-[1.5px] after:border-gold-deep after:opacity-0 after:content-[''] motion-safe:after:animate-online md:mx-[3px] md:ml-1 md:size-2.5"
+      />
+      <span className="text-muted-foreground">online</span>
     </Link>
   );
 }
@@ -45,50 +57,56 @@ export async function Header() {
 
   return (
     <>
-      <div className="bg-primary text-[0.8125rem] leading-tight text-white">
+      <div className="border-b border-border bg-surface text-[0.8125rem] leading-tight text-muted-foreground">
         <div className="wrap flex min-h-9 items-center justify-between gap-6">
           <span className="truncate">
             <span className="hidden sm:inline">Выставить лот — бесплатно. Комиссия 1% только с продажи</span>
             <span className="sm:hidden">Лот бесплатно · 1% с продажи</span>
           </span>
-          <nav aria-label="Служебное меню" className="hidden gap-6 md:flex">
-            <Link href="/buyout/new" className="opacity-90 hover:underline hover:opacity-100">
+          <nav aria-label="Служебное меню" className="hidden gap-6 md:flex [&>a]:text-foreground [&>a:hover]:underline">
+            <Link href="/buyout/new" className="hidden lg:inline">
               Продать администрации
             </Link>
-            <Link href="/rules" className="opacity-90 hover:underline hover:opacity-100">
-              Помощь
-            </Link>
+            <Link href="/rules">Помощь</Link>
           </nav>
         </div>
       </div>
 
       <header className="sticky top-0 z-30 border-b border-border bg-surface">
-        <div className="wrap grid min-h-16 grid-cols-[auto_1fr_auto] items-center gap-2 md:min-h-[72px] md:grid-cols-[1fr_auto_1fr] md:gap-6">
-          <details className="group relative md:hidden">
-            <summary className={`${iconBtn} cursor-pointer list-none [&::-webkit-details-marker]:hidden`} aria-label="Меню">
-              <Menu strokeWidth={1.5} />
-            </summary>
-            <nav
-              aria-label="Категории"
-              className="absolute left-0 top-full z-40 mt-2 w-[min(20rem,calc(100vw-2rem))] rounded-lg border border-border bg-surface p-2 shadow-lift [&>a]:flex [&>a]:min-h-11 [&>a]:items-center [&>a]:rounded-md [&>a]:px-3 [&>a:hover]:bg-sage-mist"
-            >
-              {tree.map((c) => (
-                <Link key={c.id} href={`/search?category=${c.id}`}>
-                  {c.name}
+        <div className="wrap grid min-h-16 grid-cols-[auto_1fr_auto] items-center gap-2 md:min-h-[72px] md:gap-8">
+          <div className="flex items-center gap-1">
+            <details className="group relative md:hidden">
+              <summary className={`${iconBtn} cursor-pointer list-none [&::-webkit-details-marker]:hidden`} aria-label="Меню">
+                <Menu strokeWidth={1.5} />
+              </summary>
+              <nav
+                aria-label="Категории"
+                className="absolute left-0 top-full z-40 mt-2 w-[min(20rem,calc(100vw-2rem))] rounded-lg border border-border bg-surface p-2 shadow-lift [&>a]:flex [&>a]:min-h-11 [&>a]:items-center [&>a]:rounded-md [&>a]:px-3 [&>a:hover]:bg-sage-mist"
+              >
+                {tree.map((c) => (
+                  <Link key={c.id} href={`/search?category=${c.id}`}>
+                    {c.name}
+                  </Link>
+                ))}
+                <Link href="/search?format=english&sort=ending" className="text-wax">
+                  Идут сейчас
                 </Link>
-              ))}
-              <Link href="/search?format=english&sort=ending" className="text-wax">
-                Идут сейчас
-              </Link>
-              <div className="my-1 border-t border-border" />
-              <Link href="/lots/new">Выставить лот</Link>
-              <Link href="/buyout/new">Продать администрации</Link>
-              <Link href="/rules">Помощь</Link>
-            </nav>
-          </details>
+                <div className="my-1 border-t border-border" />
+                <Link href="/lots/new">Выставить лот</Link>
+                <Link href="/buyout/new">Продать администрации</Link>
+                <Link href="/rules">Помощь</Link>
+              </nav>
+            </details>
+            <Logo />
+          </div>
 
-          <form action="/search" role="search" className="hidden md:block">
-            <label className="flex h-12 max-w-[340px] items-center gap-2.5 rounded-full border border-border bg-surface px-5 text-muted-foreground transition-[border-color,box-shadow] focus-within:border-primary focus-within:shadow-[0_0_0_3px_var(--color-sage-mist)]">
+          {/* Пока на экране большой поиск главной (data-finder на <html>), поле в шапке уходит. */}
+          <form
+            action="/search"
+            role="search"
+            className="hidden w-full max-w-130 justify-self-center transition-[opacity,visibility] duration-300 md:block in-data-[finder=in]:invisible in-data-[finder=in]:opacity-0"
+          >
+            <label className="flex h-12 items-center gap-2.5 rounded-full border border-border bg-surface px-5 text-muted-foreground transition-[border-color,box-shadow] focus-within:border-primary focus-within:shadow-[0_0_0_3px_var(--color-sage-mist)]">
               <Search className="size-5 shrink-0" strokeWidth={1.5} />
               <span className="sr-only">Поиск лотов</span>
               <input
@@ -99,10 +117,6 @@ export async function Header() {
               />
             </label>
           </form>
-
-          <div className="justify-self-start md:justify-self-center">
-            <Logo />
-          </div>
 
           <div className="flex items-center justify-end gap-1">
             <Link href="/search" className={`${iconBtn} md:hidden`} aria-label="Поиск">
@@ -207,11 +221,11 @@ export function Footer() {
     ["Помощь", [["Как сделать ставку", "/rules"], ["Сделки и отзывы", "/cabinet/deals"]]],
   ];
   return (
-    <footer className="on-dark bg-primary text-white">
+    <footer className="on-dark border-t-[3px] border-gold bg-primary text-white">
       <div className="wrap grid grid-cols-1 gap-8 pb-12 pt-16 min-[480px]:grid-cols-2 lg:grid-cols-5">
         {cols.map(([title, links]) => (
           <div key={title}>
-            <h2 className="mb-4 font-serif text-xl font-bold leading-tight">{title}</h2>
+            <h2 className="mb-4 font-serif text-xl font-bold leading-tight text-gold-light">{title}</h2>
             <ul className="grid gap-2.5">
               {links.map(([label, href]) => (
                 <li key={href + label}>
@@ -224,13 +238,13 @@ export function Footer() {
           </div>
         ))}
         <div>
-          <h2 className="mb-4 font-serif text-xl font-bold leading-tight">Связь</h2>
+          <h2 className="mb-4 font-serif text-xl font-bold leading-tight text-gold-light">Связь</h2>
           <p className="text-sm text-white/80">Вопросы о правилах — в разделе помощи. Споры о деньгах площадка не разрешает: расчёты идут напрямую.</p>
         </div>
       </div>
       <div className="bg-primary-hover text-[0.8125rem] text-white/72">
         <div className="wrap flex flex-wrap justify-between gap-x-6 gap-y-3 py-5">
-          <span>Площадка не участвует в расчётах между покупателем и продавцом. Комиссия с продаж — 1%.</span>
+          <span>© {new Date().getFullYear()} aucs.online. Площадка не участвует в расчётах между пользователями. Комиссия с продаж — 1%.</span>
           <Link href="/rules" className="underline">
             Правила площадки
           </Link>
