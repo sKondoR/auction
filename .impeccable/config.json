@@ -20,6 +20,15 @@
         ],
         "createdAt": "2026-09-23T22:40:12.808Z",
         "reason": "Claude: full-bleed bands carry their inset on the inner .wrap (24/20/16px gutter); fields are fixed-height flex rows; verified in desktop/mobile captures"
+      },
+      {
+        "rule": "clipped-overflow-container",
+        "value": "*",
+        "files": [
+          "frontend-ideas/09/index.html"
+        ],
+        "createdAt": "2026-10-09T09:24:56.041Z",
+        "reason": "agent: .tray-in overflow:hidden is the collapse mechanism of the drawer (grid-template-rows 0fr); the clipped .tick badges sit inside .tray-cloth padding and the section dropdown lives outside the drawer"
       }
     ]
   }

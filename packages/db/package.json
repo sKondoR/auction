@@ -5,17 +5,20 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./schema": "./src/schema/index.ts"
+    "./schema": "./src/schema/index.ts",
+    "./demo": "./src/demo.ts"
   },
   "scripts": {
     "generate": "drizzle-kit generate",
     "migrate": "tsx --env-file=../../.env src/migrate.ts",
     "seed": "tsx --env-file=../../.env src/seed.ts",
     "studio": "drizzle-kit studio",
-    "typecheck": "tsc -p tsconfig.json"
+    "typecheck": "tsc -p tsconfig.json",
+    "demo:dump": "tsx src/demo-dump.ts"
   },
   "dependencies": {
     "@auction/domain": "workspace:*",
+    "@electric-sql/pglite": "^0.5.8",
     "drizzle-orm": "^0.45.3",
     "postgres": "^3.4.9"
   },

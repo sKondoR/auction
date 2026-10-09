@@ -2,9 +2,13 @@ import { getDb, lots } from "@auction/db";
 import { eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { demoStaticParams } from "@/shared/api";
+import { readSearchParams } from "@/shared/lib";
 import { LotPage } from "@/views/lot";
 
 type Params = Promise<{ id: string }>;
+
+export const generateStaticParams = () => demoStaticParams(() => getDb().select({ id: lots.id }).from(lots));
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const id = Number((await params).id);
@@ -22,7 +26,7 @@ export default async function Page({
 }) {
   const id = Number((await params).id);
   if (!Number.isInteger(id)) notFound();
-  const sp = await searchParams;
+  const sp = await readSearchParams(searchParams);
   const flash = sp.created ? "Лот выставлен на торги." : sp.relisted ? "Лот перевыставлен." : undefined;
   return <LotPage id={id} flash={flash} />;
 }

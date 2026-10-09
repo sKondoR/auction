@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { authClient } from "@/shared/api/auth-client";
+import { DEMO_UNAVAILABLE, IS_DEMO } from "@/shared/config";
 import { Button, Field, Input } from "@/shared/ui";
 
 /** Вход и регистрация по номеру телефона и SMS-коду. */
@@ -24,6 +25,7 @@ export function PhoneLoginForm({ next }: { next?: string }) {
   const sendCode = () =>
     start(async () => {
       setError(null);
+      if (IS_DEMO) return setError(DEMO_UNAVAILABLE);
       const p = normalized();
       if (!p) return setError("Введите российский номер: +7 999 123-45-67");
       const res = await authClient.phoneNumber.sendOtp({ phoneNumber: p });
@@ -106,6 +108,7 @@ export function SignOutButton() {
     <button
       className="w-full text-left"
       onClick={async () => {
+        if (IS_DEMO) return alert(DEMO_UNAVAILABLE);
         await authClient.signOut();
         router.push("/");
         router.refresh();

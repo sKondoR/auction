@@ -1,0 +1,52 @@
+# Статическая демо-версия сайта на GitHub Pages: данные из встроенной демо-БД (PGlite),
+# действия, меняющие данные, отключены. Подробнее — README, раздел «Демо на GitHub Pages».
+name: GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  # Сроки торгов в демо отсчитываются от момента сборки — пересобираем каждый день,
+  # чтобы лоты не «заканчивались».
+  schedule:
+    - cron: "0 3 * * *"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - id: pages
+        uses: actions/configure-pages@v5
+      - run: pnpm --filter @auction/web build:pages
+        env:
+          # Сайт проекта открывается по адресу https://<owner>.github.io/<repo>/.
+          DEMO_BASE_PATH: ${{ steps.pages.outputs.base_path }}
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: apps/web/out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

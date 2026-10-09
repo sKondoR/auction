@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { IS_DEMO } from "@/shared/config";
 
 export interface LiveLotState {
   currentPrice: number | null;
@@ -31,6 +32,7 @@ export function useLotLive(lotId: number, initial: LiveLotState): LiveLotState {
   }
 
   useEffect(() => {
+    if (IS_DEMO) return;
     let es: EventSource | null = null;
     let poll: ReturnType<typeof setInterval> | null = null;
     const refresh = () => {

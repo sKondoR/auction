@@ -2,6 +2,7 @@
 
 import { ArrowLeft, ArrowRight, ImagePlus, Loader2, X } from "lucide-react";
 import { useRef, useState } from "react";
+import { DEMO_UNAVAILABLE, IS_DEMO } from "../config";
 import { cn } from "../lib";
 
 export interface UploadedPhoto {
@@ -37,6 +38,7 @@ export function PhotoUploader({
   };
 
   async function upload(files: FileList) {
+    if (IS_DEMO) return setError(DEMO_UNAVAILABLE);
     setError(null);
     const list = Array.from(files).slice(0, max - photos.length);
     setUploading(list.length);

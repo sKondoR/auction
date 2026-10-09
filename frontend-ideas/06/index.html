@@ -1,0 +1,619 @@
+<title>Лавка при дневном свете</title>
+<script src="../switcher.js" defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+:root{
+  color-scheme: light;
+  --green:#1D3B2A; --green-deep:#132A1D; --mist:#E4EBDF;
+  --wax:#C3161C; --wax-deep:#A01015; --wax-soft:#FBE7E6;
+  --brass:#B8892E; --brass-soft:#F5ECD8;
+  --sage:#DCE6D5; --peach:#F4DCCB; --powder:#D9E4EE; --butter:#F3E9C8; --blush:#F0DADB;
+  --sage-d:#C6D4BD; --peach-d:#E6C6B0; --powder-d:#C0D0DE; --butter-d:#E0D2A6; --blush-d:#DDBFC1;
+  --day:#FBFAF6; --white:#FFFFFF; --well:#F3F1EB;
+  --ink:#1B1F1C; --ink-2:#5D645F; --ink-3:#8A908B;
+  --line:#E5E1D8; --line-2:#CFC9BC;
+  --serif:'Old Standard TT','Times New Roman',serif;
+  --sans:'Golos Text',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --lift:0 1px 2px rgba(27,31,28,.06),0 8px 24px -8px rgba(27,31,28,.14);
+  --layer:0 2px 4px rgba(27,31,28,.05),0 18px 40px -12px rgba(27,31,28,.18);
+  --gut:24px;
+}
+*{box-sizing:border-box}
+body{background:var(--day);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+h1,h2,h3{font-family:var(--serif);font-weight:400;margin:0;text-wrap:balance}
+p{margin:0}
+button,input{font:inherit}
+:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.wrap{max-width:1280px;margin-inline:auto;padding-inline:var(--gut)}
+.num{font-variant-numeric:tabular-nums}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+svg.art{fill:none;stroke:currentColor;stroke-width:1.25;stroke-linecap:round;stroke-linejoin:round}
+svg.art *{vector-effect:non-scaling-stroke}
+svg.ic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 24px;border-radius:8px;border:1px solid transparent;font-weight:600;font-size:16px;text-decoration:none;cursor:pointer;transition:background-color .18s}
+.btn-p{background:var(--green);color:var(--white)}
+.btn-p:hover{background:var(--green-deep)}
+.btn-s{background:var(--white);color:var(--green);border-color:var(--green)}
+.btn-s:hover{background:var(--mist)}
+.btn-onDark{background:transparent;color:var(--white);border-color:rgba(255,255,255,.7)}
+.btn-onDark:hover{background:rgba(255,255,255,.08)}
+.btn-onDark:focus-visible{outline-color:var(--white)}
+.link{font-weight:500;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;color:var(--green)}
+
+/* header */
+.util{background:var(--green);color:var(--white);font-size:13px}
+.util .wrap{display:flex;justify-content:space-between;align-items:center;gap:16px;min-height:36px}
+.util nav{display:flex;gap:20px}
+.util a{text-decoration:none;opacity:.9}
+.util a:hover{opacity:1;text-decoration:underline}
+.mainbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--white);border-bottom:1px solid var(--line)}
+.mainbar .wrap{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;height:72px}
+.search{display:flex;align-items:center;gap:10px;height:44px;max-width:340px;width:100%;padding:0 18px;border:1px solid var(--line);border-radius:999px;color:var(--ink-2);background:var(--white)}
+.search:focus-within{border-color:var(--green);box-shadow:0 0 0 3px var(--mist)}
+.search input{border:0;outline:0;background:transparent;flex:1;min-width:0;color:var(--ink);font-size:15px}
+.search input::placeholder{color:var(--ink-3)}
+.logo{font-family:var(--serif);font-size:30px;line-height:1;text-decoration:none;color:var(--ink);letter-spacing:-.01em}
+.acts{display:flex;justify-content:flex-end;align-items:center;gap:6px}
+.iconbtn{display:grid;place-items:center;width:44px;height:44px;border-radius:999px;border:0;background:transparent;color:var(--ink);cursor:pointer}
+.iconbtn:hover{background:var(--well)}
+.acts .login{font-weight:600;color:var(--green);text-decoration:none;padding:0 10px}
+.acts .btn{height:44px;padding:0 18px;margin-left:6px}
+.cats{background:var(--white);border-bottom:1px solid var(--line)}
+.cats ul{list-style:none;margin:0 auto;padding:0 var(--gut);max-width:1280px;display:flex;justify-content:center;gap:28px;overflow-x:auto;scrollbar-width:none}
+.cats a{display:block;padding:15px 0 13px;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;white-space:nowrap;border-bottom:2px solid transparent}
+.cats a:hover{border-bottom-color:var(--green)}
+.cats .live{color:var(--wax)}
+.cats .live:hover{border-bottom-color:var(--wax)}
+
+/* hero */
+.hero{padding-block:72px 88px;overflow:hidden}
+.hero .wrap{display:grid;grid-template-columns:5fr 7fr;gap:48px;align-items:center}
+.hero h1{font-size:clamp(2.75rem,1.6rem + 4.2vw,5.25rem);line-height:1.02;letter-spacing:-.015em}
+.hero .lead{margin-top:24px;font-size:18px;line-height:1.55;color:var(--ink-2);max-width:34em}
+.hero .lead b{color:var(--ink);font-weight:600}
+.hero .ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px}
+.hero .note{margin-top:20px;font-size:14px;color:var(--ink-2);display:flex;align-items:center;gap:8px}
+
+.stage{position:relative;height:520px}
+.plane{position:absolute;border-radius:28px;box-shadow:var(--layer)}
+.p1{background:var(--peach);inset:0 12% 18% 6%}
+.p2{background:var(--powder);left:0;right:36%;top:30%;bottom:0}
+.p3{background:var(--butter);right:0;width:34%;top:8%;height:46%}
+.p1 svg,.p2 svg,.p3 svg{position:absolute;color:var(--ink)}
+.p1 svg{width:44%;right:6%;top:8%;opacity:.9}
+.p2 svg{width:36%;left:8%;bottom:10%}
+.p3 svg{width:70%;left:15%;top:14%}
+.stage .plane,.stage .livecard{transition:transform .9s cubic-bezier(.16,1,.3,1),opacity .6s}
+.stage.pre .plane{transform:translate(0,24px) scale(.97);opacity:0}
+.stage.pre .livecard{transform:translate(-50%,40px);opacity:0}
+.stage.pre .p2{transition-delay:.08s}.stage.pre .p3{transition-delay:.16s}
+.stage .p2{transition-delay:.1s}.stage .p3{transition-delay:.2s}.stage .livecard{transition-delay:.35s}
+
+.livecard{position:absolute;left:52%;top:42%;transform:translate(-50%,0);width:min(340px,86%);background:var(--white);border-radius:12px;box-shadow:var(--layer);padding:16px}
+.livecard .ph{position:relative;background:var(--well);border-radius:10px;height:150px;display:grid;place-items:center;color:var(--ink)}
+.livecard .ph svg{height:124px}
+.badge{position:absolute;top:10px;left:10px;background:var(--white);border-radius:4px;padding:4px 8px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;line-height:1.3}
+.sample{position:absolute;top:10px;right:10px;font-size:12px;color:var(--ink-2);background:var(--white);border-radius:999px;padding:2px 10px}
+.livecard h3{font-family:var(--sans);font-size:15px;font-weight:500;line-height:1.35;margin-top:12px}
+.livecard .row{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-top:10px}
+.livecard .price{font-size:28px;font-weight:600;line-height:1.1}
+.livecard .bids{font-size:14px;color:var(--ink-2)}
+.timer{display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:15px;color:var(--ink)}
+.timer.hot{color:var(--wax)}
+.ext{margin-top:12px;border-radius:8px;background:var(--well);padding:10px 12px;font-size:13px;line-height:1.4;color:var(--ink-2);transition:background-color .3s,color .3s}
+.ext.on{background:var(--wax-soft);color:var(--wax-deep)}
+.ext strong{font-weight:600}
+
+/* trust strip */
+.trust{background:var(--well);border-radius:20px;display:grid;grid-template-columns:repeat(5,1fr)}
+.trust li{list-style:none;display:flex;gap:14px;align-items:flex-start;padding:24px 22px}
+.trust li+li{border-left:1px solid var(--line)}
+.trust ul,.trust{margin:0;padding:0}
+.ring{width:48px;height:48px;border-radius:50%;border:1px solid var(--line-2);display:grid;place-items:center;color:var(--green);flex:none;background:var(--white)}
+.ring svg{width:24px;height:24px}
+.trust b{display:block;font-weight:600;font-size:15px;line-height:1.3}
+.trust span{display:block;font-size:14px;color:var(--ink-2);line-height:1.45;margin-top:4px}
+
+/* sections */
+.sec{padding-block:96px 0}
+.sec-head{text-align:center;margin-bottom:32px}
+.sec-head h2{font-size:clamp(1.75rem,1.3rem + 1.4vw,2.25rem);line-height:1.15}
+.sec-head p{margin:12px auto 0;max-width:40em;color:var(--ink-2)}
+.sec-head .link{display:inline-block;margin-top:12px}
+
+/* lots */
+.lots{display:grid;grid-template-columns:repeat(5,1fr);gap:24px;list-style:none;margin:0;padding:0}
+.lot a{display:block;text-decoration:none;color:var(--ink);border-radius:12px}
+.lot .ph{position:relative;aspect-ratio:1;background:var(--well);border-radius:12px;display:grid;place-items:center;color:var(--ink);transition:box-shadow .2s,transform .2s}
+.lot .ph svg.art{width:62%}
+.lot a:hover .ph{box-shadow:var(--lift);transform:translateY(-2px)}
+.fav{position:absolute;top:8px;right:8px;width:36px;height:36px;border-radius:50%;border:0;background:var(--white);display:grid;place-items:center;cursor:pointer;color:var(--ink)}
+.fav svg{width:18px;height:18px}
+.fav[aria-pressed="true"] svg{fill:var(--wax);stroke:var(--wax)}
+.lot h3{font-family:var(--sans);font-size:15px;font-weight:500;line-height:1.35;margin-top:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.lot .pr{margin-top:8px;font-size:18px;font-weight:600;line-height:1.2}
+.lot .meta{margin-top:4px;font-size:14px;color:var(--ink-2);display:flex;flex-wrap:wrap;gap:4px 12px}
+.lot .meta .timer{font-size:14px;font-weight:500;color:var(--ink-2)}
+.lot .meta .timer.hot{color:var(--wax);font-weight:600}
+.lot .meta .timer svg{width:16px;height:16px}
+.caption{margin-top:20px;text-align:center;font-size:13px;color:var(--ink-3)}
+
+/* categories */
+.tiles{display:grid;grid-template-columns:repeat(5,1fr);gap:28px 32px;list-style:none;margin:0;padding:0 12px 12px 0}
+.tile a{position:relative;display:block;height:280px;border-radius:20px;padding:24px;text-decoration:none;color:var(--ink);background:var(--c);box-shadow:12px 12px 0 var(--cd);transition:transform .2s,box-shadow .2s}
+.tile a:hover{transform:translate(-3px,-3px);box-shadow:15px 15px 0 var(--cd)}
+.tile h3{font-size:22px;font-weight:700;line-height:1.2}
+.tile p{margin-top:6px;font-size:14px;color:var(--ink-2);line-height:1.4}
+.tile svg.art{position:absolute;right:18px;bottom:16px;width:62%;max-width:150px}
+
+/* how to sell band */
+.band{margin-top:96px;background:var(--sage);padding-block:88px}
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,1fr);gap:16px;counter-reset:s}
+.steps li{background:var(--white);border-radius:20px;padding:24px;counter-increment:s;display:flex;flex-direction:column;gap:10px}
+.steps li::before{content:counter(s);font-family:var(--serif);font-size:40px;line-height:1;color:var(--green)}
+.steps b{font-weight:600;font-size:16px;line-height:1.3}
+.steps span{font-size:14px;color:var(--ink-2);line-height:1.5}
+.money{margin-top:24px;background:var(--white);border-radius:20px;padding:28px 32px;display:grid;grid-template-columns:auto 1fr;gap:12px 40px;align-items:center}
+.money .calc{display:flex;flex-direction:column;gap:6px}
+.money label{font-size:14px;font-weight:500}
+.field{display:flex;align-items:center;height:48px;border:1px solid var(--line);border-radius:8px;padding:0 14px;background:var(--white);width:220px}
+.field:focus-within{border-color:var(--green);box-shadow:0 0 0 3px var(--mist)}
+.field input{border:0;outline:0;flex:1;min-width:0;font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink);background:transparent}
+.field span{color:var(--ink-2);font-weight:500}
+.money output{display:block;font-size:17px;line-height:1.55}
+.money output b{font-weight:600}
+.money small{display:block;margin-top:4px;font-size:14px;color:var(--ink-2)}
+
+/* formats */
+.formats{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;list-style:none;margin:0;padding:0}
+.fmt{border:1px solid var(--line);border-radius:12px;background:var(--white);padding:24px;display:flex;flex-direction:column;gap:12px}
+.fmt svg.plot{width:100%;height:84px;display:block}
+.fmt svg.plot .ax{stroke:var(--line-2);stroke-width:1}
+.fmt svg.plot .ln{fill:none;stroke:var(--green);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.fmt svg.plot .dot{fill:var(--green)}
+.fmt h3{font-size:22px;font-weight:700;line-height:1.2}
+.fmt p{font-size:15px;color:var(--ink-2)}
+.state{align-self:flex-start;font-size:13px;font-weight:600;border-radius:999px;padding:3px 12px}
+.state.on{background:var(--mist);color:var(--green)}
+.state.soon{background:var(--brass-soft);color:#6E5118}
+
+/* ladder band */
+.dark{margin-top:96px;background:var(--green);color:var(--white);padding-block:88px}
+.dark .wrap{display:grid;grid-template-columns:7fr 5fr;gap:56px;align-items:end}
+.dark h2{font-size:clamp(1.75rem,1.3rem + 1.4vw,2.25rem);line-height:1.15}
+.dark .intro{margin-top:12px;color:rgba(255,255,255,.78);max-width:36em}
+.ladder-scroll{overflow-x:auto;margin-top:40px}
+.ladder{display:grid;grid-template-columns:repeat(6,minmax(78px,1fr));align-items:end;gap:6px;min-width:500px}
+.rung{display:flex;flex-direction:column;justify-content:flex-start;border-top:2px solid var(--brass);background:rgba(255,255,255,.06);border-radius:0 0 4px 4px;padding:12px 10px}
+.rung .st{font-size:22px;font-weight:600;line-height:1.1}
+.rung .st small{font-size:14px;font-weight:500;opacity:.8}
+.rung .rg{margin-top:6px;font-size:12.5px;line-height:1.35;color:rgba(255,255,255,.72)}
+.rung.me{background:rgba(184,137,46,.18)}
+.rules{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:24px}
+.rules li{display:grid;grid-template-columns:48px 1fr;gap:16px}
+.rules .ring{background:transparent;border-color:rgba(255,255,255,.35);color:var(--white)}
+.rules b{display:block;font-weight:600;font-size:16px}
+.rules span{display:block;margin-top:4px;font-size:15px;color:rgba(255,255,255,.78);line-height:1.5}
+
+/* final */
+.final{padding-block:96px}
+.final .wrap{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+.final h2{font-size:clamp(2rem,1.5rem + 2vw,2.75rem);line-height:1.1}
+.final .ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+.saved{background:var(--mist);border-radius:20px;padding:32px}
+.saved h3{font-size:22px;font-weight:700;line-height:1.25}
+.saved p{margin-top:8px;color:var(--ink-2);font-size:15px}
+.saved form{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+.saved .search{max-width:none;flex:1 1 220px;height:48px}
+.saved .done{margin-top:12px;font-size:15px;color:var(--green);font-weight:500;min-height:1.5em}
+
+/* footer */
+footer{background:var(--green);color:var(--white)}
+footer .cols{display:grid;grid-template-columns:1.3fr repeat(4,1fr);gap:32px;padding-block:64px 48px}
+footer .logo{color:var(--white)}
+footer .about{margin-top:12px;font-size:14px;color:rgba(255,255,255,.75);max-width:26em}
+footer h4{font-family:var(--serif);font-weight:700;font-size:18px;margin:0 0 14px}
+footer ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+footer ul a{font-size:14px;color:rgba(255,255,255,.82);text-decoration:none}
+footer ul a:hover{color:var(--white);text-decoration:underline}
+footer a:focus-visible{outline-color:var(--white)}
+footer .bottom{background:var(--green-deep);font-size:13px;color:rgba(255,255,255,.7)}
+footer .bottom .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;padding-block:18px}
+footer .bottom nav{display:flex;flex-wrap:wrap;gap:20px}
+footer .bottom a{text-decoration:none}
+footer .bottom a:hover{text-decoration:underline;color:var(--white)}
+
+/* responsive */
+@media (max-width:1180px){
+  .lots{grid-template-columns:repeat(4,1fr)}
+  .lots li:nth-child(5){display:none}
+  .trust{grid-template-columns:repeat(3,1fr)}
+  .trust li:nth-child(4){border-left:0}
+  .trust li:nth-child(n+4){border-top:1px solid var(--line)}
+  .steps{grid-template-columns:repeat(3,1fr)}
+  .formats{grid-template-columns:repeat(2,1fr)}
+  .tiles{grid-template-columns:repeat(3,1fr)}
+}
+@media (max-width:1023px){
+  :root{--gut:20px}
+  .hero .wrap,.dark .wrap,.final .wrap{grid-template-columns:1fr}
+  .hero{padding-block:48px 64px}
+  .stage{height:460px;max-width:620px;width:100%;margin-inline:auto}
+  .mainbar .search{display:none}
+  .mainbar .wrap{grid-template-columns:auto 1fr;height:64px}
+  .acts .sellbtn{display:none}
+  .util nav a:not(:first-child){display:none}
+  .cats ul{justify-content:flex-start}
+  footer .cols{grid-template-columns:repeat(2,1fr)}
+  footer .cols > div:first-child{grid-column:1/-1}
+}
+@media (max-width:760px){
+  :root{--gut:16px}
+  .util .msg{font-size:12px}
+  .util nav{display:none}
+  .sec{padding-top:64px}
+  .band,.dark{margin-top:64px;padding-block:56px}
+  .final{padding-block:64px}
+  .stage{height:400px}
+  .livecard{left:50%;top:34%}
+  .lots,.tiles,.trust{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:16px;margin-inline:calc(var(--gut)*-1);padding-inline:var(--gut);scrollbar-width:none}
+  .lots li{flex:0 0 62%;scroll-snap-align:start}
+  .lots li:nth-child(5){display:block}
+  .tiles{padding-bottom:16px;padding-right:calc(var(--gut) + 12px)}
+  .tiles li{flex:0 0 64%;scroll-snap-align:start}
+  .tile a{height:240px}
+  .trust{border-radius:0;background:transparent}
+  .trust li{flex:0 0 78%;scroll-snap-align:start;background:var(--well);border-radius:20px;border:0!important}
+  .steps{grid-template-columns:1fr}
+  .steps li{flex-direction:row;align-items:flex-start;gap:16px}
+  .steps li::before{font-size:32px;min-width:28px}
+  .steps li div{display:flex;flex-direction:column;gap:4px}
+  .money{grid-template-columns:1fr;padding:24px}
+  .formats{grid-template-columns:1fr}
+  .acts .login{display:none}
+  .saved{padding:24px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition:none!important;animation:none!important}
+}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="coin" viewBox="0 0 120 120"><circle cx="60" cy="60" r="44"/><circle cx="60" cy="60" r="37" stroke-dasharray="1 4"/><path d="M34 78c-8-14-6-30 4-40M86 78c8-14 6-30-4-40"/><path d="M36 66l-6-3M35 56l-6-1M38 47l-5-3M84 66l6-3M85 56l6-1M82 47l5-3"/><path d="M54 48l7-6v34M53 76h16"/><path d="M48 86h24"/></symbol>
+    <symbol id="samovar" viewBox="0 0 120 120"><circle cx="60" cy="16" r="3"/><path d="M52 26q8-9 16 0"/><path d="M47 26h26l3 8H44z"/><path d="M44 34q-10 26 4 50h24q14-24 4-50"/><path d="M47 48q13 5 26 0M45 62q15 6 30 0"/><path d="M44 44q-12 2-10 16M76 44q12 2 10 16"/><path d="M76 70h14v5h-4"/><path d="M52 84l-6 12h28l-6-12"/><path d="M40 96h40M46 96l-4 8M74 96l4 8"/></symbol>
+    <symbol id="stamp" viewBox="0 0 120 120"><rect x="28" y="16" width="64" height="88" rx="1" stroke-dasharray="2 3"/><rect x="35" y="23" width="50" height="62"/><circle cx="60" cy="52" r="7"/><path d="M65 57l16 16M63 58l8 18M55 57l-10 14M54 55l-14 6"/><ellipse cx="60" cy="52" rx="20" ry="8" stroke-dasharray="1 3"/><path d="M36 93h18M36 98h10M74 93h10"/></symbol>
+    <symbol id="badge" viewBox="0 0 120 120"><path d="M46 12h28l-4 32H50z"/><path d="M53 12l-2 32M60 12v32M67 12l2 32"/><circle cx="60" cy="72" r="28"/><circle cx="60" cy="72" r="22" stroke-dasharray="1 3"/><path d="M60 56l4.1 10.3 11.1.8-8.5 7.1 2.7 10.7-9.4-5.9-9.4 5.9 2.7-10.7-8.5-7.1 11.1-.8z"/></symbol>
+    <symbol id="watch" viewBox="0 0 120 120"><path d="M52 24q8-14 16 0"/><rect x="55" y="24" width="10" height="8" rx="2"/><circle cx="60" cy="68" r="34"/><circle cx="60" cy="68" r="28"/><path d="M60 42v5M86 68h-5M60 94v-5M34 68h5"/><path d="M60 68V52M60 68l10 6"/><circle cx="60" cy="80" r="5"/></symbol>
+    <symbol id="cup" viewBox="0 0 120 120"><path d="M28 50h56q-2 30-28 32-26-2-28-32z"/><path d="M84 56q14 0 12 12-2 10-15 8"/><ellipse cx="56" cy="88" rx="38" ry="7"/><path d="M34 60q22 9 44 0"/><path d="M50 42q-5-7 0-14M62 42q-5-7 0-14"/></symbol>
+    <symbol id="chair" viewBox="0 0 120 120"><path d="M34 62V32q0-10 10-10h32q10 0 10 10v30"/><path d="M26 62h68v16H26z"/><path d="M26 62q-8 0-8 8v12h8M94 62q8 0 8 8v12h-8"/><path d="M32 78l-3 16M88 78l3 16"/><circle cx="48" cy="38" r="1.5"/><circle cx="60" cy="38" r="1.5"/><circle cx="72" cy="38" r="1.5"/><circle cx="54" cy="50" r="1.5"/><circle cx="66" cy="50" r="1.5"/></symbol>
+    <symbol id="book" viewBox="0 0 120 120"><path d="M20 30l40 8 40-8v56l-40 8-40-8z"/><path d="M60 38v56"/><path d="M28 46l24 4M28 56l24 4M28 66l24 4M68 50l24-4M68 60l24-4"/></symbol>
+    <symbol id="i-free" viewBox="0 0 24 24"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></symbol>
+    <symbol id="i-pct" viewBox="0 0 24 24"><path d="M19 5 5 19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></symbol>
+    <symbol id="i-direct" viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></symbol>
+    <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+  </defs>
+</svg>
+
+<div class="util">
+  <div class="wrap">
+    <span class="msg">Выставить лот бесплатно. Комиссия 1% только с проданного</span>
+    <nav aria-label="Служебные ссылки"><a href="#">Продать администрации</a><a href="#">Правила торгов</a><a href="#">Помощь</a></nav>
+  </div>
+</div>
+
+<div class="mainbar">
+  <div class="wrap">
+    <label class="search" for="q"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><span class="sr">Поиск по лотам</span><input id="q" type="search" placeholder="Монета, значок, самовар"></label>
+    <a class="logo" href="#" aria-label="auction, на главную">auction</a>
+    <div class="acts">
+      <button class="iconbtn" type="button" aria-label="Уведомления"><svg class="ic"><use href="#i-bell"/></svg></button>
+      <button class="iconbtn" type="button" aria-label="Сообщения"><svg class="ic"><use href="#i-chat"/></svg></button>
+      <button class="iconbtn" type="button" aria-label="Избранное"><svg class="ic"><use href="#i-heart"/></svg></button>
+      <a class="login" href="#">Войти</a>
+      <a class="btn btn-p sellbtn" href="#sell">Выставить лот</a>
+    </div>
+  </div>
+</div>
+
+<nav class="cats" aria-label="Категории">
+  <ul>
+    <li><a href="#">Монеты</a></li><li><a href="#">Боны</a></li><li><a href="#">Марки</a></li><li><a href="#">Открытки</a></li><li><a href="#">Значки</a></li><li><a href="#">Награды</a></li><li><a href="#">Фарфор</a></li><li><a href="#">Часы</a></li><li><a href="#">Книги</a></li><li><a href="#">Интерьер</a></li><li><a class="live" href="#">Идут сейчас</a></li>
+  </ul>
+</nav>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <h1>Вещи с историей уходят с торгов, а не за бесценок</h1>
+        <p class="lead">Выставьте монету, значок или бабушкин сервиз на аукцион или по своей цене. <b>Лот размещается бесплатно</b>, площадка берёт 1% только с проданного, а покупатель переводит деньги вам напрямую.</p>
+        <div class="ctas">
+          <a class="btn btn-p" href="#sell">Выставить лот</a>
+          <a class="btn btn-s" href="#lots">Смотреть торги</a>
+        </div>
+        <p class="note"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg>Вход по номеру телефона, паспорт не нужен</p>
+      </div>
+
+      <div class="stage pre" id="stage" aria-label="Пример торгов по лоту">
+        <div class="plane p1"><svg class="art" viewBox="0 0 120 120" aria-hidden="true"><use href="#watch"/></svg></div>
+        <div class="plane p2"><svg class="art" viewBox="0 0 120 120" aria-hidden="true"><use href="#cup"/></svg></div>
+        <div class="plane p3"><svg class="art" viewBox="0 0 120 120" aria-hidden="true"><use href="#stamp"/></svg></div>
+        <article class="livecard">
+          <div class="ph">
+            <span class="badge">Аукцион</span><span class="sample">пример</span>
+            <svg class="art" viewBox="0 0 120 120" aria-hidden="true"><use href="#samovar"/></svg>
+          </div>
+          <h3>Самовар «банка», Тула, латунь, начало XX века</h3>
+          <div class="row">
+            <div>
+              <div class="price num" id="hPrice">7 800 ₽</div>
+              <div class="bids num" id="hBids">23 ставки</div>
+            </div>
+            <span class="timer hot num" id="hTimer"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg><span id="hTime">4:52</span></span>
+          </div>
+          <p class="ext" id="hExt" aria-live="polite">Идут последние 5 минут: <strong>ставка сейчас продлит торги на 5 минут</strong>, чтобы соперник успел ответить.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <ul class="trust" aria-label="Условия площадки">
+      <li><span class="ring"><svg class="ic"><use href="#i-free"/></svg></span><div><b>Лот бесплатно</b><span>До 20 фото и описание без оплаты</span></div></li>
+      <li><span class="ring"><svg class="ic"><use href="#i-pct"/></svg></span><div><b>1% с продажи</b><span>Если вещь не продалась, вы ничего не платите</span></div></li>
+      <li><span class="ring"><svg class="ic"><use href="#i-direct"/></svg></span><div><b>Деньги напрямую</b><span>Покупатель переводит оплату продавцу</span></div></li>
+      <li><span class="ring"><svg class="ic"><use href="#i-star"/></svg></span><div><b>Отзывы после сделки</b><span>Видно, кому можно доверять</span></div></li>
+      <li><span class="ring"><svg class="ic"><use href="#i-clock"/></svg></span><div><b>Продление торгов</b><span>Выиграть ставкой на последней секунде не выйдет</span></div></li>
+    </ul>
+  </div>
+
+  <section class="sec" id="lots" aria-labelledby="lotsH">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 id="lotsH">Скоро закончатся</h2>
+        <a class="link" href="#">Все лоты</a>
+      </div>
+      <ul class="lots">
+        <li class="lot"><a href="#"><div class="ph"><span class="badge">Аукцион</span><button class="fav" type="button" aria-pressed="false" aria-label="В избранное"><svg class="ic"><use href="#i-heart"/></svg></button><svg class="art" viewBox="0 0 120 120" aria-hidden="true"><use href="#coin"/></svg></div><h3>Рубль 1924 года, серебро, сохранность XF</h3><div class="pr num">4 350 ₽</div><div class="meta"><span>12 ставок</span><span class="timer num" data-left="2840"></span></div></a></li>
+        <li class="lot"><a href="#"><div class="ph"><span class="badge">Аукцион</span><button class="fav" type="button" aria-pressed="false" aria-label="В избранное"><svg class="ic"><use href="#i-heart"/></svg></button><svg class="art" viewBox="0 0 120 120" aria-hidden="true"><use href="#watch"/></svg></div><h3>Карманные часы «Молния», 1950-е, на ходу</h3><div class="pr num">2 900 ₽</div><div class="meta"><span>9 ставок</span><span class="timer num" data-left="18740"></span></div></a></li>
+        <li class="lot"><a href="#"><div class="ph"><span class="badge">Аукцион</span><button class="fav" type="button" aria-pressed="false" aria-label="В избранное"><svg class="ic"><use href="#i-heart"/></svg></button><svg class="art" viewBox="0 0 120 120" aria-hidden="true"><use href="#stamp"/></svg></div><h3>Марка «Первый искусственный спутник Земли», 1957</h3><div class="pr num">350 ₽</div><div class="meta"><span>5 ставок</span><span class="timer num" data-left="187200"></span></div></a></li>
+        <li class="lot"><a href="#"><div class="ph"><span class="badge">Фикс. цена</span><button class="fav" type="button" aria-pressed="false" aria-label="В избранное"><svg class="ic"><use href="#i-heart"/></svg></button><svg class="art" viewBox="0 0 120 120" aria-hidden="true"><use href="#badge"/></svg></div><h3>Значок «Олимпиада-80», тяжёлый, винт</h3><div class="pr num">600 ₽</div><div class="meta"><span>Можно предложить цену</span></div></a></li>
+        <li class="lot"><a href="#"><div class="ph"><span class="badge">Фикс. цена</span><button class="fav" type="button" aria-pressed="false" aria-label="В избранное"><svg class="ic"><use href="#i-heart"/></svg></button><svg class="art" viewBox="0 0 120 120" aria-hidden="true"><use href="#cup"/></svg></div><h3>Чайная пара ЛФЗ «Кобальтовая сетка», 1960-е</h3><div class="pr num">3 200 ₽</div><div class="meta"><span>2 шт. в лоте</span></div></a></li>
+      </ul>
+      <p class="caption">Лоты на этой странице — примеры, чтобы показать, как выглядят торги</p>
+    </div>
+  </section>
+
+  <section class="sec" aria-labelledby="catH">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 id="catH">Что продают и собирают</h2>
+        <p>У каждой категории свои фильтры: для монет это год, номинал, металл и сохранность</p>
+      </div>
+      <ul class="tiles">
+        <li class="tile" style="--c:var(--butter);--cd:var(--butter-d)"><a href="#"><h3>Монеты и боны</h3><p>Империя, СССР, мир</p><svg class="art" viewBox="0 0 120 120" aria-hidden="true"><use href="#coin"/></svg></a></li>
+        <li class="tile" style="--c:var(--peach);--cd:var(--peach-d)"><a href="#"><h3>Марки и открытки</h3><p>Блоки, конверты, почтовые карточки</p><svg class="art" viewBox="0 0 120 120" aria-hidden="true"><use href="#stamp"/></svg></a></li>
+        <li class="tile" style="--c:var(--blush);--cd:var(--blush-d)"><a href="#"><h3>Значки и награды</h3><p>Спорт, города, юбилейные</p><svg class="art" viewBox="0 0 120 120" aria-hidden="true"><use href="#badge"/></svg></a></li>
+        <li class="tile" style="--c:var(--powder);--cd:var(--powder-d)"><a href="#"><h3>Фарфор и посуда</h3><p>ЛФЗ, Дулёво, Вербилки</p><svg class="art" viewBox="0 0 120 120" aria-hidden="true"><use href="#cup"/></svg></a></li>
+        <li class="tile" style="--c:var(--sage);--cd:var(--sage-d)"><a href="#"><h3>Мебель и интерьер</h3><p>Кресла, лампы, самовары</p><svg class="art" viewBox="0 0 120 120" aria-hidden="true"><use href="#chair"/></svg></a></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="band" id="sell" aria-labelledby="sellH">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 id="sellH">Как продать вещь</h2>
+        <p>От фотографии до отзыва. Всё, кроме передачи денег, проходит на площадке</p>
+      </div>
+      <ol class="steps">
+        <li><div><b>Сфотографируйте</b><span>До 20 снимков с разных сторон. Покажите клейма, сколы и потёртости</span></div></li>
+        <li><div><b>Выберите формат</b><span>Аукцион от 1 ₽ на срок от 1 до 21 дня или фиксированная цена до 60 дней</span></div></li>
+        <li><div><b>Отвечайте на вопросы</b><span>Покупатели спрашивают прямо под лотом, ответ видят все</span></div></li>
+        <li><div><b>Получите оплату</b><span>Покупатель переводит деньги вам, вы отправляете вещь удобным способом</span></div></li>
+        <li><div><b>Оставьте отзыв</b><span>После сделки вы с покупателем оцениваете друг друга</span></div></li>
+      </ol>
+      <div class="money">
+        <div class="calc">
+          <label for="sum">Если лот продастся за</label>
+          <div class="field"><input id="sum" inputmode="numeric" value="10 000" autocomplete="off"><span>₽</span></div>
+        </div>
+        <div>
+          <output id="sumOut" for="sum" aria-live="polite"></output>
+          <small>Комиссию мы выставляем счётом раз в месяц, из оплаты покупателя она не вычитается</small>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" aria-labelledby="fmtH">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 id="fmtH">Четыре формата торгов</h2>
+        <p>Формат выбирает продавец. Если вещь не продалась, её можно выставить заново в другом формате</p>
+      </div>
+      <ul class="formats">
+        <li class="fmt">
+          <svg class="plot" viewBox="0 0 200 84" aria-hidden="true"><path class="ax" d="M4 78h192"/><path class="ln" d="M4 36h150"/><circle class="dot" cx="154" cy="36" r="4"/></svg>
+          <h3>Фиксированная цена</h3>
+          <p>Продаётся первому, кто согласился с ценой. Можно разрешить покупателям предлагать свою</p>
+          <span class="state on">Работает</span>
+        </li>
+        <li class="fmt">
+          <svg class="plot" viewBox="0 0 200 84" aria-hidden="true"><path class="ax" d="M4 78h192"/><path class="ln" d="M4 70h28v-8h26v-8h24v-10h22v-12h22v-12h22v-8h28"/><circle class="dot" cx="176" cy="12" r="4"/></svg>
+          <h3>Английский аукцион</h3>
+          <p>Ставки растут по шагу, лот получает самая высокая к концу торгов. Есть автоставка и блиц-цена</p>
+          <span class="state on">Работает</span>
+        </li>
+        <li class="fmt">
+          <svg class="plot" viewBox="0 0 200 84" aria-hidden="true"><path class="ax" d="M4 78h192"/><path class="ln" d="M4 12h30v12h30v12h30v12h30v12h60"/><circle class="dot" cx="124" cy="48" r="4"/></svg>
+          <h3>Голландский аукцион</h3>
+          <p>Цена снижается по расписанию до минимальной. Покупает тот, кто первым нажал «Купить»</p>
+          <span class="state soon">Готовим</span>
+        </li>
+        <li class="fmt">
+          <svg class="plot" viewBox="0 0 200 84" aria-hidden="true"><path class="ax" d="M4 78h192"/><path class="ln" d="M4 60l14-4 12-10 10 2 12-14 10 4 14-16 12 6 14-12 12 4"/><path class="ax" d="M130 20v58"/><circle class="dot" cx="130" cy="20" r="4"/><path class="ln" d="M138 60h14M158 60h14M178 60h14" style="stroke:var(--line-2)"/></svg>
+          <h3>Живой аукцион</h3>
+          <p>Продавец ведёт видеотрансляцию и продаёт лоты каталога по очереди в назначенное время</p>
+          <span class="state soon">Готовим</span>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="dark" aria-labelledby="ladderH">
+    <div class="wrap">
+      <div>
+        <h2 id="ladderH">Шаг ставки зависит от цены</h2>
+        <p class="intro">Каждая новая ставка выше текущей минимум на шаг. Чем дороже лот, тем крупнее шаг. Шкала одна для всех лотов и всегда видна на странице торгов.</p>
+        <div class="ladder-scroll">
+          <div class="ladder" role="table" aria-label="Шаг ставки по текущей цене">
+            <div class="rung" role="row" style="height:92px"><span class="st num" role="cell">5 <small>₽</small></span><span class="rg" role="cell">до 100 ₽</span></div>
+            <div class="rung" role="row" style="height:116px"><span class="st num" role="cell">10 <small>₽</small></span><span class="rg" role="cell">100–1 000 ₽</span></div>
+            <div class="rung" role="row" style="height:140px"><span class="st num" role="cell">50 <small>₽</small></span><span class="rg" role="cell">1 000–5 000 ₽</span></div>
+            <div class="rung me" role="row" style="height:164px"><span class="st num" role="cell">100 <small>₽</small></span><span class="rg" role="cell">5 000–20 000 ₽<br>как у самовара выше</span></div>
+            <div class="rung" role="row" style="height:188px"><span class="st num" role="cell">500 <small>₽</small></span><span class="rg" role="cell">20 000–100 000 ₽</span></div>
+            <div class="rung" role="row" style="height:212px"><span class="st num" role="cell">1 000 <small>₽</small></span><span class="rg" role="cell">от 100 000 ₽</span></div>
+          </div>
+        </div>
+      </div>
+      <ul class="rules">
+        <li><span class="ring"><svg class="ic"><use href="#i-plus"/></svg></span><div><b>Автоставка</b><span>Укажите свой максимум. Если вас перебьют, система поднимет ставку на шаг, но не выше максимума</span></div></li>
+        <li><span class="ring"><svg class="ic"><use href="#i-clock"/></svg></span><div><b>Продление торгов</b><span>Ставка в последние 5 минут сдвигает окончание на 5 минут от момента ставки</span></div></li>
+        <li><span class="ring"><svg class="ic"><use href="#i-bolt"/></svg></span><div><b>Блиц-цена</b><span>Если продавец её указал, лот можно забрать сразу, пока ставки её не догнали</span></div></li>
+        <li><span class="ring"><svg class="ic"><use href="#i-lock"/></svg></span><div><b>Ставку нельзя отозвать</b><span>Перед каждой ставкой мы попросим подтвердить сумму</span></div></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="final" aria-labelledby="finalH">
+    <div class="wrap">
+      <div>
+        <h2 id="finalH">Выставите первый лот за несколько минут</h2>
+        <p class="lead" style="margin-top:16px;color:var(--ink-2);max-width:32em">Понадобятся телефон для входа, фотографии вещи и город, откуда вы её отправите.</p>
+        <div class="ctas">
+          <a class="btn btn-p" href="#">Выставить лот</a>
+          <a class="btn btn-s" href="#">Продать администрации</a>
+        </div>
+      </div>
+      <div class="saved">
+        <h3>Ищете что-то конкретное?</h3>
+        <p>Сохраните поиск, и мы пришлём уведомление, когда появится подходящий лот.</p>
+        <form id="savedForm" novalidate>
+          <label class="search" for="sq"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><span class="sr">Что ищете</span><input id="sq" type="search" placeholder="Например, 20 копеек 1931"></label>
+          <button class="btn btn-p" type="submit">Сохранить поиск</button>
+        </form>
+        <p class="done" id="savedMsg" aria-live="polite"></p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap cols">
+    <div><a class="logo" href="#">auction</a><p class="about">Торги предметами коллекционирования и антиквариата. Покупатели и продавцы рассчитываются напрямую.</p></div>
+    <div><h4>Покупателям</h4><ul><li><a href="#">Как делать ставки</a></li><li><a href="#">Автоставка</a></li><li><a href="#">Сохранённые поиски</a></li><li><a href="#">Отзывы</a></li></ul></div>
+    <div><h4>Продавцам</h4><ul><li><a href="#">Как выставить лот</a></li><li><a href="#">Форматы торгов</a></li><li><a href="#">Комиссия и счета</a></li><li><a href="#">Продать администрации</a></li></ul></div>
+    <div><h4>Площадка</h4><ul><li><a href="#">Правила торгов</a></li><li><a href="#">Категории</a></li><li><a href="#">Жалобы на лот</a></li></ul></div>
+    <div><h4>Помощь</h4><ul><li><a href="#">Вопросы и ответы</a></li><li><a href="#">Написать в поддержку</a></li></ul></div>
+  </div>
+  <div class="bottom"><div class="wrap"><span>auction, 2026</span><nav aria-label="Правовая информация"><a href="#">Пользовательское соглашение</a><a href="#">Обработка персональных данных</a></nav></div></div>
+</footer>
+
+<script>
+(function(){
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var fmt = function(n){ return n.toLocaleString('ru-RU').replace(/ | /g,' '); };
+  function plural(n, a, b, c){ var m10=n%10, m100=n%100; if(m10===1&&m100!==11) return a; if(m10>=2&&m10<=4&&(m100<12||m100>14)) return b; return c; }
+
+  // hero stack settles in once
+  var stage = document.getElementById('stage');
+  requestAnimationFrame(function(){ requestAnimationFrame(function(){ stage.classList.remove('pre'); }); });
+
+  // hero live auction: countdown + bids that extend the auction
+  var left = 292, price = 7800, bids = 23, nextBid = 9;
+  var elT = document.getElementById('hTime'), elP = document.getElementById('hPrice'),
+      elB = document.getElementById('hBids'), elX = document.getElementById('hExt');
+  var baseMsg = elX.innerHTML;
+  function step(p){ return p<100?5:p<1000?10:p<5000?50:p<20000?100:p<100000?500:1000; }
+  function mmss(s){ return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
+  setInterval(function(){
+    left = Math.max(0, left-1); nextBid--;
+    if(nextBid<=0 && left>0){
+      price += step(price); bids++; nextBid = 8 + Math.floor(Math.random()*9);
+      left = 300;
+      elP.textContent = fmt(price)+' ₽';
+      elB.textContent = bids+' '+plural(bids,'ставка','ставки','ставок');
+      elX.classList.add('on');
+      elX.innerHTML = 'Новая ставка '+fmt(price)+' ₽. <strong>Торги продлены на 5 минут</strong>, окончание сдвинулось.';
+      setTimeout(function(){ elX.classList.remove('on'); elX.innerHTML = baseMsg; }, 3800);
+    }
+    elT.textContent = mmss(left);
+  }, 1000);
+
+  // lot timers
+  var timers = [].slice.call(document.querySelectorAll('.lot .timer'));
+  var clock = '<svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>';
+  function human(s){
+    var d=Math.floor(s/86400), h=Math.floor(s%86400/3600), m=Math.floor(s%3600/60), sec=s%60;
+    if(d>0) return d+' д '+h+' ч';
+    if(h>0) return h+' ч '+m+' мин';
+    return m+' мин '+String(sec).padStart(2,'0')+' с';
+  }
+  function paint(){
+    timers.forEach(function(t){
+      var s = Math.max(0, (+t.dataset.left)-1); t.dataset.left = s;
+      var hot = s < 3600;
+      t.classList.toggle('hot', hot);
+      t.innerHTML = (hot?clock:'') + human(s);
+    });
+  }
+  timers.forEach(function(t){ t.dataset.left = (+t.dataset.left)+1; });
+  paint(); setInterval(paint, 1000);
+
+  // favourites
+  document.querySelectorAll('.fav').forEach(function(b){
+    b.addEventListener('click', function(e){
+      e.preventDefault(); e.stopPropagation();
+      var on = b.getAttribute('aria-pressed') !== 'true';
+      b.setAttribute('aria-pressed', on);
+      b.setAttribute('aria-label', on ? 'Убрать из избранного' : 'В избранное');
+    });
+  });
+
+  // commission calculator
+  var sum = document.getElementById('sum'), out = document.getElementById('sumOut');
+  function calc(){
+    var v = parseInt(sum.value.replace(/\D/g,''),10) || 0;
+    if(v) sum.value = fmt(v);
+    var fee = Math.round(v*0.01);
+    out.innerHTML = v
+      ? 'Покупатель переведёт вам <b class="num">'+fmt(v)+' ₽</b>. Комиссия площадки составит <b class="num">'+fmt(fee)+' ₽</b>.'
+      : 'Введите сумму, и мы посчитаем комиссию.';
+  }
+  sum.addEventListener('input', calc); calc();
+
+  // saved search
+  document.getElementById('savedForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var q = document.getElementById('sq').value.trim(), msg = document.getElementById('savedMsg');
+    msg.style.color = q ? 'var(--green)' : 'var(--wax)';
+    msg.textContent = q ? 'Поиск «'+q+'» сохранён. Уведомление придёт, когда появится подходящий лот.' : 'Напишите, что ищете: название, год или номинал.';
+  });
+})();
+</script>

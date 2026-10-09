@@ -1,0 +1,699 @@
+<title>Ящик стола</title>
+<script src="../switcher.js" defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Fira+Sans+Extra+Condensed:wght@600;800;900&display=swap">
+<style>
+  :root {
+    --paper: #ECE9F2;
+    --paper-2: #E2DDEB;
+    --ink: #221D35;
+    --ink-2: #5B5471;
+    --line: #CBC4DA;
+    --accent: #0E6B4E;
+    --accent-hover: #0A583F;
+    --accent-ink: #FFFFFF;
+    --accent-soft: #D3E7DE;
+    --felt: #372C52;
+    --felt-2: #2C2344;
+    --wood: #7B4A2F;
+    --wood-2: #5E3622;
+    --wood-3: #9A6446;
+    --brass: #C7A15A;
+    --panel: #F7F5FA;
+    --warn: #8A4B12;
+    --display: "Fira Sans Extra Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+    --text: "Onest", "Segoe UI", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --paper: #19162A;
+      --paper-2: #211D35;
+      --ink: #ECE8F4;
+      --ink-2: #A9A2BF;
+      --line: #3A3452;
+      --accent: #3DBB8C;
+      --accent-hover: #5CCFA3;
+      --accent-ink: #0C1F18;
+      --accent-soft: #1D3A30;
+      --panel: #242039;
+      --warn: #E0A866;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --paper: #19162A;
+    --paper-2: #211D35;
+    --ink: #ECE8F4;
+    --ink-2: #A9A2BF;
+    --line: #3A3452;
+    --accent: #3DBB8C;
+    --accent-hover: #5CCFA3;
+    --accent-ink: #0C1F18;
+    --accent-soft: #1D3A30;
+    --panel: #242039;
+    --warn: #E0A866;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--text);
+    font-size: 17px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding-inline: 24px; }
+  @media (max-width: 520px) { .wrap { padding-inline: 16px; } }
+
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+
+  h1, h2 {
+    font-family: var(--display);
+    font-weight: 800;
+    line-height: .92;
+    letter-spacing: -.005em;
+    text-wrap: balance;
+    margin: 0;
+  }
+  h3 { font-size: 19px; line-height: 1.3; margin: 0; font-weight: 600; }
+  p { margin: 0; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-height: 48px; padding: 0 22px;
+    border-radius: 999px; border: 2px solid transparent;
+    font: 600 16px/1 var(--text);
+    text-decoration: none; cursor: pointer;
+    transition: background-color .15s;
+  }
+  .btn-primary { background: var(--accent); color: var(--accent-ink); }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-ghost { border-color: var(--ink); color: var(--ink); background: transparent; }
+  .btn-ghost:hover { background: var(--paper-2); }
+
+  /* Шапка */
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 20px; }
+  .brand { font-family: var(--display); font-weight: 900; font-size: 30px; line-height: 1; text-decoration: none; }
+  .top nav { display: flex; align-items: center; gap: 20px; font-weight: 500; }
+  .top nav a { text-decoration: none; }
+  .top nav a:hover { text-decoration: underline; text-underline-offset: 4px; }
+  .top .login { padding: 8px 16px; border: 2px solid var(--ink); border-radius: 999px; }
+  @media (max-width: 520px) { .top nav .hide-sm { display: none; } }
+
+  /* Первый экран */
+  .hero { padding-block: 24px 72px; }
+  .hero-head {
+    display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+    gap: 40px; align-items: end; margin-bottom: 40px;
+  }
+  .hero h1 { font-size: clamp(52px, 7.4vw, 100px); }
+  .lede { font-size: 19px; max-width: 30em; color: var(--ink); }
+  .lede-note { color: var(--ink-2); font-size: 15px; margin-top: 12px; }
+  .hero-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+  @media (max-width: 860px) {
+    .hero-head { grid-template-columns: 1fr; gap: 20px; }
+  }
+
+  .desk {
+    display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(300px, 1fr);
+    gap: 28px; align-items: start;
+  }
+  @media (max-width: 960px) { .desk { grid-template-columns: 1fr; } }
+
+  /* Ящик */
+  .drawer-hint { font-size: 15px; color: var(--ink-2); margin-bottom: 12px; }
+  .drawer {
+    position: relative;
+    border-radius: 6px 6px 10px 10px;
+    padding: 18px 18px 0;
+    background:
+      repeating-linear-gradient(92deg, rgba(0,0,0,.06) 0 2px, transparent 2px 9px, rgba(255,255,255,.04) 9px 11px, transparent 11px 23px),
+      linear-gradient(180deg, var(--wood-3), var(--wood));
+    box-shadow: 0 30px 50px -28px rgba(20, 10, 30, .55);
+  }
+  .felt {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    width: 100%;
+    border-radius: 3px;
+    background:
+      radial-gradient(120% 90% at 50% 40%, var(--felt) 0%, var(--felt-2) 100%);
+    box-shadow: inset 0 10px 18px rgba(0,0,0,.45), inset 0 0 0 1px rgba(0,0,0,.35);
+    overflow: hidden;
+  }
+  .felt::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background-image: radial-gradient(rgba(255,255,255,.035) 1px, transparent 1.2px);
+    background-size: 5px 5px;
+  }
+  .drawer-front {
+    height: 46px; margin: 18px -18px 0;
+    border-radius: 0 0 10px 10px;
+    background:
+      repeating-linear-gradient(90deg, rgba(0,0,0,.07) 0 3px, transparent 3px 14px, rgba(255,255,255,.05) 14px 16px, transparent 16px 31px),
+      linear-gradient(180deg, var(--wood) 0%, var(--wood-2) 100%);
+    border-top: 2px solid rgba(0,0,0,.25);
+    display: grid; place-items: center;
+  }
+  .handle {
+    width: 120px; height: 14px; border-radius: 7px;
+    background: linear-gradient(180deg, #E6C98A, var(--brass) 55%, #8C6C2E);
+    box-shadow: 0 2px 3px rgba(0,0,0,.4);
+  }
+
+  .item {
+    position: absolute;
+    padding: 0; border: 0; background: none; cursor: pointer;
+    transform: translate(-50%, -50%) rotate(var(--r, 0deg));
+    transition: transform .25s cubic-bezier(.2,.7,.3,1.2), filter .25s;
+    filter: drop-shadow(0 3px 2px rgba(0,0,0,.45));
+    z-index: 1;
+  }
+  .item svg { display: block; width: 100%; height: auto; }
+  .item:hover { filter: drop-shadow(0 6px 5px rgba(0,0,0,.5)); }
+  .item[aria-pressed="true"] {
+    transform: translate(-50%, -50%) rotate(var(--r, 0deg)) scale(1.1);
+    filter: drop-shadow(0 16px 12px rgba(0,0,0,.55)) drop-shadow(0 0 0 transparent);
+    z-index: 3;
+  }
+  .item[aria-pressed="true"]::after {
+    content: ""; position: absolute; inset: -8px;
+    border: 2px dashed rgba(255,255,255,.65); border-radius: 10px;
+  }
+  .item:focus-visible { outline-color: #fff; }
+
+  /* Панель вещи */
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 24px;
+  }
+  .card-kicker { color: var(--ink-2); font-size: 15px; }
+  .card h2 { font-size: clamp(34px, 4vw, 44px); margin-top: 4px; }
+  .attrs {
+    display: grid; grid-template-columns: auto 1fr; gap: 4px 16px;
+    margin: 16px 0 0; font-size: 15px;
+  }
+  .attrs dt { color: var(--ink-2); }
+  .attrs dd { margin: 0; }
+
+  .sold { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); }
+  .sold-range { font-family: var(--display); font-weight: 800; font-size: 40px; line-height: 1; margin-top: 6px; font-variant-numeric: tabular-nums; }
+  .sold-label { font-size: 15px; color: var(--ink-2); }
+  .strip { margin-top: 12px; }
+  .strip svg { display: block; width: 100%; height: 44px; overflow: visible; }
+  .strip-axis { display: flex; justify-content: space-between; font-size: 13px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+
+  .plan { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--line); display: grid; gap: 10px; font-size: 15px; }
+  .plan-row { display: grid; grid-template-columns: 9.5em 1fr; gap: 12px; }
+  .plan-row span:first-child { color: var(--ink-2); }
+  .plan-row strong { font-weight: 600; }
+  @media (max-width: 420px) { .plan-row { grid-template-columns: 1fr; gap: 0; } }
+
+  .card .btn { width: 100%; margin-top: 22px; }
+  .example { font-size: 13px; color: var(--ink-2); margin-top: 10px; text-align: center; }
+
+  /* Секции */
+  section.block { padding-block: 72px; border-top: 1px solid var(--line); }
+  .block h2 { font-size: clamp(44px, 6vw, 76px); max-width: 14ch; }
+  .block-intro { font-size: 19px; max-width: 34em; margin-top: 18px; }
+
+  /* Деньги */
+  .money { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 48px; align-items: center; margin-top: 40px; }
+  @media (max-width: 860px) { .money { grid-template-columns: 1fr; gap: 28px; } }
+  .money-facts { display: grid; gap: 18px; }
+  .money-facts p { max-width: 34em; }
+  .money-facts strong { font-weight: 600; }
+  .flow svg { display: block; width: 100%; height: auto; }
+  .flow text { font-family: var(--text); }
+
+  .calc { margin-top: 8px; background: var(--paper-2); border-radius: 14px; padding: 20px; display: grid; gap: 12px; }
+  .calc label { font-weight: 600; font-size: 15px; }
+  .calc-input { display: flex; align-items: center; gap: 8px; }
+  .calc input {
+    width: 100%; max-width: 220px; height: 48px; padding: 0 14px;
+    border: 2px solid var(--line); border-radius: 10px; background: var(--panel); color: var(--ink);
+    font: 600 20px var(--text); font-variant-numeric: tabular-nums;
+  }
+  .calc input:focus { border-color: var(--accent); outline: none; }
+  .calc-out { font-size: 15px; font-variant-numeric: tabular-nums; }
+  .calc-out b { font-weight: 600; }
+
+  /* Путь сделки */
+  .track { list-style: none; margin: 44px 0 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); position: relative; }
+  .track::before { content: ""; position: absolute; left: 8px; right: 8px; top: 8px; height: 2px; background: var(--ink); }
+  .track li { position: relative; padding: 32px 14px 0 0; }
+  .track li::before {
+    content: ""; position: absolute; left: 0; top: 0; width: 18px; height: 18px; border-radius: 50%;
+    background: var(--paper); border: 2px solid var(--ink);
+  }
+  .track li:last-child::before { background: var(--accent); border-color: var(--accent); }
+  .track b { display: block; font-weight: 600; }
+  .track small { display: block; color: var(--ink-2); font-size: 14px; margin-top: 4px; line-height: 1.4; }
+  @media (max-width: 860px) {
+    .track { grid-template-columns: 1fr; gap: 22px; }
+    .track::before { left: 8px; right: auto; top: 8px; bottom: 8px; width: 2px; height: auto; }
+    .track li { padding: 0 0 0 36px; }
+  }
+  .track-note { margin-top: 32px; color: var(--ink-2); max-width: 44em; font-size: 15px; }
+
+  /* Форматы и правила */
+  .formats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; margin-top: 40px; border-top: 2px solid var(--ink); }
+  .formats > div { padding: 18px 20px 20px 0; }
+  .formats > div + div { padding-left: 20px; border-left: 1px solid var(--line); }
+  .formats h3 { display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; }
+  .formats p { margin-top: 8px; font-size: 15px; color: var(--ink-2); }
+  .chip { font-size: 13px; font-weight: 600; padding: 2px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
+  .chip.soon { background: transparent; color: var(--ink-2); border: 1px solid var(--line); }
+  @media (max-width: 860px) {
+    .formats { grid-template-columns: 1fr 1fr; }
+    .formats > div:nth-child(3) { padding-left: 0; border-left: 0; }
+    .formats > div:nth-child(n+3) { border-top: 1px solid var(--line); }
+  }
+  @media (max-width: 520px) {
+    .formats { grid-template-columns: 1fr; }
+    .formats > div, .formats > div + div { padding-left: 0; border-left: 0; }
+    .formats > div + div { border-top: 1px solid var(--line); }
+  }
+
+  .rules { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px 40px; margin-top: 48px; }
+  .rules p { font-size: 15px; color: var(--ink-2); margin-top: 6px; }
+  @media (max-width: 860px) { .rules { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 520px) { .rules { grid-template-columns: 1fr; } }
+
+  /* Вход */
+  .join { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 48px; align-items: end; }
+  @media (max-width: 860px) { .join { grid-template-columns: 1fr; gap: 28px; } }
+  .phone-form { display: grid; gap: 10px; }
+  .phone-form label { font-weight: 600; }
+  .phone-row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .phone-row input {
+    flex: 1 1 220px; min-width: 0; height: 52px; padding: 0 16px;
+    border: 2px solid var(--line); border-radius: 12px; background: var(--panel); color: var(--ink);
+    font: 500 19px var(--text); font-variant-numeric: tabular-nums;
+  }
+  .phone-row input:focus { border-color: var(--accent); outline: none; }
+  .phone-row input[aria-invalid="true"] { border-color: var(--warn); }
+  .phone-row .btn { min-height: 52px; }
+  .form-msg { font-size: 15px; min-height: 1.5em; color: var(--ink-2); }
+  .form-msg.err { color: var(--warn); }
+
+  footer { border-top: 1px solid var(--line); padding-block: 28px 40px; font-size: 14px; color: var(--ink-2); }
+  footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px 32px; }
+
+  /* Единственная анимация при загрузке: ящик выдвигается */
+  @media (prefers-reduced-motion: no-preference) {
+    .drawer { animation: pull .9s cubic-bezier(.2,.8,.25,1) both; }
+    @keyframes pull { from { transform: translateY(-28px); } to { transform: none; } }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .item, .btn { transition: none; }
+  }
+</style>
+
+<header class="wrap top">
+  <a class="brand" href="#top" id="top">auction</a>
+  <nav aria-label="Основное меню">
+    <a class="hide-sm" href="#money">Комиссия</a>
+    <a class="hide-sm" href="#rules">Правила</a>
+    <a class="login" href="#join">Войти</a>
+  </nav>
+</header>
+
+<main>
+  <section class="wrap hero" aria-labelledby="hero-title">
+    <div class="hero-head">
+      <h1 id="hero-title">В ящике вашего стола лежит вещь, которую кто-то давно ищет</h1>
+      <div>
+        <p class="lede">Монеты, значки, марки, открытки, часы — выставьте их на торги коллекционерам со всей России. Размещение бесплатное, комиссия 1% — только если вещь продалась.</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="#join">Выставить вещь</a>
+          <a class="btn btn-ghost" href="#rules">Как идут торги</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="desk">
+      <div>
+        <p class="drawer-hint" id="drawer-hint">Нажмите на вещь в ящике — покажем, за сколько такие уходят на торгах.</p>
+        <div class="drawer">
+          <div class="felt" id="felt" role="group" aria-labelledby="drawer-hint"></div>
+          <div class="drawer-front"><div class="handle"></div></div>
+        </div>
+      </div>
+
+      <article class="card" id="card" aria-live="polite">
+        <p class="card-kicker" id="c-cat"></p>
+        <h2 id="c-name"></h2>
+        <dl class="attrs" id="c-attrs"></dl>
+
+        <div class="sold">
+          <p class="sold-label">Похожие продавались за 90 дней</p>
+          <p class="sold-range" id="c-range"></p>
+          <div class="strip">
+            <svg id="c-strip" viewBox="0 0 300 44" preserveAspectRatio="none" aria-hidden="true"></svg>
+            <div class="strip-axis"><span id="c-min"></span><span id="c-count"></span><span id="c-max"></span></div>
+          </div>
+        </div>
+
+        <div class="plan">
+          <div class="plan-row"><span>Как выставить</span><strong id="c-format"></strong></div>
+          <div class="plan-row"><span>Шаг ставки</span><span id="c-step"></span></div>
+          <div class="plan-row"><span>Вы получите</span><span id="c-get"></span></div>
+          <div class="plan-row"><span>Комиссия 1%</span><span id="c-fee"></span></div>
+        </div>
+
+        <a class="btn btn-primary" href="#join" id="c-cta">Выставить такую вещь</a>
+        <p class="example">Цены и продажи в макете — примерные.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="block" id="money" aria-labelledby="money-title">
+    <div class="wrap">
+      <h2 id="money-title">Деньги идут от покупателя прямо к вам</h2>
+      <p class="block-intro">Мы не держим оплату у себя и не берём за размещение. Покупатель переводит деньги продавцу так, как вы договоритесь в переписке.</p>
+
+      <div class="money">
+        <div class="flow">
+          <svg viewBox="0 0 520 250" role="img" aria-labelledby="flow-t">
+            <title id="flow-t">Покупатель платит продавцу напрямую, продавец раз в месяц оплачивает площадке счёт на 1%</title>
+            <defs>
+              <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                <path d="M0 0 L10 5 L0 10 z" fill="var(--ink)"/>
+              </marker>
+              <marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                <path d="M0 0 L10 5 L0 10 z" fill="var(--accent)"/>
+              </marker>
+            </defs>
+            <rect x="4" y="30" width="150" height="64" rx="32" fill="var(--panel)" stroke="var(--ink)" stroke-width="2"/>
+            <text x="79" y="68" text-anchor="middle" font-size="18" font-weight="600" fill="var(--ink)">Покупатель</text>
+            <rect x="366" y="30" width="150" height="64" rx="32" fill="var(--panel)" stroke="var(--ink)" stroke-width="2"/>
+            <text x="441" y="68" text-anchor="middle" font-size="18" font-weight="600" fill="var(--ink)">Вы, продавец</text>
+            <line x1="162" y1="62" x2="356" y2="62" stroke="var(--ink)" stroke-width="3" marker-end="url(#ah)"/>
+            <text x="259" y="48" text-anchor="middle" font-size="15" fill="var(--ink)">вся цена лота</text>
+            <text x="259" y="86" text-anchor="middle" font-size="13" fill="var(--ink-2)">перевод, наличные — как договоритесь</text>
+
+            <rect x="185" y="170" width="150" height="64" rx="12" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2"/>
+            <text x="260" y="208" text-anchor="middle" font-size="18" font-weight="600" fill="var(--accent)">Площадка</text>
+            <path d="M441 100 C441 160 400 200 343 202" fill="none" stroke="var(--accent)" stroke-width="3" stroke-dasharray="7 6" marker-end="url(#ah2)"/>
+            <text x="452" y="160" font-size="15" fill="var(--accent)">1% счётом</text>
+            <text x="452" y="178" font-size="13" fill="var(--ink-2)">раз в месяц</text>
+          </svg>
+        </div>
+
+        <div class="money-facts">
+          <p><strong>1% от цены сделки</strong>, без минимума и потолка. Продали значок за 300 ₽ — комиссия 3 ₽.</p>
+          <p><strong>Счёт приходит 1-го числа</strong> за прошлый месяц, если набралось от 100 ₽. Меньше — переносится на следующий месяц. На оплату 10 дней.</p>
+          <div class="calc">
+            <label for="calc-price">Если вещь уйдёт за</label>
+            <div class="calc-input"><input id="calc-price" inputmode="numeric" value="3 200" autocomplete="off"><span>₽</span></div>
+            <p class="calc-out" id="calc-out"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="deal-title">
+    <div class="wrap">
+      <h2 id="deal-title">После торгов — сделка по шагам</h2>
+      <p class="block-intro">Победитель обязан выкупить лот. Каждый шаг отмечает тот, кто его сделал, и вторая сторона видит это в переписке.</p>
+      <ol class="track">
+        <li><b>Продано</b><small>торги закончились, у вас 3 дня связаться</small></li>
+        <li><b>Ждёт оплаты</b><small>у покупателя 7 дней на перевод</small></li>
+        <li><b>Оплачено</b><small>отмечаете вы, когда деньги пришли</small></li>
+        <li><b>Отправлено</b><small>почтой, СДЭК или лично</small></li>
+        <li><b>Получено</b><small>отмечает покупатель</small></li>
+        <li><b>Отзывы</b><small>оба оставляют отзыв друг о друге</small></li>
+      </ol>
+      <p class="track-note">Не заплатили за 7 дней — нажмите «Покупатель не оплатил»: он получит штрафной отзыв, комиссия по сделке отменится, а лот можно предложить следующему участнику торгов. Споры о деньгах мы не решаем, но за нарушения правил предупреждаем и блокируем.</p>
+    </div>
+  </section>
+
+  <section class="block" id="rules" aria-labelledby="rules-title">
+    <div class="wrap">
+      <h2 id="rules-title">Как идут торги</h2>
+      <div class="formats">
+        <div>
+          <h3>Аукцион <span class="chip">Работает</span></h3>
+          <p>Старт от 1 ₽, от 1 до 21 дня. Выигрывает последняя ставка. Можно задать блиц-цену для покупки сразу.</p>
+        </div>
+        <div>
+          <h3>Фиксированная цена <span class="chip">Работает</span></h3>
+          <p>До 60 дней, можно несколько штук. Покупатель может предложить свою цену — вы решаете.</p>
+        </div>
+        <div>
+          <h3>Голландский <span class="chip soon">Готовим</span></h3>
+          <p>Цена снижается по графику, пока кто-то не нажмёт «Купить».</p>
+        </div>
+        <div>
+          <h3>Живой аукцион <span class="chip soon">Готовим</span></h3>
+          <p>Продавец ведёт видеотрансляцию и продаёт лоты по очереди.</p>
+        </div>
+      </div>
+
+      <div class="rules">
+        <div><h3>Ставку нельзя отозвать</h3><p>Поставили — значит, готовы купить за эту цену. Продавец может отменить чужую ставку, указав причину.</p></div>
+        <div><h3>Последние 5 минут продлеваются</h3><p>Ставка перед концом сдвигает окончание на 5 минут. Выиграть в последнюю секунду не получится.</p></div>
+        <div><h3>Автоставка</h3><p>Назовите максимум — система будет перебивать соперников на один шаг, пока не дойдёт до него.</p></div>
+        <div><h3>Контакты скрыты</h3><p>Телефоны и ссылки в описаниях маскируются. Договариваться — в переписке на площадке.</p></div>
+        <div><h3>Новичкам — лимиты</h3><p>Пока нет отзывов, число ставок и лотов ограничено. Первая сделка снимает часть ограничений.</p></div>
+        <div><h3>Описание после ставки</h3><p>Когда появилась первая ставка, текст можно только дополнить — дополнение видно с датой.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="join" aria-labelledby="join-title">
+    <div class="wrap join">
+      <div>
+        <h2 id="join-title">Начните с номера телефона</h2>
+        <p class="block-intro">Придёт SMS с кодом. Паспорт не нужен, email — по желанию, для уведомлений.</p>
+      </div>
+      <form class="phone-form" id="phone-form" novalidate>
+        <label for="phone">Номер телефона</label>
+        <div class="phone-row">
+          <input id="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+7 (___) ___-__-__" aria-describedby="phone-msg">
+          <button class="btn btn-primary" type="submit">Получить код</button>
+        </div>
+        <p class="form-msg" id="phone-msg" role="status">Это макет: SMS не отправляется.</p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Торги коллекционных вещей и антиквариата. Работаем только в России, в рублях.</p>
+    <p>Персональные данные хранятся на серверах в РФ.</p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  const STEPS = [[100, 5], [1000, 10], [5000, 50], [20000, 100], [100000, 500], [Infinity, 1000]];
+  const stepFor = p => STEPS.find(([lim]) => p < lim)[1];
+  const rub = n => Math.round(n).toLocaleString('ru-RU').replace(/ /g, ' ') + ' ₽';
+  const kop = n => {
+    const v = Math.round(n * 100) / 100;
+    return (Number.isInteger(v) ? v.toLocaleString('ru-RU') : v.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })) + ' ₽';
+  };
+
+  // Рисунки вещей, вид сверху
+  const SVG = {
+    coin: `<svg viewBox="0 0 100 100"><defs><radialGradient id="gc" cx="38%" cy="32%" r="75%"><stop offset="0" stop-color="#F4F5F8"/><stop offset=".55" stop-color="#BFC3CC"/><stop offset="1" stop-color="#7E838E"/></radialGradient></defs>
+      <circle cx="50" cy="50" r="47" fill="url(#gc)"/><circle cx="50" cy="50" r="41" fill="none" stroke="#8C919B" stroke-width="1.5" stroke-dasharray="1.5 2.2"/>
+      <text x="50" y="47" text-anchor="middle" font-family="Georgia,serif" font-size="17" font-weight="700" fill="#5E636D">1</text>
+      <text x="50" y="60" text-anchor="middle" font-family="Georgia,serif" font-size="10" letter-spacing="1" fill="#5E636D">РУБЛЬ</text>
+      <text x="50" y="74" text-anchor="middle" font-family="Georgia,serif" font-size="8" fill="#5E636D">1924</text></svg>`,
+    badge: `<svg viewBox="0 0 100 100"><path d="M50 4 61 37 96 37 68 58 79 92 50 71 21 92 32 58 4 37 39 37Z" fill="#D9A93A"/>
+      <path d="M50 14 58.5 40.5 86 40.5 64 56.5 72.5 83 50 67 27.5 83 36 56.5 14 40.5 41.5 40.5Z" fill="#C62834"/>
+      <circle cx="50" cy="50" r="13" fill="#F3E3B5" stroke="#D9A93A" stroke-width="2"/>
+      <text x="50" y="55" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="700" fill="#C62834">80</text></svg>`,
+    stamp: `<svg viewBox="0 0 80 96"><rect x="3" y="3" width="74" height="90" fill="#F6F1E4" stroke="#F6F1E4" stroke-width="6" stroke-dasharray="0.1 5.4" stroke-linecap="round"/>
+      <rect x="9" y="9" width="62" height="78" fill="#F6F1E4"/><rect x="13" y="13" width="54" height="56" fill="#2B4E8C"/>
+      <circle cx="30" cy="30" r="1" fill="#fff"/><circle cx="56" cy="22" r="1" fill="#fff"/><circle cx="50" cy="56" r=".9" fill="#fff"/><circle cx="22" cy="58" r=".8" fill="#fff"/>
+      <path d="M13 69 Q40 50 67 69Z" fill="#6E9BD1"/>
+      <g stroke="#E8E1C9" stroke-width="1.3"><line x1="42" y1="38" x2="58" y2="28"/><line x1="42" y1="38" x2="60" y2="36"/><line x1="42" y1="38" x2="26" y2="30"/><line x1="42" y1="38" x2="28" y2="46"/></g>
+      <circle cx="42" cy="38" r="5" fill="#E8E1C9"/>
+      <text x="40" y="79" text-anchor="middle" font-family="Arial,sans-serif" font-size="7" font-weight="700" fill="#2B4E8C">ПОЧТА СССР</text>
+      <text x="40" y="87" text-anchor="middle" font-family="Arial,sans-serif" font-size="6" fill="#C62834">40 к. 1957</text></svg>`,
+    card: `<svg viewBox="0 0 150 100"><rect width="150" height="100" rx="2" fill="#F4F0F6"/><rect x="6" y="6" width="138" height="88" fill="#23417A"/>
+      <circle cx="120" cy="22" r="9" fill="#F3E3B5"/>
+      <g fill="#fff" opacity=".85"><circle cx="20" cy="18" r="1.2"/><circle cx="46" cy="30" r="1"/><circle cx="80" cy="16" r="1.2"/><circle cx="98" cy="40" r="1"/><circle cx="132" cy="50" r="1.1"/><circle cx="62" cy="46" r=".9"/></g>
+      <path d="M6 76 Q50 62 90 72 T144 68 V94 H6Z" fill="#fff"/>
+      <path d="M36 74 L48 44 L60 74Z M40 60 L48 36 L56 60Z" fill="#2F6B4A"/><rect x="46" y="74" width="4" height="6" fill="#6E4330"/>
+      <circle cx="44" cy="58" r="2" fill="#C62834"/><circle cx="53" cy="66" r="2" fill="#D9A93A"/>
+      <text x="100" y="88" text-anchor="middle" font-family="Georgia,serif" font-style="italic" font-size="11" fill="#C62834">С Новым годом!</text></svg>`,
+    watch: `<svg viewBox="0 0 100 120"><path d="M50 2 C70 -2 88 6 82 16" fill="none" stroke="#B89A55" stroke-width="2" stroke-dasharray="3 2"/>
+      <rect x="44" y="10" width="12" height="10" rx="3" fill="#B89A55"/><circle cx="50" cy="8" r="5" fill="none" stroke="#B89A55" stroke-width="2.5"/>
+      <circle cx="50" cy="68" r="46" fill="#B89A55"/><circle cx="50" cy="68" r="40" fill="#F5F1E6"/>
+      <g stroke="#2A2A2A" stroke-width="2">${Array.from({length:12},(_,i)=>{const a=i*Math.PI/6;return `<line x1="${50+34*Math.sin(a)}" y1="${68-34*Math.cos(a)}" x2="${50+38*Math.sin(a)}" y2="${68-38*Math.cos(a)}"/>`}).join('')}</g>
+      <circle cx="50" cy="90" r="8" fill="none" stroke="#999" stroke-width=".8"/>
+      <text x="50" y="56" text-anchor="middle" font-family="Georgia,serif" font-size="8" fill="#2A2A2A">МОЛНИЯ</text>
+      <line x1="50" y1="68" x2="50" y2="42" stroke="#2A2A2A" stroke-width="2.5" stroke-linecap="round"/><line x1="50" y1="68" x2="68" y2="76" stroke="#2A2A2A" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="50" cy="68" r="2.5" fill="#2A2A2A"/></svg>`,
+    rocket: `<svg viewBox="0 0 60 130"><defs><linearGradient id="gr" x1="0" x2="1"><stop offset="0" stop-color="#8E98A8"/><stop offset=".4" stop-color="#F2F4F8"/><stop offset="1" stop-color="#9AA3B2"/></linearGradient></defs>
+      <rect x="25" y="0" width="10" height="10" rx="2" fill="#D9A93A"/>
+      <path d="M30 8 C46 30 46 80 42 104 H18 C14 80 14 30 30 8Z" fill="url(#gr)"/>
+      <path d="M22 40 H38 V48 H22Z M20 70 H40 V78 H20Z" fill="#C62834"/>
+      <circle cx="30" cy="58" r="5" fill="#2B4E8C" stroke="#D9A93A" stroke-width="1.5"/>
+      <path d="M18 86 L4 112 L18 104Z M42 86 L56 112 L42 104Z" fill="#C62834"/>
+      <path d="M22 104 H38 L34 124 H26Z" fill="#E8B84A"/></svg>`,
+    note: `<svg viewBox="0 0 150 70"><rect width="150" height="70" rx="2" fill="#B9CFA4"/><rect x="5" y="5" width="140" height="60" fill="none" stroke="#5D7F4A" stroke-width="1.2"/>
+      <ellipse cx="112" cy="35" rx="24" ry="20" fill="#A7C18F" stroke="#5D7F4A"/>
+      <text x="112" y="44" text-anchor="middle" font-family="Georgia,serif" font-size="26" font-weight="700" fill="#4A6B3A">3</text>
+      <text x="14" y="24" font-family="Georgia,serif" font-size="9" letter-spacing=".5" fill="#3F5E31">БИЛЕТ ГОСУДАРСТВЕННОГО БАНКА</text>
+      <text x="14" y="44" font-family="Georgia,serif" font-size="14" font-weight="700" fill="#3F5E31">ТРИ РУБЛЯ</text>
+      <text x="14" y="58" font-family="Arial,sans-serif" font-size="8" fill="#3F5E31">1961   БГ 4521907</text></svg>`,
+  };
+
+  const ITEMS = [
+    { id: 'coin', svg: 'coin', x: 22, y: 30, w: 17, r: -8, cat: 'Монеты', name: '1 рубль 1924 года',
+      attrs: [['Номинал', '1 рубль'], ['Год', '1924'], ['Металл', 'серебро'], ['Сохранность', 'VF, «очень хорошая»']],
+      min: 2400, max: 4600, n: 14, format: 'Аукцион от 1 ₽ на 7 дней' },
+    { id: 'badge', svg: 'badge', x: 46, y: 22, w: 13, r: 12, cat: 'Значки', name: 'Значок «Олимпиада-80»',
+      attrs: [['Год', '1980'], ['Материал', 'алюминий, эмаль'], ['Крепление', 'булавка'], ['Сохранность', 'эмаль без сколов']],
+      min: 120, max: 650, n: 31, format: 'Аукцион от 1 ₽ на 5 дней' },
+    { id: 'stamp', svg: 'stamp', x: 66, y: 27, w: 10.5, r: -5, cat: 'Марки', name: 'Марка «Первый спутник Земли»',
+      attrs: [['Год', '1957'], ['Номинал', '40 копеек'], ['Состояние', 'чистая, с клеем'], ['Зубцовка', 'полная']],
+      min: 90, max: 780, n: 22, format: 'Аукцион от 1 ₽ на 7 дней' },
+    { id: 'watch', svg: 'watch', x: 85, y: 38, w: 15, r: 6, cat: 'Часы', name: 'Карманные часы «Молния»',
+      attrs: [['Годы выпуска', '1950–1960-е'], ['Механизм', 'на ходу'], ['Корпус', 'латунь, позолота'], ['Крышка', 'гравировка на обороте']],
+      min: 1800, max: 4200, n: 9, format: 'Аукцион от 1 ₽ на 10 дней' },
+    { id: 'card', svg: 'card', x: 30, y: 73, w: 25, r: 4, cat: 'Открытки', name: 'Открытка «С Новым годом!»',
+      attrs: [['Год', '1961'], ['Издательство', '«Изогиз»'], ['Состояние', 'подписана, без заломов'], ['Размер', '9 × 14 см']],
+      min: 60, max: 340, n: 27, format: 'Фиксированная цена, 60 дней' },
+    { id: 'rocket', svg: 'rocket', x: 54, y: 62, w: 7.5, r: -18, cat: 'Ёлочные игрушки', name: 'Игрушка «Ракета», стекло',
+      attrs: [['Годы выпуска', '1960-е'], ['Материал', 'стекло, роспись'], ['Высота', '11 см'], ['Сохранность', 'краска частично стёрта']],
+      min: 700, max: 2300, n: 11, format: 'Аукцион от 1 ₽ на 7 дней' },
+    { id: 'note', svg: 'note', x: 76, y: 76, w: 24, r: -3, cat: 'Банкноты', name: '3 рубля 1961 года',
+      attrs: [['Номинал', '3 рубля'], ['Год', '1961'], ['Сохранность', 'VF, есть перегиб'], ['Серия', 'БГ']],
+      min: 25, max: 140, n: 40, format: 'Фиксированная цена, 60 дней' },
+  ];
+
+  // Детерминированный набор «продаж» для полоски
+  function sales(it) {
+    let s = 0; for (const ch of it.id) s = (s * 31 + ch.charCodeAt(0)) >>> 0;
+    const rnd = () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296);
+    return Array.from({ length: it.n }, () => {
+      const t = (rnd() + rnd() + rnd()) / 3; // тяготеет к середине
+      return it.min + t * (it.max - it.min);
+    });
+  }
+
+  const felt = document.getElementById('felt');
+  const $ = id => document.getElementById(id);
+
+  ITEMS.forEach(it => {
+    const b = document.createElement('button');
+    b.className = 'item';
+    b.type = 'button';
+    b.id = 'item-' + it.id;
+    b.style.left = it.x + '%';
+    b.style.top = it.y + '%';
+    b.style.width = it.w + '%';
+    b.style.setProperty('--r', it.r + 'deg');
+    b.setAttribute('aria-pressed', 'false');
+    b.setAttribute('aria-label', it.name);
+    b.innerHTML = SVG[it.svg];
+    b.addEventListener('click', () => select(it.id));
+    felt.appendChild(b);
+  });
+
+  function select(id) {
+    const it = ITEMS.find(i => i.id === id);
+    document.querySelectorAll('.item').forEach(el => el.setAttribute('aria-pressed', String(el.id === 'item-' + id)));
+    $('c-cat').textContent = it.cat;
+    $('c-name').textContent = it.name;
+    $('c-attrs').innerHTML = it.attrs.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('');
+
+    const xs = sales(it);
+    const lo = Math.min(...xs), hi = Math.max(...xs);
+    const sorted = [...xs].sort((a, b) => a - b);
+    const med = sorted[Math.floor(sorted.length / 2)];
+    const roundTo = v => { const st = stepFor(v); return Math.round(v / st) * st; };
+    $('c-range').textContent = `${rub(roundTo(lo)).replace(' ₽', '')}–${rub(roundTo(hi))}`;
+    $('c-min').textContent = rub(roundTo(lo));
+    $('c-max').textContent = rub(roundTo(hi));
+    $('c-count').textContent = `${it.n} продаж`;
+
+    const X = v => 6 + (v - lo) / (hi - lo || 1) * 288;
+    const accent = 'var(--accent)';
+    let g = `<line x1="0" y1="30" x2="300" y2="30" stroke="var(--line)" stroke-width="2"/>`;
+    xs.forEach((v, i) => {
+      const yy = 30 - (i % 3) * 7 - 6;
+      g += `<circle cx="${X(v).toFixed(1)}" cy="${yy}" r="4" fill="var(--ink-2)" fill-opacity=".55"/>`;
+    });
+    g += `<line x1="${X(med)}" y1="4" x2="${X(med)}" y2="38" stroke="${accent}" stroke-width="2.5"/>`;
+    $('c-strip').innerHTML = g;
+
+    const price = roundTo(med);
+    const st = stepFor(price);
+    const band = STEPS.findIndex(([lim]) => price < lim);
+    const from = band === 0 ? 0 : STEPS[band - 1][0];
+    const to = STEPS[band][0];
+    $('c-format').textContent = it.format;
+    $('c-step').textContent = `${st} ₽ при цене ${to === Infinity ? 'от ' + rub(from) : (from ? rub(from).replace(' ₽','') + '–' : 'до ') + rub(to)}`;
+    $('c-get').textContent = `${rub(price)} от покупателя, если уйдёт по медиане`;
+    $('c-fee').textContent = `${kop(price / 100)} — придёт в месячном счёте`;
+    try { localStorage.setItem('drawer-item', id); } catch (e) {}
+  }
+
+  let start = 'coin';
+  try { const s = localStorage.getItem('drawer-item'); if (s && ITEMS.some(i => i.id === s)) start = s; } catch (e) {}
+  select(start);
+
+  // Калькулятор комиссии
+  const cin = $('calc-price');
+  function calc() {
+    const v = parseInt(cin.value.replace(/\D/g, ''), 10);
+    if (!v) { $('calc-out').textContent = 'Введите цену в рублях, например 3 200.'; return; }
+    const fee = v / 100;
+    const note = fee >= 100
+      ? 'Этой суммы хватит, чтобы счёт выставили уже 1-го числа.'
+      : `До счёта не хватает ${kop(100 - fee)} комиссий — остаток перейдёт на следующий месяц.`;
+    $('calc-out').innerHTML = `Покупатель переведёт вам <b>${rub(v)}</b>. Комиссия — <b>${kop(fee)}</b>. ${note}`;
+  }
+  cin.addEventListener('input', () => {
+    const d = cin.value.replace(/\D/g, '').slice(0, 9);
+    cin.value = d ? Number(d).toLocaleString('ru-RU') : '';
+    calc();
+  });
+  calc();
+
+  // Телефон
+  const ph = $('phone'), msg = $('phone-msg');
+  const digits = () => { let d = ph.value.replace(/\D/g, ''); if (d[0] === '7' || d[0] === '8') d = d.slice(1); return d.slice(0, 10); };
+  ph.addEventListener('input', () => {
+    const d = digits();
+    let out = '+7';
+    if (d.length) out += ' (' + d.slice(0, 3);
+    if (d.length >= 3) out += ')';
+    if (d.length > 3) out += ' ' + d.slice(3, 6);
+    if (d.length > 6) out += '-' + d.slice(6, 8);
+    if (d.length > 8) out += '-' + d.slice(8, 10);
+    ph.value = d.length ? out : '';
+    ph.removeAttribute('aria-invalid');
+    msg.className = 'form-msg';
+    msg.textContent = 'Это макет: SMS не отправляется.';
+  });
+  $('phone-form').addEventListener('submit', e => {
+    e.preventDefault();
+    if (digits().length !== 10) {
+      ph.setAttribute('aria-invalid', 'true');
+      msg.className = 'form-msg err';
+      msg.textContent = 'Нужно 10 цифр после +7. Проверьте номер.';
+      ph.focus();
+      return;
+    }
+    msg.className = 'form-msg';
+    msg.textContent = `Код ушёл бы на ${ph.value}. В макете SMS не отправляется.`;
+  });
+})();
+</script>

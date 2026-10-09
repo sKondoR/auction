@@ -1,0 +1,632 @@
+<title>Топ сделок: варианты</title>
+<script src="../switcher.js" defer></script>
+<meta name="description" content="Четыре компактных варианта блока «Топ сделок недели» для концепта 09 aucs.online: ведомость, лента, подиум и мини-карточки.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+:root{
+  color-scheme: light;
+  --action:#40588F; --action-deep:#34497A; --sage-mist:#E4E7EF;
+  --wax:#C3161C;
+  --p-sage:#DDE1EA; --p-powder:#D9E4EE; --p-butter:#F3E9C8; --p-blush:#F0DADB;
+  --daylight:#FFFFFF; --well:#F3F1EB;
+  --ink:#1C1F27; --ink-muted:#5A5F6C; --ink-faint:#878B96;
+  --line:#DFDAD0; --line-strong:#CFC9BC;
+  --gold:#EDBA3A; --c-en:#40588F; --c-nl:#C68E1C; --c-live:#A83A4B; --c-fix:#4A7560; --cobalt:#2C4BC8; --gold-light:#F6D46A; --gold-deep:#C68E1C; --cloth:#3B425B;
+  --serif:'Old Standard TT','Times New Roman',serif;
+  --sans:'Golos Text',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --lift:0 1px 2px rgba(27,31,28,.06),0 8px 24px -8px rgba(27,31,28,.14);
+  --gut:24px;
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--daylight);color:var(--ink);font:400 1rem/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+::selection{background:var(--action);color:#fff}
+img{max-width:100%;display:block}
+a{color:inherit}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--action);outline-offset:2px}
+.icon{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.wrap{max-width:1280px;margin-inline:auto;padding-inline:var(--gut)}
+@media (max-width:1023px){:root{--gut:20px}}
+@media (max-width:639px){:root{--gut:16px}}
+
+/* ---------- page frame ---------- */
+.intro{padding-block:48px 8px;max-width:760px}
+.intro h1{font:400 clamp(2rem,1.5rem + 2vw,2.75rem)/1.1 var(--serif);margin:0 0 12px}
+.intro p{margin:0;color:var(--ink-muted)}
+.jump{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.jump a{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 14px;border:1px solid var(--line);border-radius:999px;text-decoration:none;font:500 .875rem/1 var(--sans)}
+.jump a:hover{border-color:var(--line-strong)}
+.jump b{font:700 1rem/1 var(--serif)}
+.variant{padding-block:56px;border-top:1px solid var(--line)}
+.variant:first-of-type{border-top:0}
+.v-note{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 32px;align-items:end;margin-bottom:28px;padding:16px 20px;background:var(--well);border-radius:12px}
+.v-note h2{font:700 1.25rem/1.25 var(--serif);margin:0}
+.v-note p{margin:4px 0 0;font-size:.9375rem;color:var(--ink-muted);max-width:72ch}
+.v-note .h{font:600 .8125rem/1.3 var(--sans);color:var(--ink-muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.v-note .h b{color:var(--ink)}
+@media (max-width:639px){.v-note{grid-template-columns:1fr}}
+
+/* ---------- shared bits of the block ---------- */
+.rowhead{display:grid;grid-template-columns:1fr auto 1fr;align-items:end;gap:16px;margin-bottom:16px}
+.rowhead h3{grid-column:2;font:400 clamp(1.625rem,1.3rem + 1.2vw,2.125rem)/1.15 var(--serif);margin:0;text-align:center}
+.rowhead .link{grid-column:3;justify-self:end;margin-bottom:6px}
+.link{font-weight:500;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;color:var(--action)}
+.link:hover{text-decoration-thickness:2px}
+.bar{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px 16px;margin-bottom:24px}
+.bar .period{font-size:.875rem;color:var(--ink-muted)}
+.seg{display:inline-flex;padding:3px;border-radius:999px;background:var(--sage-mist);gap:2px}
+.seg button{height:34px;padding:0 14px;border:0;border-radius:999px;background:none;font:500 .875rem/1 var(--sans);color:var(--ink-muted);cursor:pointer;white-space:nowrap;transition:background-color .18s,color .18s,box-shadow .18s}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-pressed="true"]{background:#fff;color:var(--ink);font-weight:600;box-shadow:0 1px 2px rgba(27,31,28,.12)}
+@media (max-width:1023px){
+  .rowhead{grid-template-columns:1fr auto}
+  .rowhead h3{grid-column:1;text-align:left}
+  .rowhead .link{grid-column:2}
+  .bar{justify-content:flex-start}
+}
+@media (max-width:639px){
+  .seg{max-width:calc(100% + var(--gut) * 2);margin-inline:calc(var(--gut) * -1);border-radius:0;padding-inline:var(--gut);background:none;overflow-x:auto;scrollbar-width:none;gap:6px}
+  .seg::-webkit-scrollbar{display:none}
+  .seg button{background:var(--sage-mist);flex:none}
+  .seg button[aria-pressed="true"]{background:var(--action);color:#fff;box-shadow:none}
+}
+.fbadge{display:inline-flex;align-items:center;padding:3px 7px;border-radius:4px;font:600 .6875rem/1.2 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--ink);background:var(--fb);white-space:nowrap}
+.f-en{--fb:var(--p-powder)}.f-nl{--fb:var(--p-butter)}.f-live{--fb:var(--p-blush)}.f-fix{--fb:var(--p-sage)}
+.rank{display:grid;place-items:center;flex:none;width:30px;height:30px;border-radius:50%;background:#fff;border:1px solid var(--line-strong);font:700 .9375rem/1 var(--serif);color:var(--ink);font-variant-numeric:lining-nums}
+.rank.r1,.rank.r2,.rank.r3{border:0;box-shadow:inset 0 0 0 1px rgba(0,0,0,.18),inset 0 0 0 3px rgba(255,255,255,.28),0 3px 8px -3px rgba(27,31,28,.45)}
+.rank.r1{background:radial-gradient(circle at 34% 28%,#FBE38C,var(--gold) 52%,var(--gold-deep));color:#3B2A05}
+.rank.r2{background:radial-gradient(circle at 34% 28%,#FFFFFF,#CDD2DB 55%,#8F96A3);color:#252A36}
+.rank.r3{background:radial-gradient(circle at 34% 28%,#F2C9A0,#C98A55 55%,#8A5530);color:#2E1A0A}
+.thumb{display:block;position:relative;flex:none;border-radius:8px;overflow:hidden;background:var(--well)}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.thumb.contain img{object-fit:contain;padding:8%}
+.price{font:600 1.125rem/1.2 var(--sans);font-variant-numeric:tabular-nums;white-space:nowrap}
+.how{display:flex;align-items:center;gap:6px;min-width:0;font-size:.8125rem;line-height:1.35;color:var(--ink-muted);font-variant-numeric:tabular-nums}
+.how .icon{width:14px;height:14px;color:var(--ink)}
+.how span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.name{font:500 .9375rem/1.35 var(--sans);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.seller{font-size:.8125rem;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seller b{font-weight:500;color:var(--ink)}
+.rate{display:inline-block;margin-left:4px;padding:1px 5px;border-radius:4px;background:var(--action);color:#fff;font:600 .6875rem/1.3 var(--sans);font-variant-numeric:tabular-nums}
+.cover{position:absolute;inset:0;z-index:1;border-radius:inherit}
+.examples{margin:16px 0 0;font-size:.8125rem;color:var(--ink-muted);text-align:center}
+.empty{padding:28px 16px;text-align:center;color:var(--ink-muted);border:1px dashed var(--line-strong);border-radius:12px;list-style:none;grid-column:1 / -1}
+@media (prefers-reduced-motion:no-preference){.swap>li{animation:in .45s var(--ease) both;animation-delay:calc(var(--k) * 35ms)}}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ---------- shared: a lot photo with its place medal ---------- */
+.pic{position:relative;flex:none;align-self:start}
+.pic .thumb{width:100%;height:100%}
+.pic .rank{position:absolute;left:-8px;bottom:-8px;width:34px;height:34px;font-size:1rem}
+
+/* ---------- A: ledger ---------- */
+.ledger{list-style:none;margin:0;padding:0 20px;display:grid;grid-template-columns:1fr 1fr;column-gap:40px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.ledger li{position:relative;display:grid;grid-template-columns:128px minmax(0,1fr);gap:20px;padding:16px 0;border-bottom:1px solid var(--line)}
+.ledger li:nth-last-child(-n+2){border-bottom:0}
+.ledger .pic{width:128px;height:128px}
+.ledger .thumb img{transition:transform .5s var(--ease)}
+.ledger li:hover .thumb img{transform:scale(1.04)}
+.body{min-width:0;display:grid;align-content:center;gap:3px}
+.body .row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.body time{font-size:.75rem;color:var(--ink-muted);font-variant-numeric:tabular-nums}
+.body .name{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;margin-top:4px}
+.body .price{font-size:1.25rem}
+@media (max-width:1023px){
+  .ledger{grid-template-columns:1fr;padding:0 16px}
+  .ledger li:nth-last-child(2){border-bottom:1px solid var(--line)}
+}
+@media (max-width:639px){
+  .ledger{padding:0 12px}
+  .ledger li{grid-template-columns:112px minmax(0,1fr);gap:14px;padding:14px 0}
+  .ledger .pic{width:112px;height:112px}
+  .body .price{font-size:1.125rem}
+}
+
+/* ---------- B: strip ---------- */
+.strip{list-style:none;margin:0 calc(var(--gut) * -1);padding:4px var(--gut) 12px;display:grid;grid-auto-flow:column;grid-auto-columns:264px;gap:20px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:var(--gut);scrollbar-width:thin;scrollbar-color:var(--line-strong) transparent}
+.strip li{position:relative;scroll-snap-align:start;display:grid;align-content:start;gap:4px}
+.strip .pic,.tiles4 .pic{width:100%;margin-bottom:8px}
+.strip .pic{aspect-ratio:1}
+.strip .thumb,.tiles4 .thumb{border-radius:12px;transition:box-shadow .3s var(--ease),transform .3s var(--ease)}
+.strip li:hover .thumb,.tiles4 li:hover .thumb{box-shadow:var(--lift);transform:translateY(-3px)}
+.strip .pic .rank,.tiles4 .pic .rank{left:10px;top:10px;bottom:auto}
+.strip .pic .fbadge,.tiles4 .pic .fbadge{position:absolute;right:10px;top:10px;box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.strip .row{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.strip .price{font-size:1.25rem}
+.strip time{font-size:.75rem;color:var(--ink-muted);font-variant-numeric:tabular-nums}
+.strip-nav{display:flex;gap:8px;justify-content:flex-end;margin-top:4px}
+.strip-nav button{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:#fff;cursor:pointer}
+.strip-nav button:hover{border-color:var(--line-strong)}
+.strip-nav .icon{width:18px;height:18px}
+@media (max-width:639px){.strip{grid-auto-columns:220px;gap:14px}.strip-nav{display:none}}
+
+/* ---------- C: podium ---------- */
+.podium{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:24px;align-items:stretch}
+.champ{position:relative;display:flex;flex-direction:column;border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden}
+.champ .thumb{border-radius:0;flex:1;min-height:300px;height:auto}
+.champ .rank{position:absolute;left:14px;top:14px;width:44px;height:44px;font-size:1.25rem}
+.champ .body{padding:14px 18px 16px}
+.champ .price{font-size:1.5rem}
+.tiles4{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.tiles4 li{position:relative;display:grid;align-content:start;gap:4px}
+.tiles4 .pic{aspect-ratio:4/3}
+@media (max-width:1023px){.podium{grid-template-columns:1fr}.champ .thumb{min-height:0;aspect-ratio:16/10;flex:none}}
+@media (max-width:639px){.tiles4{gap:16px 12px}.tiles4 .price{font-size:1rem}.champ .price{font-size:1.25rem}.tiles4 .pic .fbadge{display:none}}
+
+/* ---------- D: mini cards ---------- */
+.minis{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.minis li{position:relative;display:grid;grid-template-columns:152px minmax(0,1fr);gap:16px;padding:12px 16px 12px 12px;border:1px solid var(--line);border-radius:12px;background:#fff;transition:box-shadow .3s var(--ease),border-color .3s}
+.minis li:hover{border-color:transparent;box-shadow:var(--lift)}
+.minis .pic{width:152px;height:152px}
+@media (max-width:1279px){.minis{grid-template-columns:1fr 1fr}}
+@media (max-width:639px){.minis{grid-template-columns:1fr;gap:12px}.minis li{grid-template-columns:120px minmax(0,1fr);gap:14px}.minis .pic{width:120px;height:120px}}
+
+
+/* ---------- group headings ---------- */
+.group{padding-block:72px 8px}
+.group + .variant{border-top:0;padding-top:24px}
+.group h2{font:400 clamp(1.75rem,1.4rem + 1.4vw,2.375rem)/1.1 var(--serif);margin:0 0 8px}
+.group p{margin:0;color:var(--ink-muted);max-width:72ch}
+.jump .sep{flex-basis:100%;height:0}
+
+/* ---------- Д: on the cloth, framed like the old hero ---------- */
+.block.on-cloth{background:var(--cloth) url(img/fabric-light.jpg) repeat;background-size:80px;color:#fff;border-radius:20px;padding:36px 32px 28px;box-shadow:inset 0 16px 24px -18px rgba(8,10,20,.6)}
+.on-cloth .rowhead h3{color:#fff}
+.on-cloth .link{color:#fff}
+.on-cloth .period{color:rgba(255,255,255,.8)}
+.on-cloth .seg{background:rgba(255,255,255,.12)}
+.on-cloth .seg button{color:rgba(255,255,255,.85)}
+.on-cloth .seg button:hover{color:#fff}
+.on-cloth .seg button[aria-pressed="true"]{background:#fff;color:var(--ink)}
+.on-cloth .examples{color:rgba(255,255,255,.72)}
+.on-cloth :focus-visible{outline-color:#fff}
+.frames{list-style:none;margin:0;padding:8px 4px 44px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:28px}
+.frames li{position:relative;--r:0deg}
+.frames li:nth-child(5n+1){--r:-2.5deg}.frames li:nth-child(5n+2){--r:1.8deg}.frames li:nth-child(5n+3){--r:-1.2deg}.frames li:nth-child(5n+4){--r:2.4deg}.frames li:nth-child(5n){--r:-1.8deg}
+.frames figure{margin:0;background:#fff;padding:6px;border-radius:4px;transform:rotate(var(--r));box-shadow:0 2px 4px rgba(8,10,20,.3),0 22px 40px -14px rgba(8,10,20,.7);transition:transform .45s var(--ease)}
+.frames li:hover figure{transform:rotate(0deg) translateY(-4px)}
+.frames .thumb{border-radius:0;aspect-ratio:1;width:100%}
+.ptag{position:absolute;left:12px;right:-6px;bottom:-40px;display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;column-gap:10px;row-gap:1px;padding:8px 10px 8px 8px;background:#fff;color:var(--ink);border-radius:4px;transform:rotate(calc(var(--r) * -1.3));box-shadow:0 1px 2px rgba(8,10,20,.3),0 10px 22px -10px rgba(8,10,20,.65)}
+.ptag .rank{grid-row:span 2;width:30px;height:30px;font-size:.9375rem}
+.ptag .price{font-size:1.0625rem}
+.ptag .name{font-size:.8125rem;color:var(--ink-muted)}
+@media (max-width:1023px){.frames{display:grid;grid-auto-flow:column;grid-template-columns:none;grid-auto-columns:210px;overflow-x:auto;scroll-snap-type:x mandatory;padding:8px 12px 52px;margin-inline:-12px}.frames li{scroll-snap-align:start}}
+@media (max-width:639px){.block.on-cloth{padding:28px 16px 20px;margin-inline:calc(var(--gut) * -1);border-radius:0}.on-cloth .seg button{background:rgba(255,255,255,.12)}.frames{grid-auto-columns:180px;gap:22px}}
+
+/* ---------- Е: mosaic ---------- */
+.mosaic{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:230px;grid-auto-flow:dense;gap:12px}
+.mosaic li{position:relative;border-radius:16px;overflow:hidden;background:var(--well);isolation:isolate}
+.mosaic li:first-child{grid-column:span 2;grid-row:span 2}
+.mosaic .thumb{position:absolute;inset:0;border-radius:0;width:100%;height:100%}
+.mosaic .thumb img{transition:transform .7s var(--ease)}
+.mosaic .thumb.contain{background:var(--cloth) url(img/fabric-light.jpg) repeat;background-size:80px}
+.mosaic .thumb.contain img{padding:12% 14% 28%;filter:drop-shadow(0 8px 14px rgba(8,10,20,.45))}
+.mosaic li:hover .thumb img{transform:scale(1.04)}
+.mosaic li::after{content:"";position:absolute;inset:auto 0 0 0;height:62%;background:linear-gradient(180deg,rgba(17,20,29,0),rgba(17,20,29,.78));z-index:1;pointer-events:none}
+.mosaic .rank{position:absolute;left:12px;top:12px;z-index:2}
+.mosaic .fbadge{position:absolute;right:12px;top:12px;z-index:2}
+.mosaic .cap{position:absolute;left:16px;right:16px;bottom:14px;z-index:2;display:grid;gap:2px;color:#fff}
+.mosaic .cap .price{font-size:1.25rem;text-shadow:0 1px 8px rgba(0,0,0,.35)}
+.mosaic .cap .name{font-size:.875rem;color:rgba(255,255,255,.9)}
+.mosaic li:first-child .cap{left:24px;bottom:22px;gap:4px}
+.mosaic li:first-child .cap .price{font:400 2.5rem/1.05 var(--serif)}
+.mosaic li:first-child .cap .name{font-size:1rem;white-space:normal}
+.mosaic li:first-child .how{color:rgba(255,255,255,.85)}
+.mosaic li:first-child .how .icon{color:#fff}
+.mosaic li:first-child .rank{width:44px;height:44px;font-size:1.25rem;left:18px;top:18px}
+.mosaic .cover{z-index:3}
+@media (max-width:1023px){.mosaic{grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:200px}.mosaic li:first-child{grid-row:span 2}}
+@media (max-width:639px){.mosaic{grid-auto-rows:160px;gap:10px}.mosaic li:first-child{grid-row:span 2}.mosaic li:first-child .cap .price{font-size:1.875rem}.mosaic .cap{left:12px;right:12px;bottom:10px}.mosaic .cap .price{font-size:1.0625rem}.mosaic li:not(:first-child) .fbadge{display:none}}
+
+/* ---------- Ж: auction catalogue ---------- */
+.catalog{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:40px;align-items:stretch}
+.cat-photo{position:relative;aspect-ratio:1;border-radius:16px;overflow:hidden;background:var(--well)}
+.cat-photo .thumb{width:100%;height:100%;border-radius:0}
+.cat-photo .thumb.contain img{padding:12%}
+.cat-side{display:flex;flex-direction:column;min-width:0}
+.cat-feature{position:relative;display:grid;gap:10px;padding-top:4px}
+.cat-no{display:flex;align-items:center;gap:14px;font:600 .75rem/1.3 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted)}
+.cat-no .rank{width:52px;height:52px;font-size:1.5rem}
+.cat-feature .ttl{font:400 clamp(1.5rem,1.2rem + 1vw,2.125rem)/1.15 var(--serif);margin:6px 0 0;text-wrap:balance}
+.cat-sold{display:grid;gap:2px;padding:16px 0;border-block:1px solid var(--line);margin-top:6px}
+.cat-sold span{font-size:.875rem;color:var(--ink-muted)}
+.cat-sold b{font:400 clamp(2.25rem,1.8rem + 1.6vw,3rem)/1 var(--serif);font-variant-numeric:lining-nums tabular-nums}
+.cat-feature .how{font-size:.9375rem}
+.cat-feature .how span{white-space:normal}
+.cat-meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;font-size:.875rem;color:var(--ink-muted)}
+.cat-thumbs{list-style:none;margin:auto 0 0;padding:24px 0 0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+.cat-thumbs button{position:relative;display:block;width:100%;aspect-ratio:1;padding:0;border:0;border-radius:10px;overflow:hidden;background:var(--well);cursor:pointer;box-shadow:0 0 0 1px var(--line);transition:box-shadow .2s,transform .2s}
+.cat-thumbs button:hover{transform:translateY(-2px)}
+.cat-thumbs button[aria-pressed="true"]{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--action)}
+.cat-thumbs .thumb{width:100%;height:100%;border-radius:0}
+.cat-thumbs .n{position:absolute;left:4px;top:4px;display:grid;place-items:center;min-width:22px;height:22px;padding:0 5px;border-radius:999px;background:rgba(255,255,255,.92);font:700 .75rem/1 var(--serif);color:var(--ink)}
+@media (prefers-reduced-motion:no-preference){.cat-swap{animation:in .45s var(--ease) both}}
+@media (max-width:1023px){.catalog{grid-template-columns:1fr;gap:20px}.cat-photo{aspect-ratio:4/3}}
+@media (max-width:639px){.cat-thumbs{grid-template-columns:repeat(6,72px);overflow-x:auto;scrollbar-width:none;margin-inline:calc(var(--gut) * -1);padding-inline:var(--gut)}.cat-no .rank{width:42px;height:42px;font-size:1.25rem}}
+
+/* ---------- З: the cloth and the mosaic together, pared down ---------- */
+.cmosaic{list-style:none;margin:0;padding:4px 0 6px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:244px;grid-auto-flow:dense;gap:28px 24px}
+.cmosaic li{position:relative;display:flex;flex-direction:column;min-width:0;padding:6px;background:#fff;border-radius:2px;box-shadow:0 18px 34px -18px rgba(8,10,20,.75);transition:transform .4s var(--ease),box-shadow .4s var(--ease)}
+.cmosaic li:first-child{grid-column:span 2;grid-row:span 2}
+.cmosaic figure{flex:1;min-height:0;margin:0}
+.cmosaic li:hover{transform:translateY(-4px);box-shadow:0 26px 44px -20px rgba(8,10,20,.8)}
+.cmosaic .thumb{width:100%;height:100%;border-radius:0}
+.cmosaic .cap{display:flex;align-items:baseline;gap:10px;min-width:0;padding:11px 6px 5px;color:var(--ink);line-height:1.2}
+.cmosaic .n{flex:none;font:400 1.125rem/1 var(--serif);color:#8A5F10;font-variant-numeric:lining-nums}
+.cmosaic .price{flex:none;font:600 1rem/1.2 var(--sans)}
+.cmosaic .name{min-width:0;font-size:.8125rem;color:var(--ink-muted)}
+.cmosaic li:first-child .cap{gap:14px;padding:14px 10px 8px}
+.cmosaic li:first-child .n{font-size:1.75rem}
+.cmosaic li:first-child .price{font:400 1.75rem/1 var(--serif);font-variant-numeric:lining-nums}
+.cmosaic li:first-child .name{font-size:.9375rem}
+@media (max-width:1023px){.cmosaic{grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:220px}}
+@media (max-width:639px){.cmosaic{grid-auto-rows:176px;gap:16px 12px}.cmosaic li:not(:first-child) .name{display:none}.cmosaic li:first-child .n,.cmosaic li:first-child .price{font-size:1.375rem}}
+
+/* ---------- И: colour of the format ---------- */
+.fc-en{--fc:var(--c-en);--fs:var(--p-powder);--ft:#fff}
+.fc-nl{--fc:var(--c-nl);--fs:var(--p-butter);--ft:var(--ink)}
+.fc-live{--fc:var(--c-live);--fs:var(--p-blush);--ft:#fff}
+.fc-fix{--fc:var(--c-fix);--fs:#DCEAE1;--ft:#fff}
+.legend{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 18px;margin:-8px 0 20px;font-size:.8125rem;color:var(--ink-muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:12px;height:12px;border-radius:3px;background:var(--fc)}
+.swatches{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}
+.swatches li{position:relative;display:grid;gap:6px;padding:10px 10px 12px;border-radius:16px;background:var(--fs);overflow:hidden;isolation:isolate;transition:transform .35s var(--ease),box-shadow .35s var(--ease)}
+.swatches li:hover{transform:translateY(-4px);box-shadow:0 18px 30px -18px var(--fc)}
+.swatches .thumb{width:100%;aspect-ratio:1;border-radius:10px;box-shadow:0 0 0 3px var(--fc)}
+.swatches .big{position:absolute;right:8px;bottom:-14px;z-index:-1;font:400 5.5rem/1 var(--serif);color:var(--fc);opacity:.22;font-variant-numeric:lining-nums}
+.swatches .price{margin-top:6px}
+.swatches .name{font-size:.8125rem;color:var(--ink)}
+.swatches .fmt{justify-self:start;padding:2px 7px;border-radius:4px;background:var(--fc);color:var(--ft);font:600 .6875rem/1.3 var(--sans);letter-spacing:.06em;text-transform:uppercase}
+@media (max-width:1023px){.swatches{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:639px){.swatches{grid-template-columns:1fr 1fr;gap:10px}.swatches li:nth-child(n+7){display:none}}
+
+/* ---------- Л: four lanes, one per format ---------- */
+.lanes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.lane{border-radius:16px;background:var(--fs);padding:0 12px 14px;display:flex;flex-direction:column;gap:12px}
+.lane-h{display:flex;align-items:center;gap:8px;margin:0 -12px;padding:12px 14px;border-radius:16px 16px 0 0;background:var(--fc);color:var(--ft);font:600 .8125rem/1.2 var(--sans);letter-spacing:.06em;text-transform:uppercase}
+.lane-h .icon{width:16px;height:16px}
+.lane-h small{margin-left:auto;font:500 .75rem/1 var(--sans);letter-spacing:0;text-transform:none;opacity:.85}
+.lane ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:12px 10px}
+.lane li{position:relative;display:grid;gap:4px}
+.lane li:first-child{grid-column:1 / -1}
+.lane .thumb{width:100%;aspect-ratio:1;border-radius:10px;background:#fff;transition:transform .35s var(--ease)}
+.lane li:first-child .thumb{aspect-ratio:4/3}
+.lane li:hover .thumb{transform:translateY(-3px)}
+.lane .n{position:absolute;left:6px;top:6px;display:grid;place-items:center;min-width:24px;height:24px;padding:0 6px;border-radius:999px;background:var(--fc);color:var(--ft);font:700 .8125rem/1 var(--serif)}
+.lane .price{font-size:1rem}
+.lane li:first-child .price{font-size:1.25rem}
+.lane .name{font-size:.8125rem}
+.lane .none{margin:auto 0;padding:24px 8px;text-align:center;font-size:.875rem;color:var(--ink-muted)}
+@media (max-width:1023px){.lanes{grid-auto-flow:column;grid-template-columns:none;grid-auto-columns:280px;overflow-x:auto;scroll-snap-type:x mandatory;margin-inline:calc(var(--gut) * -1);padding:0 var(--gut) 8px;scrollbar-width:thin}.lane{scroll-snap-align:start}}
+@media (max-width:639px){.lanes{grid-auto-columns:260px}}
+.block.nofilter .seg{display:none}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.swatches.swap>li,.goldrow.swap>li,.cmosaic.swap>li,.frames.swap>li{animation-name:fade}
+
+/* ---------- М: the whole block on coin gold ---------- */
+.block.on-gold{background:var(--gold);color:var(--ink);border-radius:20px;padding:36px 32px 28px}
+.on-gold .link{color:var(--ink)}
+.on-gold .period{color:rgba(28,31,39,.75)}
+.on-gold .seg{background:rgba(28,31,39,.1)}
+.on-gold .seg button{color:rgba(28,31,39,.78)}
+.on-gold .seg button:hover{color:var(--ink)}
+.on-gold .seg button[aria-pressed="true"]{background:#fff;color:var(--ink)}
+.on-gold .examples{color:rgba(28,31,39,.72)}
+.on-gold :focus-visible{outline-color:var(--ink)}
+.goldrow{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:20px}
+.goldrow li{position:relative;display:grid;align-content:start;gap:10px;min-width:0}
+.goldrow .thumb{width:100%;aspect-ratio:1;border-radius:12px;background:#FBF6E6;box-shadow:0 16px 28px -18px rgba(90,55,0,.7);transition:transform .35s var(--ease)}
+.goldrow li:hover .thumb{transform:translateY(-4px) rotate(-1deg)}
+.goldrow .gcap{display:flex;align-items:baseline;gap:10px}
+.goldrow .n{font:400 1.75rem/1 var(--serif);font-variant-numeric:lining-nums}
+.goldrow .name{margin-top:-6px;font-size:.8125rem;color:rgba(28,31,39,.78)}
+@media (max-width:1023px){.goldrow{grid-auto-flow:column;grid-template-columns:none;grid-auto-columns:220px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:8px}.goldrow li{scroll-snap-align:start}}
+@media (max-width:639px){.block.on-gold{padding:28px 16px 20px;margin-inline:calc(var(--gut) * -1);border-radius:0}.on-gold .seg button{background:rgba(28,31,39,.1)}.on-gold .seg button[aria-pressed="true"]{background:var(--ink);color:#fff}.goldrow{grid-auto-columns:190px}}
+
+/* ---------- Н: palette of soft paint chips ---------- */
+.pop{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border-radius:16px;overflow:hidden}
+.pop li{position:relative;display:grid;align-content:start;gap:12px;padding:20px 18px 18px;background:var(--pc);color:var(--ink);min-width:0}
+.pop li:nth-child(5n+1){--pc:#E3E7F4;--pd:#34497A}
+.pop li:nth-child(5n+2){--pc:#F6EBC8;--pd:#8A5F10}
+.pop li:nth-child(5n+3){--pc:#F1E0E3;--pd:#8A3342}
+.pop li:nth-child(5n+4){--pc:#DDEBE3;--pd:#2E6B50}
+.pop li:nth-child(5n){--pc:#F6E3DC;--pd:#9A4A38}
+.pop .thumb{width:100%;aspect-ratio:1;border-radius:4px;background:#fff;box-shadow:0 10px 20px -14px rgba(27,31,28,.45);transition:transform .45s var(--ease)}
+.pop li:hover .thumb{transform:translateY(-4px)}
+.pop .gcap{display:flex;align-items:baseline;gap:10px}
+.pop .n{font:400 1.5rem/1 var(--serif);color:var(--pd);font-variant-numeric:lining-nums}
+.pop .price{font-size:1.0625rem}
+.pop .name{margin-top:-6px;font-size:.8125rem;color:var(--ink-muted)}
+@media (max-width:1023px){.pop{grid-auto-flow:column;grid-template-columns:none;grid-auto-columns:220px;overflow-x:auto;scroll-snap-type:x mandatory}.pop li{scroll-snap-align:start}}
+@media (max-width:639px){.pop{grid-auto-columns:190px;border-radius:0;margin-inline:calc(var(--gut) * -1)}}
+
+/* ---------- П: a quiet ticker tape ---------- */
+.marq{position:relative;overflow:hidden;padding:22px 0 20px;border-block:1px solid var(--line-strong);-webkit-mask:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.marq-track{display:flex;width:max-content}
+.marq-copy{list-style:none;margin:0;padding:0;display:flex}
+.marq-copy li{position:relative;width:236px;display:grid;gap:10px;padding:0 14px;border-right:1px solid var(--line)}
+.marq .thumb{width:100%;aspect-ratio:1;border-radius:6px;transition:transform .35s var(--ease)}
+.marq li:hover .thumb{transform:translateY(-3px)}
+.marq .gcap{display:flex;align-items:baseline;gap:10px}
+.marq .n{font:400 1.25rem/1 var(--serif);color:#8A5F10;font-variant-numeric:lining-nums}
+.marq .price{font:400 1.25rem/1 var(--serif);font-variant-numeric:lining-nums}
+.marq .name{margin-top:-4px;font-size:.8125rem;color:var(--ink-muted)}
+@media (prefers-reduced-motion:no-preference){
+  .marq-track{animation:marq 80s linear infinite}
+  .marq:hover .marq-track,.marq:focus-within .marq-track,.marq.paused .marq-track{animation-play-state:paused}
+}
+@media (prefers-reduced-motion:reduce){.marq{overflow-x:auto;-webkit-mask:none;mask:none}.marq-copy[aria-hidden="true"]{display:none}}
+@keyframes marq{to{transform:translateX(-50%)}}
+.marq-ctl{display:flex;justify-content:flex-end;margin-top:8px}
+.marq-ctl button{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 6px;border:0;background:none;color:var(--ink-muted);font:500 .8125rem/1 var(--sans);text-decoration:underline;text-underline-offset:4px;cursor:pointer}
+.marq-ctl button:hover{color:var(--ink)}
+@media (prefers-reduced-motion:reduce){.marq-ctl{display:none}}
+@media (max-width:639px){.marq-copy li{width:190px;padding:0 10px}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-tag" viewBox="0 0 24 24"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r="1"/></symbol>
+  <symbol id="i-zap" viewBox="0 0 24 24"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></symbol>
+  <symbol id="i-trend" viewBox="0 0 24 24"><path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/></symbol>
+  <symbol id="i-trend-down" viewBox="0 0 24 24"><path d="m22 17-8.5-8.5-5 5L2 7"/><path d="M16 17h6v-6"/></symbol>
+  <symbol id="i-video" viewBox="0 0 24 24"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></symbol>
+  <symbol id="i-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+  <symbol id="i-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+</svg>
+
+<main>
+  <header class="wrap intro">
+    <h1>Топ сделок недели: тринадцать вариантов</h1>
+    <p>Для концепта 09. Варианты А–Г — компактная версия текущего блока, Д–З — совсем другой дизайн, И и Л — больше лотов и игра с цветом, М–П — ярко и просто. Данные и гамма те же, что на главной; у каждого варианта работает фильтр по формату торгов. Фото лота везде крупное: место экономится на тексте, а не на изображении. Сейчас блок на главной занимает около 850&nbsp;px по высоте на десктопе вместе с заголовком — у каждого варианта ниже указана его высота.</p>
+    <nav class="jump" aria-label="Варианты">
+      <a href="#v-a"><b>А</b>Ведомость</a>
+      <a href="#v-b"><b>Б</b>Лента</a>
+      <a href="#v-c"><b>В</b>Подиум</a>
+      <a href="#v-d"><b>Г</b>Мини-карточки</a>
+      <span class="sep" aria-hidden="true"></span>
+      <a href="#v-e"><b>Д</b>На сукне</a>
+      <a href="#v-f"><b>Е</b>Мозаика</a>
+      <a href="#v-g"><b>Ж</b>Каталог</a>
+      <a href="#v-h"><b>З</b>Сукно и мозаика</a>
+      <span class="sep" aria-hidden="true"></span>
+      <a href="#v-i"><b>И</b>Цвет формата</a>
+      <a href="#v-k"><b>Л</b>Четыре дорожки</a>
+      <span class="sep" aria-hidden="true"></span>
+      <a href="#v-m"><b>М</b>Золотой фон</a>
+      <a href="#v-n"><b>Н</b>Палитра</a>
+      <a href="#v-p"><b>П</b>Бегущая лента</a>
+    </nav>
+  </header>
+
+  <section class="wrap variant" id="v-a" data-kind="ledger">
+    <div class="v-note"><div><h2>А. Ведомость</h2><p>Строки в две колонки по три. Фото 128&nbsp;px с медалью места, рядом формат, дата, название, цена и как прошла сделка. Строки делят одну панель без отдельных рамок, поэтому блок плотный, а фото крупное.</p></div><span class="h">Высота: <b data-h>—</b></span></div>
+  </section>
+
+  <section class="wrap variant" id="v-b" data-kind="strip">
+    <div class="v-note"><div><h2>Б. Лента</h2><p>Один ряд карточек с прокруткой. Квадратное фото 264&nbsp;px, медаль и формат лежат прямо на фото, под ним только цена, дата, название и строка о сделке. По высоте один ряд, помещается до 10 сделок.</p></div><span class="h">Высота: <b data-h>—</b></span></div>
+  </section>
+
+  <section class="wrap variant" id="v-c" data-kind="podium">
+    <div class="v-note"><div><h2>В. Подиум</h2><p>Первое место — крупной карточкой с фото во всю высоту, места 2–5 — плиткой 2×2 с фото 4:3, ценой и названием. Сохраняет ощущение рейтинга, и у каждой сделки большое фото.</p></div><span class="h">Высота: <b data-h>—</b></span></div>
+  </section>
+
+  <section class="wrap variant" id="v-d" data-kind="minis">
+    <div class="v-note"><div><h2>Г. Мини-карточки</h2><p>Та же карточка, что сейчас, в три колонки вместо двух. Фото 152&nbsp;px, продавец убран, текст сжат до формата, названия, цены и строки о сделке.</p></div><span class="h">Высота: <b data-h>—</b></span></div>
+  </section>
+  <div class="wrap group" id="other">
+    <h2>Другой дизайн</h2>
+    <p>Четыре варианта, которые меняют сам характер блока, а не только его плотность. Фото лота в каждом — главный элемент.</p>
+  </div>
+
+  <section class="wrap variant" id="v-e" data-kind="cloth">
+    <div class="v-note"><div><h2>Д. На сукне</h2><p>Блок лежит на синем сукне, как лоток коллекций и прежний баннер. Лоты — фото в белых паспарту, чуть повёрнутые, с бумажной биркой: медаль места, цена и название. Самый «фирменный» вариант, связывает топ с первым экраном.</p></div><span class="h">Высота: <b data-h>—</b></span></div>
+  </section>
+
+  <section class="wrap variant" id="v-f" data-kind="mosaic">
+    <div class="v-note"><div><h2>Е. Мозаика</h2><p>Журнальная сетка: первое место занимает квадрат 2×2, остальные четыре — плитки вокруг. Фото во всю плитку, цена и название лежат на затемнении внизу. Карточек и рамок нет вовсе, блок — это сами вещи.</p></div><span class="h">Высота: <b data-h>—</b></span></div>
+  </section>
+
+  <section class="wrap variant" id="v-g" data-kind="catalog">
+    <div class="v-note"><div><h2>Ж. Каталог аукционного дома</h2><p>Одна сделка на развороте: большое фото, «Продано за» крупными цифрами с засечками, как в каталоге торгов. Под описанием ряд фото остальных мест — по нажатию лот встаёт на разворот. Высота фиксирована, сколько бы сделок ни было.</p></div><span class="h">Высота: <b data-h>—</b></span></div>
+  </section>
+
+  <section class="wrap variant" id="v-h" data-kind="clothmosaic">
+    <div class="v-note"><div><h2>З. Сукно и мозаика</h2><p>Соединение Д и Е, упрощённое до предела: синее сукно, мозаика из ровных белых паспарту, фото и подпись — одна белая карточка: под фото одна строка с номером места, ценой и названием. Ни бирок, ни медалей, ни поворотов: только вещи и цены.</p></div><span class="h">Высота: <b data-h>—</b></span></div>
+  </section>
+  <div class="wrap group" id="more">
+    <h2>Больше лотов, игра с цветом</h2>
+    <p>Здесь у каждого формата торгов свой цвет: английский — синий, голландский — золотой, живой — брусничный, фиксированная цена — зелёный. Цвет сразу говорит, как продан лот, а в блок помещается 10–12 сделок.</p>
+  </div>
+
+  <section class="wrap variant" id="v-i" data-kind="swatch">
+    <div class="v-note"><div><h2>И. Цвет формата</h2><p>Десять сделок в две строки. Каждая карточка окрашена в цвет своего формата: пастельная подложка, фото в цветной рамке, за ним крупная цифра места в том же цвете. По цвету видно, какие форматы собрали топ недели.</p></div><span class="h">Высота: <b data-h>—</b></span></div>
+  </section>
+
+  <section class="wrap variant" id="v-k" data-kind="lanes">
+    <div class="v-note"><div><h2>Л. Четыре дорожки</h2><p>Вместо фильтра — четыре цветные колонки, по одной на формат, в каждой три лучшие сделки: первая крупно, две под ней. Двенадцать лотов, и сразу видно лучшее в каждом формате. На телефоне дорожки листаются вбок.</p></div><span class="h">Высота: <b data-h>—</b></span></div>
+  </section>
+  <div class="wrap group" id="bright">
+    <h2>Ярко и просто</h2>
+    <p>В каждом из этих вариантов один смелый приём и больше ничего: цвет на весь блок, мягкая палитра плашек или медленная лента. Фото крупные, текста минимум.</p>
+  </div>
+
+  <section class="wrap variant" id="v-m" data-kind="gold">
+    <div class="v-note"><div><h2>М. Золотой фон</h2><p>Весь блок залит золотом монеты — тем же, что у точки в логотипе. На нём пять квадратных фото в ряд, под каждым номер места с засечками, цена и название. Никаких рамок и плашек: цвет сам выделяет блок на белой странице.</p></div><span class="h">Высота: <b data-h>—</b></span></div>
+  </section>
+
+  <section class="wrap variant" id="v-n" data-kind="pop">
+    <div class="v-note"><div><h2>Н. Палитра</h2><p>Пять лотов сплошной полосой, как образцы краски: у каждого своя мягкая плашка — голубая, песочная, розовая, шалфейная, персиковая. Номер места набран тёмным оттенком того же цвета. Спокойно, но блок всё равно выделяется на белом.</p></div><span class="h">Высота: <b data-h>—</b></span></div>
+  </section>
+
+  <section class="wrap variant" id="v-p" data-kind="marquee">
+    <div class="v-note"><div><h2>П. Бегущая лента</h2><p>Тихое табло: белая полоса между двумя тонкими линиями, края растворяются, лоты медленно проплывают — круг занимает больше минуты. Между лотами тонкие разделители, цены набраны с засечками. При наведении и фокусе лента останавливается, есть кнопка паузы.</p></div><span class="h">Высота: <b data-h>—</b></span></div>
+  </section>
+</main>
+
+<script>
+(function(){
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function rub(n){return n.toLocaleString('ru-RU')+' ₽';}
+  var FMT={en:'Английский',nl:'Голландский',live:'Живой',fix:'Фикс. цена'};
+  var DEALS=[
+    {f:'live',icon:'i-video',img:'peacock',alt:'Круглый витраж с павлином в деревянной раме',name:'Витраж «Павлин», тиффани, в дубовой раме',price:124000,how:'Старт 40 000 ₽ · 27 ставок, 11 участников в эфире',date:'26.09',nick:'antikvar_spb',rate:1284},
+    {f:'en',icon:'i-trend',img:'bill',contain:1,alt:'Кредитный билет 25 рублей 1899 года с надпечаткой «Образец»',name:'25 рублей 1899, Тимашев, надпечатка «Образец»',price:86500,how:'Старт 1 ₽ · 64 ставки, торги продлевались 3 раза',date:'24.09',nick:'bonistika_msk',rate:2963},
+    {f:'nl',icon:'i-trend-down',img:'teapot',alt:'Фарфоровый чайник с росписью цветами и бабочками',name:'Чайник фарфоровый, роспись эмалями, ручка-бамбук',price:52000,how:'Старт 90 000 ₽ · купили после 8 снижений цены',date:'27.09',nick:'farfor_nn',rate:412},
+    {f:'en',icon:'i-zap',img:'gramophone',alt:'Граммофон с зелёной трубой на деревянной тумбе',name:'Граммофон с трубой, рабочий, пластинки в комплекте',price:45000,how:'Куплен по блиц-цене после 9 ставок',date:'23.09',nick:'patefon_club',rate:198},
+    {f:'en',icon:'i-trend',img:'coin',contain:1,alt:'Золотая монета 5 рублей 1899 года, аверс с профилем',name:'5 рублей 1899, ЭБ, золото',price:41200,how:'Старт 1 ₽ · 48 ставок',date:'25.09',nick:'luckcoins95',rate:6388},
+    {f:'live',icon:'i-video',img:'matryoshka',alt:'Шесть ранних матрёшек в музейной витрине',name:'Матрёшки, ранний набор из 6 штук, роспись',price:38000,how:'Старт 12 000 ₽ · 22 ставки, 9 участников в эфире',date:'26.09',nick:'antikvar_spb',rate:1284},
+    {f:'fix',icon:'i-tag',img:'samovar',alt:'Латунный самовар-«рюмка» на мраморном полу',name:'Самовар «рюмка», Тула, клеймо фабрики',price:32000,how:'Продан за 2 дня по цене продавца',date:'22.09',nick:'tula_samovar',rate:87},
+    {f:'nl',icon:'i-trend-down',img:'sugar',alt:'Серебряная сахарница с крышкой на сером фоне',name:'Сахарница с крышкой, серебро 84 пробы',price:27500,how:'Старт 40 000 ₽ · купили после 5 снижений цены',date:'21.09',nick:'serebro84',rate:655},
+    {f:'fix',icon:'i-tag',img:'watch-dome',alt:'Карманные часы под стеклянным колпаком на подставке',name:'Часы карманные с колпаком-витриной',price:18500,how:'Продавец принял предложение цены',date:'24.09',nick:'kazan_time',rate:231},
+    {f:'nl',icon:'i-trend-down',img:'kerosene',alt:'Керосиновая лампа с зажжённым стеклом у стены',name:'Лампа керосиновая, бронза, стекло родное',price:14200,how:'Старт 24 000 ₽ · купили после 6 снижений цены',date:'25.09',nick:'svet_lavka',rate:143},
+    {f:'live',icon:'i-video',img:'watch',alt:'Карманные часы с цепочкой на шёлковом шарфе',name:'Карманные часы «Павел Буре», серебро',price:24800,how:'Старт 8 000 ₽ · 19 ставок, 7 участников в эфире',date:'27.09',nick:'chasovshik',rate:512},
+    {f:'fix',icon:'i-tag',img:'enamel',contain:1,alt:'Фрагмент оклада с перегородчатой эмалью',name:'Фрагмент оклада, перегородчатая эмаль',price:14000,how:'Продавец принял предложение цены',date:'23.09',nick:'emal_spb',rate:304},
+    {f:'en',icon:'i-trend',img:'podstakannik',contain:1,alt:'Мельхиоровый подстаканник с гранёным стаканом и ложкой',name:'Подстаканник «Кремль», мельхиор',price:9800,how:'Старт 1 ₽ · 31 ставка',date:'22.09',nick:'serebro84',rate:655},
+    {f:'en',icon:'i-trend',img:'postcard',alt:'Открытка с видом павильона Одесской выставки',name:'Открытка «Одесская выставка», 1910',price:6400,how:'Старт 100 ₽ · 26 ставок, торги продлевались 2 раза',date:'26.09',nick:'otkrytki_ru',rate:1120},
+    {f:'fix',icon:'i-tag',img:'stamp',contain:1,alt:'Марка СССР 1963 года, 15 лет Всеобщей декларации прав человека',name:'Марка СССР 1963, «15 лет Декларации», чистая',price:3900,how:'Продан за 1 день по цене продавца',date:'25.09',nick:'filatelist',rate:2210},
+    {f:'nl',icon:'i-trend-down',img:'cover',alt:'Заказной конверт 1963 года с серией марок «Птицы»',name:'Конверт 1963, заказной, серия «Птицы»',price:2600,how:'Старт 5 000 ₽ · купили после 4 снижений цены',date:'24.09',nick:'filatelist',rate:2210}
+  ];
+  var LIMIT={ledger:6,strip:10,podium:5,minis:6,cloth:5,mosaic:5,catalog:6,clothmosaic:5,swatch:10,lanes:99,gold:5,pop:5,marquee:10};
+  function rank(k){return '<span class="rank'+(k<3?' r'+(k+1):'')+'"><span class="sr">Место </span>'+(k+1)+'</span>';}
+  function thumb(d){return '<span class="thumb'+(d.contain?' contain':'')+'"><img src="img/'+d.img+'.webp" alt="'+d.alt+'" loading="lazy" width="640" height="640"></span>';}
+  function badge(d){return '<span class="fbadge f-'+d.f+'">'+FMT[d.f]+'</span>';}
+  function how(d){return '<span class="how"><svg class="icon"><use href="#'+d.icon+'"/></svg><span>'+d.how+'</span></span>';}
+  function time(d){return '<time datetime="2026-'+d.date.split('.').reverse().join('-')+'">'+d.date+'</time>';}
+  function seller(d){return '<span class="seller"><b>'+d.nick+'</b><span class="rate"><span class="sr">рейтинг </span>'+d.rate.toLocaleString('ru-RU')+'</span></span>';}
+  function cover(d){return '<a class="cover" href="#" aria-label="Открыть сделку: '+d.name+'"></a>';}
+  function pic(d,k,extra){return '<div class="pic">'+thumb(d)+rank(k)+(extra||'')+'</div>';}
+  function head(d){return '<div class="row">'+badge(d)+time(d)+'</div>';}
+  function body(d){return '<div class="body">'+head(d)+'<span class="name">'+d.name+'</span><span class="price">'+rub(d.price)+'</span>'+how(d)+'</div>';}
+  function feature(d,k){
+    return '<div class="cat-no">'+rank(k)+'<span>Место '+(k+1)+' · '+FMT[d.f]+(d.f==='fix'?'':' аукцион')+'</span></div>'+
+      '<h4 class="ttl">'+d.name+'</h4><div class="cat-sold"><span>Продано за</span><b>'+rub(d.price)+'</b></div>'+how(d)+
+      '<div class="cat-meta">'+seller(d)+'<time datetime="2026-'+d.date.split('.').reverse().join('-')+'">завершён '+d.date+'</time><a class="link" href="#">Открыть сделку</a></div>';
+  }
+  var R={
+    ledger:function(rows){
+      return '<ol class="ledger">'+rows.map(function(d,k){
+        return '<li style="--k:'+k+'">'+pic(d,k)+body(d)+cover(d)+'</li>';
+      }).join('')+'</ol>';
+    },
+    strip:function(rows){
+      return '<ol class="strip">'+rows.map(function(d,k){
+        return '<li style="--k:'+k+'">'+pic(d,k,badge(d))+
+          '<div class="row"><span class="price">'+rub(d.price)+'</span>'+time(d)+'</div>'+
+          '<span class="name">'+d.name+'</span>'+how(d)+cover(d)+'</li>';
+      }).join('')+'</ol><div class="strip-nav"><button type="button" data-dir="-1" aria-label="Назад"><svg class="icon"><use href="#i-left"/></svg></button><button type="button" data-dir="1" aria-label="Вперёд"><svg class="icon"><use href="#i-right"/></svg></button></div>';
+    },
+    podium:function(rows){
+      var c=rows[0],rest=rows.slice(1);
+      return '<div class="podium"><article class="champ">'+thumb(c)+rank(0)+
+        '<div class="body">'+head(c)+'<span class="name">'+c.name+'</span><span class="price">'+rub(c.price)+'</span>'+how(c)+seller(c)+'</div>'+cover(c)+'</article>'+
+        (rest.length?'<ol class="tiles4" start="2">'+rest.map(function(d,i){var k=i+1;
+          return '<li style="--k:'+k+'">'+pic(d,k,badge(d))+'<span class="price">'+rub(d.price)+'</span><span class="name">'+d.name+'</span>'+cover(d)+'</li>';
+        }).join('')+'</ol>':'')+'</div>';
+    },
+    cloth:function(rows){
+      return '<ol class="frames">'+rows.map(function(d,k){
+        return '<li style="--k:'+k+'"><figure>'+thumb(d)+'</figure><div class="ptag">'+rank(k)+'<span class="price">'+rub(d.price)+'</span><span class="name">'+d.name+'</span></div>'+cover(d)+'</li>';
+      }).join('')+'</ol>';
+    },
+    mosaic:function(rows){
+      return '<ol class="mosaic">'+rows.map(function(d,k){
+        return '<li style="--k:'+k+'">'+thumb(d)+rank(k)+badge(d)+'<div class="cap"><span class="price">'+rub(d.price)+'</span><span class="name">'+d.name+'</span>'+(k===0?how(d):'')+'</div>'+cover(d)+'</li>';
+      }).join('')+'</ol>';
+    },
+    catalog:function(rows){
+      return '<div class="catalog"><div class="cat-photo">'+thumb(rows[0])+'</div><div class="cat-side"><div class="cat-feature">'+feature(rows[0],0)+'</div>'+
+        (rows.length>1?'<ol class="cat-thumbs" aria-label="Другие места">'+rows.map(function(d,k){
+          return '<li><button type="button" data-i="'+k+'" aria-pressed="'+(k===0)+'" aria-label="Место '+(k+1)+': '+d.name+'">'+thumb(d)+'<span class="n" aria-hidden="true">'+(k+1)+'</span></button></li>';
+        }).join('')+'</ol>':'')+'</div></div>';
+    },
+    clothmosaic:function(rows){
+      return '<ol class="cmosaic">'+rows.map(function(d,k){
+        return '<li style="--k:'+k+'"><figure>'+thumb(d)+'</figure><div class="cap"><span class="n"><span class="sr">Место </span>'+(k+1)+'</span><span class="price">'+rub(d.price)+'</span><span class="name">'+d.name+'</span></div>'+cover(d)+'</li>';
+      }).join('')+'</ol>';
+    },
+    swatch:function(rows){
+      return '<div class="legend" aria-hidden="true"><span class="fc-en"><i></i>Английский</span><span class="fc-nl"><i></i>Голландский</span><span class="fc-live"><i></i>Живой</span><span class="fc-fix"><i></i>Фикс. цена</span></div>'+
+        '<ol class="swatches">'+rows.map(function(d,k){
+        return '<li class="fc-'+d.f+'" style="--k:'+k+'"><span class="big" aria-hidden="true">'+(k+1)+'</span>'+thumb(d)+'<span class="price">'+rub(d.price)+'</span><span class="name">'+d.name+'</span><span class="fmt"><span class="sr">Место '+(k+1)+', </span>'+FMT[d.f]+'</span>'+cover(d)+'</li>';
+      }).join('')+'</ol>';
+    },
+    lanes:function(rows){
+      var L=[['en','Английский','i-trend'],['nl','Голландский','i-trend-down'],['live','Живой','i-video'],['fix','Фикс. цена','i-tag']];
+      return '<div class="lanes">'+L.map(function(l){
+        var list=rows.filter(function(d){return d.f===l[0];}).slice(0,3);
+        return '<section class="lane fc-'+l[0]+'" aria-label="'+l[1]+'"><div class="lane-h"><svg class="icon"><use href="#'+l[2]+'"/></svg>'+l[1]+'<small>топ-3</small></div>'+
+          (list.length?'<ol>'+list.map(function(d,k){
+            return '<li style="--k:'+k+'">'+thumb(d)+'<span class="n"><span class="sr">Место </span>'+(k+1)+'</span><span class="price">'+rub(d.price)+'</span><span class="name">'+d.name+'</span>'+cover(d)+'</li>';
+          }).join('')+'</ol>':'<p class="none">На этой неделе сделок не было</p>')+'</section>';
+      }).join('')+'</div>';
+    },
+    gold:function(rows){
+      return '<ol class="goldrow">'+rows.map(function(d,k){
+        return '<li style="--k:'+k+'">'+thumb(d)+'<div class="gcap"><span class="n"><span class="sr">Место </span>'+(k+1)+'</span><span class="price">'+rub(d.price)+'</span></div><span class="name">'+d.name+'</span>'+cover(d)+'</li>';
+      }).join('')+'</ol>';
+    },
+    pop:function(rows){
+      return '<ol class="pop">'+rows.map(function(d,k){
+        return '<li style="--k:'+k+'">'+thumb(d)+'<div class="gcap"><span class="n"><span class="sr">Место </span>'+(k+1)+'</span><span class="price">'+rub(d.price)+'</span></div><span class="name">'+d.name+'</span>'+cover(d)+'</li>';
+      }).join('')+'</ol>';
+    },
+    marquee:function(rows){
+      function copy(hidden){
+        return '<ol class="marq-copy"'+(hidden?' aria-hidden="true" inert':'')+'>'+rows.map(function(d,k){
+          return '<li>'+thumb(d)+'<div class="gcap"><span class="n"><span class="sr">Место </span>'+(k+1)+'</span><span class="price">'+rub(d.price)+'</span></div><span class="name">'+d.name+'</span>'+cover(d)+'</li>';
+        }).join('')+'</ol>';
+      }
+      return '<div class="marq"><div class="marq-track">'+copy(false)+copy(true)+'</div></div><div class="marq-ctl"><button type="button" class="marq-btn" aria-pressed="false">Остановить ленту</button></div>';
+    },
+    minis:function(rows){
+      return '<ol class="minis">'+rows.map(function(d,k){
+        return '<li style="--k:'+k+'">'+pic(d,k)+body(d)+cover(d)+'</li>';
+      }).join('')+'</ol>';
+    }
+  };
+  [].forEach.call(document.querySelectorAll('.variant'),function(sec){
+    var kind=sec.getAttribute('data-kind');
+    var block=document.createElement('div');block.className='block'+(kind==='cloth'||kind==='clothmosaic'?' on-cloth':'')+(kind==='gold'?' on-gold':'')+(kind==='lanes'?' nofilter':'');
+    block.innerHTML='<div class="rowhead"><h3>Топ сделок недели</h3><a class="link" href="#">Все сделки</a></div>'+
+      '<div class="bar"><span class="period">21–27 сентября</span><div class="seg" role="group" aria-label="Формат торгов">'+
+      '<button type="button" data-f="all" aria-pressed="true">Все</button><button type="button" data-f="en" aria-pressed="false">Английский</button><button type="button" data-f="nl" aria-pressed="false">Голландский</button><button type="button" data-f="live" aria-pressed="false">Живой</button><button type="button" data-f="fix" aria-pressed="false">Фикс. цена</button></div></div>'+
+      '<div class="out"></div><p class="examples">Сделки, цены и продавцы — примеры.</p>';
+    sec.appendChild(block);
+    var out=block.querySelector('.out'),hEl=sec.querySelector('[data-h]');
+    function paint(f,anim){
+      var rows=DEALS.filter(function(d){return f==='all'||d.f===f;}).sort(function(a,b){return b.price-a.price;}).slice(0,LIMIT[kind]);
+      block._rows=rows;
+      out.innerHTML=rows.length?R[kind](rows):'<p class="empty">В этом формате за неделю сделок не было.</p>';
+      var list=out.querySelector('.swatches,ol');if(list&&anim)list.classList.add('swap');
+      requestAnimationFrame(function(){hEl.textContent=Math.round(block.getBoundingClientRect().height)+' px';});
+    }
+    block.querySelector('.seg').addEventListener('click',function(e){
+      var b=e.target.closest('button');if(!b||b.getAttribute('aria-pressed')==='true')return;
+      [].forEach.call(this.querySelectorAll('button'),function(x){x.setAttribute('aria-pressed',x===b);});
+      paint(b.getAttribute('data-f'),true);
+    });
+    block.addEventListener('click',function(e){
+      var t=e.target.closest('.cat-thumbs button');
+      if(t){
+        var i=+t.getAttribute('data-i'),d=block._rows[i],f=block.querySelector('.cat-feature'),ph=block.querySelector('.cat-photo');
+        [].forEach.call(block.querySelectorAll('.cat-thumbs button'),function(x){x.setAttribute('aria-pressed',x===t);});
+        f.innerHTML=feature(d,i);ph.innerHTML=thumb(d);
+        f.classList.remove('cat-swap');ph.classList.remove('cat-swap');void f.offsetWidth;f.classList.add('cat-swap');ph.classList.add('cat-swap');
+        return;
+      }
+      var mb=e.target.closest('.marq-btn');
+      if(mb){var on=mb.getAttribute('aria-pressed')!=='true';mb.setAttribute('aria-pressed',on);mb.textContent=on?'Запустить ленту':'Остановить ленту';block.querySelector('.marq').classList.toggle('paused',on);return;}
+      var n=e.target.closest('.strip-nav button');if(!n)return;
+      var s=block.querySelector('.strip');s.scrollBy({left:(+n.getAttribute('data-dir'))*s.clientWidth*.8,behavior:reduce?'auto':'smooth'});
+    });
+    paint('all',false);
+    window.addEventListener('resize',function(){hEl.textContent=Math.round(block.getBoundingClientRect().height)+' px';});
+  });
+})();
+</script>

@@ -1,0 +1,511 @@
+<title>Ближайший час торгов</title>
+<script src="../switcher.js" defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Forum&family=Golos+Text:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --paper:#E8EDE9; --tile:#F5F8F5; --ink:#14302F; --ink-2:#56696A; --line:#C3D1CB;
+  --guilloche:#9DB5AE; --action:#2B3FB8; --action-ink:#FFFFFF; --action-soft:#DDE2F7;
+  --urgent:#B8235A; --urgent-soft:#F1DCE3; --ok:#23704F;
+  --display:"Forum","Times New Roman",serif;
+  --ui:"Golos Text",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --paper:#0F1B1B; --tile:#172727; --ink:#DCE7E3; --ink-2:#8FA5A1; --line:#2C4442;
+    --guilloche:#2F4A47; --action:#8D9CFF; --action-ink:#0F1B1B; --action-soft:#232E55;
+    --urgent:#FF7AA5; --urgent-soft:#3A1E2A; --ok:#6BCF9F;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --paper:#0F1B1B; --tile:#172727; --ink:#DCE7E3; --ink-2:#8FA5A1; --line:#2C4442;
+  --guilloche:#2F4A47; --action:#8D9CFF; --action-ink:#0F1B1B; --action-soft:#232E55;
+  --urgent:#FF7AA5; --urgent-soft:#3A1E2A; --ok:#6BCF9F;
+}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font:400 15px/1.55 var(--ui);font-variant-numeric:tabular-nums;padding-inline:clamp(16px,4vw,48px);padding-block:0 48px}
+.wrap{max-width:1180px;margin-inline:auto}
+a{color:inherit}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--action);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);font-weight:400;text-wrap:balance;margin:0;letter-spacing:.005em}
+
+/* header */
+.top{display:flex;align-items:center;gap:20px;padding-block:18px;flex-wrap:wrap}
+.logo{font:400 28px/1 var(--display);text-decoration:none;margin-right:8px}
+.search{flex:1 1 280px;display:flex;min-width:0}
+.search input{flex:1;min-width:0;border:1px solid var(--line);background:var(--tile);color:var(--ink);padding:10px 14px;border-radius:6px 0 0 6px;font:inherit}
+.search input::placeholder{color:var(--ink-2)}
+.search button{border:1px solid var(--ink);background:var(--ink);color:var(--paper);padding:0 16px;border-radius:0 6px 6px 0;cursor:pointer}
+.top nav{display:flex;gap:18px;align-items:center}
+.top nav a{text-decoration:none;font-weight:500}
+.top nav a:hover{text-decoration:underline}
+
+/* hero */
+.hero{position:relative;padding-block:28px 8px}
+.guilloche{position:absolute;right:-40px;top:-30px;width:520px;height:340px;pointer-events:none;opacity:.9}
+.hero-head{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,380px);gap:16px 48px;align-items:end}
+.hero h1{font-size:clamp(34px,5vw,52px);line-height:1.05}
+.hero-head p{margin:0;color:var(--ink-2);max-width:48ch}
+.hero-head strong{color:var(--ink);font-weight:600}
+
+.tl{position:relative;margin-top:28px;height:calc(var(--lanes) * 92px + 64px);--lanes:4}
+.tl-inner{position:absolute;inset:0 36px}
+.axis{position:absolute;left:0;right:0;bottom:36px;border-top:1.5px solid var(--ink)}
+.zone{position:absolute;left:0;bottom:36px;top:0;width:calc(5 / 60 * 100%);background:var(--urgent-soft);border-right:1px dashed var(--urgent)}
+.zone span{position:absolute;left:6px;top:4px;font-size:12px;color:var(--urgent);white-space:nowrap;line-height:1.3}
+.tick{position:absolute;bottom:22px;width:1px;height:14px;background:var(--ink)}
+.tick.minor{height:6px;bottom:30px;background:var(--ink-2)}
+.tick-label{position:absolute;bottom:0;transform:translateX(-50%);font-size:12px;color:var(--ink-2);white-space:nowrap}
+.tick-label.now{transform:none;left:0;color:var(--ink);font-weight:600}
+
+.chip{position:absolute;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:0;padding:0;cursor:pointer;
+  left:var(--x);bottom:calc(36px + 18px + var(--lane) * 92px);transition:left 1s linear,bottom .4s ease}
+.chip.jump{transition:left .9s cubic-bezier(.2,.9,.25,1.15),bottom .4s ease}
+.chip::after{content:"";position:absolute;top:100%;left:50%;width:1px;height:calc(18px + var(--lane) * 92px);background:var(--ink-2);opacity:.55}
+.chip .th{width:54px;height:54px;background:var(--tile);border-radius:4px;box-shadow:0 0 0 1px var(--line);display:grid;place-items:center}
+.chip .th svg{width:46px;height:46px}
+.chip .pr{font-size:12.5px;font-weight:600;background:var(--paper);padding:0 3px;border-radius:3px}
+.chip.hot .pr{color:var(--urgent)}
+.chip.sel .th{box-shadow:0 0 0 2px var(--ink)}
+.chip.mine .th{box-shadow:0 0 0 2px var(--action)}
+.chip.mine.sel .th{box-shadow:0 0 0 2px var(--action),0 0 0 5px var(--action-soft)}
+.chip:hover .th{box-shadow:0 0 0 2px var(--ink-2)}
+.chip .flag{position:absolute;bottom:100%;margin-bottom:4px;font-size:11.5px;font-weight:600;color:var(--urgent);white-space:nowrap;animation:flag 2.6s ease forwards}
+@keyframes flag{0%{opacity:0;transform:translateY(4px)}12%{opacity:1;transform:none}75%{opacity:1}100%{opacity:0}}
+
+/* detail panel */
+.panel{display:grid;grid-template-columns:150px minmax(0,1fr) minmax(0,300px);gap:24px;align-items:start;padding:22px;margin-top:8px;background:var(--tile);border:1px solid var(--line);border-radius:8px}
+.panel .big{width:150px;height:150px;border-radius:6px;background:var(--paper);display:grid;place-items:center}
+.panel .big svg{width:124px;height:124px}
+.panel h3{font-size:26px;line-height:1.15}
+.meta{margin:.5em 0 0;color:var(--ink-2);font-size:14px}
+.facts{display:grid;grid-template-columns:auto auto;gap:4px 18px;margin:14px 0 0;font-size:14px;width:max-content;max-width:100%}
+.facts dt{color:var(--ink-2)}
+.facts dd{margin:0;font-weight:600}
+.bid{display:flex;flex-direction:column;gap:10px}
+.price{font:400 34px/1 var(--display)}
+.price small{display:block;font:400 13px/1.4 var(--ui);color:var(--ink-2);margin-top:6px}
+.left{font-weight:600}
+.left.hot{color:var(--urgent)}
+.btn{border:0;border-radius:6px;padding:12px 18px;font-weight:600;cursor:pointer;text-align:center}
+.btn-primary{background:var(--action);color:var(--action-ink)}
+.btn-primary:hover{filter:brightness(1.08)}
+.btn-ghost{background:transparent;border:1px solid var(--line)}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row .btn{flex:1}
+.note{font-size:13px;color:var(--ink-2);margin:0}
+.note.hot{color:var(--urgent)}
+.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:13px;font-weight:600}
+.pill.lead{background:var(--action-soft);color:var(--action)}
+.pill.out{background:var(--urgent-soft);color:var(--urgent)}
+.confirm{border:1px solid var(--ink);border-radius:6px;padding:12px;display:grid;gap:10px}
+.confirm p{margin:0;font-size:14px}
+
+.closed{margin:14px 0 0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:6px 24px;font-size:13.5px;color:var(--ink-2);min-height:1.6em}
+.closed li b{color:var(--ink);font-weight:600}
+
+/* mobile list */
+.tl-list{display:none;list-style:none;margin:20px 0 0;padding:0;border-left:1.5px solid var(--ink)}
+.tl-list li{position:relative}
+.tl-list li::before{content:"";position:absolute;left:-5px;top:24px;width:8px;height:8px;border-radius:50%;background:var(--ink)}
+.tl-list li.hot::before{background:var(--urgent)}
+.li-btn{display:grid;grid-template-columns:52px 44px minmax(0,1fr) auto;gap:10px;align-items:center;width:100%;background:none;border:0;padding:8px 0 8px 14px;text-align:left;cursor:pointer}
+.li-btn .t{font-weight:600;font-size:13.5px}
+.li-btn .t.hot{color:var(--urgent)}
+.li-btn .th{width:44px;height:44px;background:var(--tile);border-radius:4px;display:grid;place-items:center;box-shadow:0 0 0 1px var(--line)}
+.li-btn .th svg{width:38px;height:38px}
+.li-btn .nm{font-size:14px;line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.li-btn .p{font-weight:600;font-size:14px}
+li.sel .li-btn .th{box-shadow:0 0 0 2px var(--ink)}
+li.mine .li-btn .th{box-shadow:0 0 0 2px var(--action)}
+.tl-list .panel{margin:0 0 10px 14px}
+
+/* sections below */
+section.block{margin-top:64px}
+.block-head{display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-bottom:18px;flex-wrap:wrap}
+.block-head h2{font-size:32px;line-height:1.1}
+.block-head a{font-weight:500}
+
+.toc{columns:2;column-gap:56px;margin:0;padding:0;list-style:none}
+.toc li{break-inside:avoid}
+.toc a{display:flex;align-items:baseline;gap:8px;text-decoration:none;padding-block:7px}
+.toc .n{font:400 22px/1.2 var(--display)}
+.toc .dots{flex:1;border-bottom:1.5px dotted var(--ink-2);opacity:.6;transform:translateY(-4px)}
+.toc .c{color:var(--ink-2);font-size:14px}
+.toc a:hover .n{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}
+
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:28px 22px}
+.lot{text-decoration:none;display:flex;flex-direction:column;gap:8px}
+.lot .ph{aspect-ratio:1;max-width:100%;background:var(--tile);border-radius:6px;display:grid;place-items:center;border:1px solid var(--line)}
+.lot .ph svg{width:62%;height:62%}
+.lot .nm{font-weight:500;line-height:1.35}
+.lot:hover .nm{text-decoration:underline}
+.lot .fm{font-size:13.5px;color:var(--ink-2)}
+.lot .fm b{color:var(--ink);font-weight:600}
+
+.sell{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px 40px;align-items:center;padding-block:28px;border-top:1.5px solid var(--ink);border-bottom:1px solid var(--line)}
+.sell h2{font-size:30px}
+.sell p{margin:.4em 0 0;color:var(--ink-2);max-width:60ch}
+.sell .btn{background:var(--ink);color:var(--paper);text-decoration:none;display:inline-block}
+
+footer{margin-top:40px;font-size:13.5px;color:var(--ink-2);display:flex;flex-wrap:wrap;gap:8px 32px}
+footer p{margin:0;max-width:60ch}
+
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:6px;font-size:14px;max-width:calc(100% - 32px);box-shadow:0 6px 24px rgba(10,30,30,.25)}
+
+@media (max-width:980px){
+  .hero-head{grid-template-columns:1fr}
+  .panel{grid-template-columns:120px minmax(0,1fr)}
+  .panel .big{width:120px;height:120px}.panel .big svg{width:100px;height:100px}
+  .panel .bid{grid-column:1 / -1}
+  .grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media (max-width:760px){
+  .tl,.hero>.panel-slot{display:none}
+  .tl-list{display:block}
+  .guilloche{width:360px;right:-120px}
+  .panel{grid-template-columns:1fr;padding:16px}
+  .panel .big{display:none}
+  .toc{columns:1}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 14px}
+  .sell{grid-template-columns:1fr}
+  .top nav{width:100%;justify-content:space-between}
+}
+@media (prefers-reduced-motion:reduce){
+  .chip,.chip.jump{transition:none}
+  .chip .flag{animation:none}
+}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <a class="logo" href="#">auction</a>
+    <form class="search" role="search" id="search-form">
+      <input id="q" type="search" placeholder="Монета, банкнота, год, город" aria-label="Поиск лотов">
+      <button type="submit">Найти</button>
+    </form>
+    <nav><a href="#">Выставить лот</a><a href="#">Войти</a></nav>
+  </header>
+
+  <section class="hero" aria-labelledby="hero-h">
+    <svg class="guilloche" id="guilloche" viewBox="0 0 520 340" aria-hidden="true"></svg>
+    <div class="hero-head">
+      <h1 id="hero-h">Закрываются в ближайший час</h1>
+      <p><strong id="count">14 аукционов</strong> на шкале едут к отметке «сейчас». Ставка в последние 5 минут продлевает торги: лот отъезжает назад, и у остальных снова есть 5 минут.</p>
+    </div>
+
+    <div class="tl" id="tl" aria-label="Шкала: аукционы по времени окончания">
+      <div class="tl-inner" id="tl-inner">
+        <div class="zone"><span>последние<br>5 минут</span></div>
+        <div class="axis"></div>
+      </div>
+    </div>
+    <ul class="tl-list" id="tl-list" aria-label="Аукционы по времени окончания"></ul>
+    <div class="panel-slot" id="panel-slot"></div>
+    <ul class="closed" id="closed" aria-live="polite"></ul>
+  </section>
+
+  <section class="block" aria-labelledby="cat-h">
+    <div class="block-head"><h2 id="cat-h">Каталог</h2><a href="#">Все категории</a></div>
+    <ul class="toc">
+      <li><a href="#"><span class="n">Монеты</span><span class="dots"></span><span class="c">4 812 лотов</span></a></li>
+      <li><a href="#"><span class="n">Банкноты и боны</span><span class="dots"></span><span class="c">1 936 лотов</span></a></li>
+      <li><a href="#"><span class="n">Марки и конверты</span><span class="dots"></span><span class="c">2 407 лотов</span></a></li>
+      <li><a href="#"><span class="n">Знаки и значки</span><span class="dots"></span><span class="c">1 318 лотов</span></a></li>
+      <li><a href="#"><span class="n">Открытки и фотографии</span><span class="dots"></span><span class="c">874 лота</span></a></li>
+      <li><a href="#"><span class="n">Серебро и посуда</span><span class="dots"></span><span class="c">1 102 лота</span></a></li>
+      <li><a href="#"><span class="n">Книги и документы</span><span class="dots"></span><span class="c">391 лот</span></a></li>
+      <li><a href="#"><span class="n">Настольные медали</span><span class="dots"></span><span class="c">246 лотов</span></a></li>
+    </ul>
+  </section>
+
+  <section class="block" aria-labelledby="new-h">
+    <div class="block-head"><h2 id="new-h">Выставлены сегодня</h2><a href="#">Все новые лоты</a></div>
+    <div class="grid" id="new-grid"></div>
+  </section>
+
+  <section class="block sell" aria-labelledby="sell-h">
+    <div>
+      <h2 id="sell-h">Продать площадке без торгов</h2>
+      <p>Пришлите фото предмета. Оценщик посмотрит его и предложит цену выкупа. Согласитесь — площадка купит предмет сама, ждать окончания аукциона не нужно.</p>
+    </div>
+    <a class="btn" href="#">Предложить предмет</a>
+  </section>
+
+  <footer>
+    <p>Площадка не участвует в расчётах: покупатель платит продавцу напрямую. Продавец платит площадке комиссию 1% с проданного лота.</p>
+    <p>Лоты, цены и продавцы на этой странице вымышлены.</p>
+  </footer>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(() => {
+  /* ---------- helpers ---------- */
+  const GRID = [[100,5],[1000,10],[5000,50],[20000,100],[100000,500],[Infinity,1000]];
+  const step = p => GRID.find(([lim]) => p < lim)[1];
+  const rub = n => n.toLocaleString('ru-RU') + ' ₽';
+  const plural = (n, a, b, c) => { const m10 = n % 10, m100 = n % 100; return m10 === 1 && m100 !== 11 ? a : (m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20) ? b : c); };
+  const left = s => { s = Math.max(0, Math.round(s)); if (s < 600) { const m = Math.floor(s / 60), r = s % 60; return m + ':' + String(r).padStart(2, '0'); } return Math.ceil(s / 60) + ' мин'; };
+  const esc = t => t.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- item drawings ---------- */
+  const METAL = { silver:['#D5D8D4','#8B928D','#5F6763'], copper:['#C47C4B','#8A4E2A','#5E3217'], gold:['#DDB65B','#9A7424','#6A4E12'] };
+  const NOTE = { green:['#CFE0C9','#4E7A55'], brown:['#E6D3B8','#7A5634'], lilac:['#DCD2E6','#5E4D7A'], blue:['#CBDCE8','#3E6484'] };
+  function art(kind, v, label) {
+    if (kind === 'coin') {
+      const [f, s, d] = METAL[v]; let beads = '';
+      for (let i = 0; i < 48; i++) { const a = i / 48 * Math.PI * 2; beads += `<circle cx="${50 + 36 * Math.cos(a)}" cy="${50 + 36 * Math.sin(a)}" r="1.1" fill="${s}"/>`; }
+      return `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="${s}"/><circle cx="50" cy="50" r="40" fill="${f}"/>${beads}<text x="50" y="60" text-anchor="middle" font-family="Forum,serif" font-size="30" fill="${d}">${label}</text><path d="M34 70 Q50 76 66 70" stroke="${s}" stroke-width="1.4" fill="none"/></svg>`;
+    }
+    if (kind === 'note') {
+      const [f, s] = NOTE[v]; let g = '';
+      for (let i = 0; i < 9; i++) g += `<ellipse cx="34" cy="50" rx="${6 + i * 1.6}" ry="${12 - i * .7}" fill="none" stroke="${s}" stroke-width=".5" opacity=".7" transform="rotate(${i * 20} 34 50)"/>`;
+      return `<svg viewBox="0 0 100 100"><rect x="5" y="26" width="90" height="48" rx="2" fill="${f}" stroke="${s}" stroke-width="1.2"/><rect x="9" y="30" width="82" height="40" fill="none" stroke="${s}" stroke-width=".6"/>${g}<text x="72" y="58" text-anchor="middle" font-family="Forum,serif" font-size="20" fill="${s}">${label}</text></svg>`;
+    }
+    if (kind === 'stamp') {
+      let holes = '';
+      for (let i = 0; i < 9; i++) { const x = 19 + i * 7.75; holes += `<circle cx="${x}" cy="14" r="2.4" fill="var(--tile)"/><circle cx="${x}" cy="86" r="2.4" fill="var(--tile)"/>`; }
+      for (let i = 0; i < 10; i++) { const y = 17 + i * 7.6; holes += `<circle cx="16" cy="${y}" r="2.4" fill="var(--tile)"/><circle cx="84" cy="${y}" r="2.4" fill="var(--tile)"/>`; }
+      const c = v || '#B8433A';
+      return `<svg viewBox="0 0 100 100"><rect x="16" y="14" width="68" height="72" fill="#F4F1E8"/>${holes}<rect x="23" y="21" width="54" height="50" fill="${c}"/><circle cx="60" cy="38" r="7" fill="#F4F1E8" opacity=".85"/><path d="M26 66 L42 44 L52 56 L60 48 L74 66Z" fill="#F4F1E8" opacity=".35"/><text x="50" y="81" text-anchor="middle" font-family="Golos Text,sans-serif" font-size="7" fill="${c}">${label}</text></svg>`;
+    }
+    if (kind === 'medal') {
+      const [f, s, d] = METAL[v];
+      return `<svg viewBox="0 0 100 100"><path d="M36 8 H64 L58 40 H42Z" fill="#A8342E"/><path d="M46 8 H54 L52 40 H48Z" fill="#E7C65A"/><circle cx="50" cy="62" r="26" fill="${s}"/><circle cx="50" cy="62" r="23" fill="${f}"/><path d="M50 45 L54.5 57 L67 57 L57 64.5 L61 77 L50 69.5 L39 77 L43 64.5 L33 57 L45.5 57Z" fill="${d}" opacity=".75"/></svg>`;
+    }
+    if (kind === 'card') {
+      return `<svg viewBox="0 0 100 100"><rect x="8" y="22" width="84" height="56" fill="#E3D6BE" stroke="#9C8561"/><rect x="13" y="27" width="74" height="40" fill="#B9A27B"/><path d="M13 55 Q30 46 44 52 T87 48 V67 H13Z" fill="#8E7753"/><rect x="36" y="36" width="22" height="16" fill="#D8C8A8"/><path d="M34 36 L47 29 L60 36Z" fill="#7A6444"/><text x="15" y="75" font-family="Golos Text,sans-serif" font-size="5.5" fill="#6E5A3C">${label}</text></svg>`;
+    }
+    /* spoon */
+    return `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="26" rx="13" ry="18" fill="#C9CDC9" stroke="#7F8783"/><ellipse cx="50" cy="24" rx="8" ry="12" fill="#E4E7E3"/><path d="M47 43 Q46 70 44 88 Q50 93 56 88 Q54 70 53 43Z" fill="#C9CDC9" stroke="#7F8783"/><circle cx="50" cy="80" r="3" fill="#7F8783"/></svg>`;
+  }
+
+  /* ---------- data ---------- */
+  const now0 = Date.now();
+  const M = 60000;
+  let seq = 0;
+  const mk = (title, kind, v, label, seller, city, price, bids, mins) =>
+    ({ id: 'l' + (++seq), title, kind, v, label, seller, city, price, bids, endsAt: now0 + mins * M, leader: bids ? 'other' : null, lane: 0 });
+
+  const lots = [
+    mk('1 рубль 1924 г., ПЛ', 'coin', 'silver', '1', 'numizmat_spb', 'Санкт-Петербург', 6400, 23, 2.4),
+    mk('5 копеек 1911 г., СПБ ЭБ', 'coin', 'copper', '5', 'medyak', 'Тверь', 890, 11, 4.2),
+    mk('100 рублей 1910 г., Шипов', 'note', 'brown', '100', 'bony_nsk', 'Новосибирск', 3150, 17, 7.1),
+    mk('Марка «Первый в мире полёт человека в космос», 1961', 'stamp', '#2F5C9A', 'ПОЧТА СССР', 'filatelia61', 'Самара', 240, 6, 9.6),
+    mk('Знак «Отличник соцсоревнования»', 'medal', 'silver', '', 'znachki_ural', 'Екатеринбург', 1850, 9, 13),
+    mk('10 рублей 1899 г., ФЗ', 'coin', 'gold', '10', 'numizmat_spb', 'Санкт-Петербург', 48500, 31, 16.5),
+    mk('Открытка «Кисловодск. Курзал», 1905', 'card', '', 'Кисловодскъ', 'staraya_pochta', 'Ставрополь', 420, 4, 21),
+    mk('3 рубля 1961 г., пресс', 'note', 'green', '3', 'bony_nsk', 'Новосибирск', 75, 3, 24.3),
+    mk('Полтина 1924 г., ТР', 'coin', 'silver', '½', 'serebro_kzn', 'Казань', 1460, 12, 29),
+    mk('Чайная ложка, серебро 84 пробы, Москва', 'spoon', '', '', 'antik_msk', 'Москва', 7200, 8, 33.5),
+    mk('2 копейки 1757 г., номинал под Св. Георгием', 'coin', 'copper', '2', 'medyak', 'Тверь', 3900, 14, 38),
+    mk('Настольная медаль «300 лет Санкт-Петербургу»', 'medal', 'copper', '', 'antik_msk', 'Москва', 1100, 0, 44.4),
+    mk('Блок «Олимпиада-80», чистый', 'stamp', '#B8433A', 'ОЛИМПИАДА-80', 'filatelia61', 'Самара', 180, 2, 51),
+    mk('1 рубль 1898 г., Плеске', 'note', 'blue', '1', 'bony_nsk', 'Новосибирск', 1200, 7, 57.2),
+  ];
+  const pool = [
+    ['20 копеек 1915 г., ВС', 'coin', 'silver', '20', 'serebro_kzn', 'Казань', 520, 5],
+    ['50 рублей 1993 г., серия АА', 'note', 'lilac', '50', 'bony_nsk', 'Новосибирск', 310, 2],
+    ['Марки «Фауна СССР», 1980, серия', 'stamp', '#3E7A4E', 'ФАУНА', 'filatelia61', 'Самара', 150, 3],
+    ['Гривенник 1747 г.', 'coin', 'silver', '10', 'numizmat_spb', 'Санкт-Петербург', 2250, 9],
+    ['Открытка «Ростов-на-Дону. Садовая», 1912', 'card', '', 'Ростовъ н/Д', 'staraya_pochta', 'Ставрополь', 380, 1],
+    ['Значок «ГТО» II ступени', 'medal', 'gold', '', 'znachki_ural', 'Екатеринбург', 640, 4],
+  ];
+  let poolI = 0;
+
+  const newLots = [
+    ['20 копеек 1915 г., ВС, UNC', 'coin', 'silver', '20', 'auc', 'Аукцион, 7 дней', 1],
+    ['50 рублей 1993 г., серия АА', 'note', 'lilac', '50', 'fix', 'Цена', 350],
+    ['Значок «ГТО» II ступени', 'medal', 'gold', '', 'fix', 'Цена', 600],
+    ['Марки «Фауна СССР», 1980, полная серия', 'stamp', '#3E7A4E', 'ФАУНА', 'auc', 'Аукцион, 5 дней', 50],
+    ['Открытка «Ростов-на-Дону. Садовая», 1912', 'card', '', 'Ростовъ н/Д', 'auc', 'Аукцион, 3 дня', 150],
+    ['Чайная ложка, серебро 875, 1950-е', 'spoon', '', '', 'fix', 'Цена', 2400],
+    ['Гривенник 1747 г.', 'coin', 'silver', '10', 'auc', 'Аукцион, 10 дней', 1500],
+    ['25 рублей 1909 г., Коншин', 'note', 'lilac', '25', 'auc', 'Аукцион, 7 дней', 300],
+  ];
+  document.getElementById('new-grid').innerHTML = newLots.map(([t, k, v, l, f, fl, p]) =>
+    `<a class="lot" href="#"><div class="ph">${art(k, v, l)}</div><span class="nm">${esc(t)}</span><span class="fm">${f === 'fix' ? `${fl} <b>${rub(p)}</b>` : `${fl}, старт <b>${rub(p)}</b>`}</span></a>`).join('');
+
+  /* ---------- guilloche ---------- */
+  (function () {
+    const g = document.getElementById('guilloche'); let out = '';
+    for (let k = 0; k < 14; k++) {
+      let d = '';
+      for (let i = 0; i <= 720; i++) {
+        const t = i / 720 * Math.PI * 2;
+        const r = 110 + k * 6 + 16 * Math.sin(12 * t + k * .35) + 6 * Math.sin(5 * t);
+        const x = 300 + r * Math.cos(t) * 1.45, y = 170 + r * Math.sin(t) * .78;
+        d += (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1);
+      }
+      out += `<path d="${d}Z" fill="none" stroke="var(--guilloche)" stroke-width=".6"/>`;
+    }
+    g.innerHTML = out;
+  })();
+
+  /* ---------- timeline ---------- */
+  const tl = document.getElementById('tl'), inner = document.getElementById('tl-inner');
+  const list = document.getElementById('tl-list'), slot = document.getElementById('panel-slot');
+  const mq = matchMedia('(max-width: 760px)');
+  const HOUR = 3600;
+  let selected = lots[0].id, confirming = false;
+  const closed = [];
+
+  // ticks
+  for (let m = 0; m <= 60; m += 5) {
+    const x = m / 60 * 100;
+    inner.insertAdjacentHTML('beforeend', `<div class="tick${m % 15 ? ' minor' : ''}" style="left:${x}%"></div>` +
+      (m % 15 === 0 ? `<div class="tick-label${m ? '' : ' now'}" style="left:${x}%">${m ? m + ' мин' : 'сейчас'}</div>` : ''));
+  }
+
+  const rem = l => (l.endsAt - Date.now()) / 1000;
+  const xOf = l => Math.min(100, Math.max(0, rem(l) / HOUR * 100));
+
+  function assignLanes() {
+    const w = inner.clientWidth || 1000, need = 64 / w * 100, lanes = [];
+    [...lots].sort((a, b) => a.endsAt - b.endsAt).forEach(l => {
+      const x = xOf(l); let lane = lanes.findIndex(last => x - last >= need);
+      if (lane === -1) lane = lanes.length < 4 ? lanes.length : lanes.indexOf(Math.min(...lanes));
+      lanes[lane] = x; l.lane = lane;
+    });
+  }
+
+  function chipHTML(l) {
+    return `<div class="th">${art(l.kind, l.v, l.label)}</div><span class="pr">${rub(l.price)}</span>`;
+  }
+
+  function renderChips() {
+    assignLanes();
+    const seen = new Set();
+    lots.forEach(l => {
+      seen.add(l.id);
+      let el = inner.querySelector(`[data-id="${l.id}"]`);
+      if (!el) {
+        el = document.createElement('button'); el.className = 'chip'; el.dataset.id = l.id;
+        el.addEventListener('click', () => select(l.id));
+        inner.appendChild(el);
+      }
+      el.innerHTML = chipHTML(l) + (l.flag ? `<span class="flag">${l.flag}</span>` : '');
+      el.setAttribute('aria-label', `${l.title}, ${rub(l.price)}, до конца ${left(rem(l))}`);
+      el.style.setProperty('--lane', l.lane);
+      el.style.setProperty('--x', xOf(l) + '%');
+      el.classList.toggle('sel', l.id === selected);
+      el.classList.toggle('mine', l.leader === 'you');
+      el.classList.toggle('hot', rem(l) < 300);
+    });
+    inner.querySelectorAll('.chip').forEach(el => { if (!seen.has(el.dataset.id)) el.remove(); });
+  }
+
+  function renderList() {
+    const focused = document.activeElement?.closest?.('#tl-list li')?.dataset.id;
+    list.innerHTML = [...lots].sort((a, b) => a.endsAt - b.endsAt).map(l => {
+      const r = rem(l);
+      return `<li data-id="${l.id}" class="${r < 300 ? 'hot ' : ''}${l.id === selected ? 'sel ' : ''}${l.leader === 'you' ? 'mine' : ''}">
+        <button class="li-btn" aria-expanded="${l.id === selected}"><span class="t${r < 300 ? ' hot' : ''}" data-t="${l.id}">${left(r)}</span><span class="th">${art(l.kind, l.v, l.label)}</span><span class="nm">${esc(l.title)}</span><span class="p">${rub(l.price)}</span></button></li>`;
+    }).join('');
+    list.querySelectorAll('li').forEach(li => li.querySelector('button').addEventListener('click', () => select(li.dataset.id)));
+    if (focused) list.querySelector(`li[data-id="${focused}"] button`)?.focus();
+  }
+
+  const panel = document.createElement('div'); panel.className = 'panel'; panel.id = 'panel';
+
+  function renderPanel() {
+    const l = lots.find(x => x.id === selected); if (!l) return;
+    const r = rem(l), next = l.leader ? l.price + step(l.price) : l.price, st = step(l.price);
+    let action;
+    if (l.leader === 'you') action = `<span class="pill lead">Вы лидируете</span><p class="note">Если вас перебьют, мы сообщим. Поднимать свою ставку не нужно.</p>`;
+    else if (confirming) action = `<div class="confirm"><p>Поставить <b>${rub(next)}</b>? Отозвать ставку будет нельзя.</p><div class="row"><button class="btn btn-primary" data-act="ok">Поставить ${rub(next)}</button><button class="btn btn-ghost" data-act="cancel">Отмена</button></div></div>`;
+    else action = `${l.leader === 'outbid' ? '<span class="pill out">Вас перебили</span>' : ''}<button class="btn btn-primary" data-act="bid">Поставить ${rub(next)}</button>
+      <p class="note${r < 300 ? ' hot' : ''}" data-hint>${r < 300 ? 'Идут последние 5 минут: ваша ставка продлит торги ещё на 5 минут.' : `Шаг ставки ${rub(st)} при текущей цене.`}</p>`;
+    panel.innerHTML = `<div class="big">${art(l.kind, l.v, l.label)}</div>
+      <div><h3>${esc(l.title)}</h3><p class="meta">Продавец ${esc(l.seller)}, ${esc(l.city)}</p>
+        <dl class="facts"><dt>Ставок</dt><dd>${l.bids}</dd><dt>До конца</dt><dd class="left${r < 300 ? ' hot' : ''}" data-left>${left(r)}</dd><dt>Оплата</dt><dd>напрямую продавцу</dd></dl>
+        <p class="meta"><a href="#">Открыть страницу лота</a></p></div>
+      <div class="bid"><div class="price">${rub(l.price)}<small>${l.bids ? 'текущая ставка' : 'стартовая цена, ставок ещё нет'}</small></div>${action}</div>`;
+    panel.querySelector('[data-act="bid"]')?.addEventListener('click', () => { confirming = true; renderPanel(); panel.querySelector('[data-act="ok"]').focus(); });
+    panel.querySelector('[data-act="cancel"]')?.addEventListener('click', () => { confirming = false; renderPanel(); });
+    panel.querySelector('[data-act="ok"]')?.addEventListener('click', () => { confirming = false; bid(l, 'you'); });
+  }
+
+  function placePanel() {
+    if (mq.matches) { const li = list.querySelector(`li[data-id="${selected}"]`); if (li) li.appendChild(panel); }
+    else if (panel.parentNode !== slot) slot.appendChild(panel);
+  }
+
+  function renderAll() {
+    renderChips(); renderList(); renderPanel(); placePanel();
+    document.getElementById('count').textContent = `${lots.length} ${plural(lots.length, 'аукцион', 'аукциона', 'аукционов')}`;
+    const c = document.getElementById('closed');
+    c.innerHTML = closed.length ? closed.map(x => `<li>${x}</li>`).join('') : '<li>Здесь появятся только что закрывшиеся лоты.</li>';
+  }
+
+  function select(id) { selected = id; confirming = false; renderAll(); }
+
+  /* ---------- bidding ---------- */
+  let toastT;
+  function toast(msg) {
+    const t = document.getElementById('toast'); t.textContent = msg; t.hidden = false;
+    clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 3800);
+  }
+
+  function bid(l, who) {
+    const prevLeader = l.leader;
+    l.price = l.leader ? l.price + step(l.price) : l.price; l.bids++;
+    l.leader = who === 'you' ? 'you' : (prevLeader === 'you' || prevLeader === 'outbid' ? 'outbid' : 'other');
+    let extended = false;
+    if (rem(l) < 300) { l.endsAt = Date.now() + 300000; extended = true; }
+    l.flag = extended ? 'продлено +5 мин' : '';
+    const el = inner.querySelector(`[data-id="${l.id}"]`);
+    if (extended && el && !reduce) { el.classList.add('jump'); setTimeout(() => el.classList.remove('jump'), 950); }
+    if (who === 'you') toast(`Ставка ${rub(l.price)} поставлена${extended ? '. Торги продлены на 5 минут.' : '.'}`);
+    else if (prevLeader === 'you') toast(`Вас перебили: «${l.title}», теперь ${rub(l.price)}.`);
+    renderAll();
+    setTimeout(() => { l.flag = ''; }, 2600);
+  }
+
+  function finish(l) {
+    const i = lots.indexOf(l); lots.splice(i, 1);
+    const who = l.leader === 'you' ? 'Вы выиграли' : 'Закрылся';
+    closed.unshift(l.bids ? `${who} <b>${esc(l.title)}</b> за ${rub(l.price)}` : `<b>${esc(l.title)}</b> не продан, ставок не было`);
+    closed.length = Math.min(closed.length, 3);
+    if (l.leader === 'you') toast(`Вы выиграли «${l.title}». Напишите продавцу, чтобы договориться об оплате и доставке.`);
+    const p = pool[poolI++ % pool.length];
+    lots.push(mk(p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], 58 + Math.random() * 2));
+    if (selected === l.id) { selected = [...lots].sort((a, b) => a.endsAt - b.endsAt)[0].id; confirming = false; }
+    renderAll();
+  }
+
+  function simulate() {
+    const w = lots.map(l => 1 / (rem(l) / 60 + 1.5));
+    let r = Math.random() * w.reduce((a, b) => a + b, 0), pick = lots[0];
+    for (let i = 0; i < lots.length; i++) { r -= w[i]; if (r <= 0) { pick = lots[i]; break; } }
+    bid(pick, 'other');
+    setTimeout(simulate, 4000 + Math.random() * 4000);
+  }
+
+  function tick() {
+    const done = lots.filter(l => rem(l) <= 0);
+    if (done.length) { done.forEach(finish); return; }
+    lots.forEach(l => {
+      const el = inner.querySelector(`[data-id="${l.id}"]`);
+      if (el) { el.style.setProperty('--x', xOf(l) + '%'); el.classList.toggle('hot', rem(l) < 300); }
+      const t = list.querySelector(`[data-t="${l.id}"]`); if (t) { t.textContent = left(rem(l)); t.classList.toggle('hot', rem(l) < 300); }
+    });
+    const l = lots.find(x => x.id === selected);
+    if (l) { const d = panel.querySelector('[data-left]'); if (d) { d.textContent = left(rem(l)); d.classList.toggle('hot', rem(l) < 300); } }
+  }
+
+  document.getElementById('search-form').addEventListener('submit', e => { e.preventDefault(); toast('Поиск в концепте не подключён.'); });
+  mq.addEventListener('change', renderAll);
+  addEventListener('resize', () => { assignLanes(); renderChips(); });
+
+  renderAll();
+  setInterval(tick, 1000);
+  setTimeout(simulate, 3000);
+})();
+</script>

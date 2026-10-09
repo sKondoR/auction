@@ -1,0 +1,97 @@
+/* Devtools installer */
+(function () {
+  if (typeof window === 'undefined') return
+  if (
+    Object.prototype.hasOwnProperty.call(window, '__REACT_DEVTOOLS_GLOBAL_HOOK__') &&
+    window.__REACT_DEVTOOLS_GLOBAL_HOOK__
+  ) {
+    return
+  }
+
+  var renderers = new Map()
+  var listeners = {}
+  var uidCounter = 0
+  var commitWaiterRoot = typeof globalThis !== 'undefined' ? globalThis : window
+
+  function getCommitWaitersArray() {
+    if (!Array.isArray(commitWaiterRoot.__figmaHtmlDevtoolsCommitWaiters__)) {
+      commitWaiterRoot.__figmaHtmlDevtoolsCommitWaiters__ = []
+    }
+    return commitWaiterRoot.__figmaHtmlDevtoolsCommitWaiters__
+  }
+
+  function flushCommitWaiters() {
+    var commitWaiters = getCommitWaitersArray()
+    if (!commitWaiters.length) return
+    var copy = commitWaiters.slice()
+    commitWaiters.length = 0
+    for (var i = 0; i < copy.length; i++) {
+      var waiter = copy[i]
+      if (waiter && typeof waiter.resolve === 'function') {
+        if (waiter.timer) clearTimeout(waiter.timer)
+        waiter.resolve()
+      }
+    }
+  }
+
+  function inject(renderer) {
+    var id = ++uidCounter
+    renderers.set(id, renderer)
+    return id
+  }
+
+  function on(event, fn) {
+    if (!listeners[event]) listeners[event] = []
+    listeners[event].push(fn)
+  }
+
+  function off(event, fn) {
+    var handlers = listeners[event]
+    if (!handlers) return
+    var index = handlers.indexOf(fn)
+    if (index !== -1) handlers.splice(index, 1)
+    if (handlers.length === 0) delete listeners[event]
+  }
+
+  function sub(event, fn) {
+    on(event, fn)
+    return function () { off(event, fn) }
+  }
+
+  function emit(event, data) {
+    var handlers = listeners[event]
+    if (!handlers) return
+    var copy = handlers.slice()
+    for (var i = 0; i < copy.length; i++) copy[i](data)
+  }
+
+  var hook = {
+    supportsFiber: true,
+    renderers: renderers,
+    listeners: listeners,
+    inject: inject,
+    onCommitFiberRoot: function () {
+      flushCommitWaiters()
+    },
+    onCommitFiberUnmount: function () {},
+    onPostCommitFiberRoot: function () {},
+    setStrictMode: function () {},
+    checkDCE: function () {},
+    getInternalModuleRanges: function () { return null },
+    registerInternalModuleStart: function () {},
+    registerInternalModuleStop: function () {},
+    on: on,
+    off: off,
+    sub: sub,
+    emit: emit,
+  }
+
+  commitWaiterRoot.__figmaHtmlDevtoolsCommitHookFlushesWaiters__ = true
+
+  Object.defineProperty(window, '__REACT_DEVTOOLS_GLOBAL_HOOK__', {
+    configurable: true,
+    enumerable: false,
+    get: function () { return hook },
+  })
+})();
+"use strict";(()=>{(function(){let s=window,k=10,v=2e3,P=100;function h(){let e=s.HTMLCanvasElement?.prototype;if(!e||typeof e.getContext!="function"||e.__figmaPreserveDrawingBufferPatched)return;e.__figmaPreserveDrawingBufferPatched=!0;let n=e.getContext;e.getContext=function(t,i){return t!=="webgl"&&t!=="webgl2"&&t!=="experimental-webgl"?n.call(this,t,i):n.call(this,t,{...i,preserveDrawingBuffer:!0})}}let d,f=0,l=null,p=C(),m,_=["https://figma-gov.com","https://www.figma.com","https://staging.figma.com","https://devenv01.figma.engineering","https://local.figma.engineering:8443","http://localhost:9000"],L=[/^https:\/\/[a-z0-9-]+\.figdev\.systems:8443$/,/^https:\/\/[a-z0-9-]+\.figdev\.systems$/];function V(e){return _.includes(e)||L.some(n=>n.test(e))}function C(){return s.crypto?.randomUUID?.()??`${Date.now()}-${Math.random().toString(36).slice(2)}`}let R=0;function y(){d!==void 0&&(s.clearInterval(d),d=void 0)}function c(e){if(typeof e=="string")return e;if(e instanceof Error)return e.stack||e.message;try{return JSON.stringify(e)??String(e)}catch{return String(e)}}function w(e){return{kind:"runtimeError",error:e instanceof Error?e:new Error(String(e))}}function M(){let e=[],n=s.console,t=!0;function i(o){t&&(e.push(o),e.length>P&&e.shift())}let r=o=>{i(w(o.error||o.message))},a=o=>{i(w(o.reason))};s.addEventListener("error",r),s.addEventListener("unhandledrejection",a);let g={...n,debug:(...o)=>{n.debug(...o),t&&i({kind:"console",type:"debug",sender:"user",message:o.map(c).join(" ")})},error:(...o)=>{n.error(...o),t&&i({kind:"console",type:"error",sender:"user",message:o.map(c).join(" ")})},log:(...o)=>{n.log(...o),t&&i({kind:"console",type:"log",sender:"user",message:o.map(c).join(" ")})},warn:(...o)=>{n.warn(...o),t&&i({kind:"console",type:"warn",sender:"user",message:o.map(c).join(" ")})}};return s.console=g,{drain:()=>{t=!1,s.removeEventListener("error",r),s.removeEventListener("unhandledrejection",a),s.console===g&&(s.console=n);let o=e.slice();return e.length=0,o}}}function b(e,n){let t=l?.core;t&&t.postMessage({method:e,args:n,messageId:R++})}function u(e){b("status",{...e,...m!==void 0?{documentInitId:m}:{}})}function T(e){if(!(e===null||typeof e!="object"||Array.isArray(e)))return e.point_and_edit_source_path_policy}async function O(e){return await import(e)}async function S(e,n,t){let i=e.default;if(typeof i!="function")return{ok:!1,kind:"run",error:"Bootstrap module must export a default function"};try{let r=i({messagePorts:l,queuedLogs:n.drain(),...t!==void 0?{pointAndEditSourcePathPolicy:t}:{}});r!=null&&typeof r.then=="function"&&await r}catch(r){return{ok:!1,kind:"run",error:r instanceof Error?r.message:String(r)}}return{ok:!0}}function D(e,n,t){let i,r=new Promise((a,g)=>{i=s.setTimeout(()=>g(new Error(t)),n)});return Promise.race([e.finally(()=>{s.clearTimeout(i)}),r])}function E(e){return e.ok?{state:"ready",isReady:!0}:e.kind==="load"?{state:"script-load-error",isReady:!1,error:e.error}:{state:"script-execution-error",isReady:!1,error:e.error}}s.addEventListener("message",e=>{if(!V(e.origin))return;let n=e.data;!n||n.type!=="iframe-init"||(y(),l={core:e.ports[0],consumer:e.ports[1]},m=typeof n.documentInitId=="string"?n.documentInitId:p,s.__PREVIEW_IFRAME_INITIAL_OPTIONS__=n.previewIframeInitialOptions,u({state:"init-received",isReady:!1}),(async()=>{let t=n.initScriptURL;if(typeof t!="string"||t===""){u({state:"script-load-error",isReady:!1,error:"Missing initScriptURL"});return}let i;try{i=await O(t)}catch(r){let a=r instanceof Error?r.message:String(r);u(E({ok:!1,kind:"load",error:a}));return}try{let r=await D(S(i,U,T(n.previewIframeInitialOptions)),v,"bootstrap-timeout");u(E(r))}catch(r){let a=r instanceof Error?r.message:String(r);u({state:a==="bootstrap-timeout"?"script-timeout":"script-load-error",isReady:!1,error:a})}})())});function I(){if(f++,f>=k){y();return}s.parent.postMessage({type:"iframe-init-request",documentInitId:p,timestamp:Date.now()},"*")}h();let U=M();I(),d=s.setInterval(I,1e3)})();})();

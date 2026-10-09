@@ -3,6 +3,7 @@
 import { MessageSquare } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useState } from "react";
+import { IS_DEMO } from "@/shared/config";
 import { Button, Form, FormMessage, SubmitButton, Textarea } from "@/shared/ui";
 import { contactSellerAction, sendMessageAction } from "../api/actions";
 
@@ -61,6 +62,7 @@ export function MessageComposer({ conversationId, lotId }: { conversationId: num
 export function ConversationLive({ conversationId }: { conversationId: number }) {
   const router = useRouter();
   useEffect(() => {
+    if (IS_DEMO) return;
     const es = new EventSource("/api/me/events");
     es.onmessage = (ev) => {
       const data = JSON.parse(ev.data) as { type: string; conversationId?: number };

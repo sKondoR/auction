@@ -1,6 +1,8 @@
 node_modules
 .next
 dist
+out
+.demo
 coverage
 .env
 .env.local
@@ -10,7 +12,6 @@ next-env.d.ts
 
 # Локальные отчёты
 STAGE1_REPORT.md
+STAGE1_DEMO.md
 
-local data
-frontend-ideas
-references
+frontend-ideas/_task

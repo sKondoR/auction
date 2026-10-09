@@ -52,3 +52,21 @@ pnpm --filter @auction/domain test     # правила торгов (unit)
 pnpm --filter @auction/services test   # сценарии на базе auction_test (нужен docker compose)
 pnpm typecheck
 ```
+
+## Демо на GitHub Pages
+
+Статическая версия сайта без сервера собирается workflow [.github/workflows/pages.yml](.github/workflows/pages.yml): при пуше в `main`, вручную и раз в сутки. Раз в сутки — потому что сроки торгов отсчитываются от момента сборки. В настройках репозитория нужно выбрать **Settings → Pages → Source: GitHub Actions**.
+
+Как устроено (`DEMO=1` в [apps/web/next.config.ts](apps/web/next.config.ts)):
+
+- `output: "export"`: страницы рендерятся при сборке настоящими запросами, но вместо PostgreSQL — PGlite (Postgres в WASM). Дамп собирает [packages/db/src/demo-dump.ts](packages/db/src/demo-dump.ts): миграции, сид и демо-данные из [demo-seed.ts](packages/db/src/demo-seed.ts).
+- Сайт показан от лица демо-пользователя «Нумизмат Пётр» с правами администратора: видны кабинеты покупателя и продавца и админка.
+- Server Actions заменены заглушками ([apps/web/demo/](apps/web/demo/)). Формы отвечают, что в демо действие недоступно. Вход, загрузка фото и SSE отключены.
+- Параметры запроса при сборке недоступны, поэтому вкладки и фильтры (`?tab=`, поиск) показывают вариант по умолчанию.
+- Фото лотов — [apps/web/demo/photos/](apps/web/demo/photos/), лицензии там же.
+
+Собрать локально (результат в `apps/web/out`):
+
+```bash
+DEMO_BASE_PATH=/auction pnpm --filter @auction/web build:pages
+```
