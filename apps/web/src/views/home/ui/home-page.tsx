@@ -50,20 +50,20 @@ const TRUST = [
 function TrustStrip() {
   return (
     <section aria-label="Условия площадки" className="pt-12">
-      <ul className="no-scrollbar -mx-4 flex snap-x snap-mandatory overflow-x-auto bg-well px-0 py-6 sm:mx-0 sm:rounded-xl lg:grid lg:grid-cols-5 lg:px-2 lg:py-7">
+      <ul className="no-scrollbar -mx-4 flex snap-x snap-mandatory overflow-x-auto bg-primary px-0 py-6 text-primary-foreground sm:mx-0 sm:rounded-xl lg:grid lg:grid-cols-5 lg:px-2 lg:py-7">
         {TRUST.map(([Icon, title, text], i) => (
           <li
             key={title}
             className={cn(
               "flex w-[72%] shrink-0 snap-start flex-col items-center gap-2 px-5 text-center sm:w-[46%] lg:w-auto",
-              i > 0 && "border-l border-border-strong",
+              i > 0 && "border-l border-white/15",
             )}
           >
-            <span className="mb-1 grid size-12 place-items-center rounded-full border border-border-strong bg-surface text-primary">
-              <Icon className="size-[26px]" strokeWidth={1.5} />
+            <span className="mb-1 grid size-15 place-items-center rounded-full border border-white/25 bg-white/10 text-white">
+              <Icon className="size-8" strokeWidth={1.4} />
             </span>
             <span className="label-caps">{title}</span>
-            <p className="text-sm text-muted-foreground">{text}</p>
+            <p className="text-sm text-white/70">{text}</p>
           </li>
         ))}
       </ul>

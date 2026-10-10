@@ -12,17 +12,8 @@ const LANES: { key: LotFormat; label: string; Icon: LucideIcon }[] = [
   { key: "live", label: "Живой", Icon: Video },
   { key: "fixed", label: "Фикс. цена", Icon: Tag },
 ];
-/** Фон дорожки и цвет черты под заголовком — по чётности. */
-const LANE_TONES = [
-  ["bg-p-powder", "border-p-powder-deep"],
-  ["bg-p-butter", "border-p-butter-deep"],
-] as const;
-
-const MEDALS = [
-  "bg-[radial-gradient(circle_at_34%_28%,#fbe38c,var(--color-gold)_52%,var(--color-gold-deep))] text-[#3b2a05]",
-  "bg-[radial-gradient(circle_at_34%_28%,#ffffff,#cdd2db_55%,#8f96a3)] text-[#252a36]",
-  "bg-[radial-gradient(circle_at_34%_28%,#f2c9a0,#c98a55_55%,#8a5530)] text-[#2e1a0a]",
-];
+/** Фон дорожки — по чётности. */
+const LANE_TONES = ["bg-p-powder", "bg-p-butter"] as const;
 
 const bidsText = (n: number) => `${n} ${plural(n, "ставка", "ставки", "ставок")}`;
 
@@ -81,43 +72,52 @@ function DealTile({ t, lead, rank }: { t: Tile; lead: boolean; rank?: number }) 
     <li className={cn("group relative flex min-w-0 flex-col", lead && "col-span-2")}>
       <span
         className={cn(
-          "relative block overflow-hidden rounded-lg bg-surface transition-[box-shadow,transform] duration-[350ms] ease-soft group-hover:-translate-y-1 group-hover:shadow-layer",
+          "relative block rounded-lg bg-surface",
           lead ? "aspect-[4/3]" : "aspect-square",
         )}
       >
-        {t.thumbUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={t.thumbUrl} alt="" loading="lazy" className="size-full object-cover transition-transform duration-700 ease-soft group-hover:scale-[1.04]" />
-        ) : (
-          <span className="grid size-full place-items-center text-faint">
-            <ImageIcon className="size-8" strokeWidth={1.25} aria-hidden />
-          </span>
-        )}
+        {/* Обрезка — только у фото: кружок места на четверть выходит за угол. */}
+        <span className="absolute inset-0 overflow-hidden rounded-lg">
+          {t.thumbUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={t.thumbUrl} alt="" loading="lazy" className="size-full object-cover transition-transform duration-700 ease-soft group-hover:scale-[1.1]" />
+          ) : (
+            <span className="grid size-full place-items-center text-faint">
+              <ImageIcon className="size-8" strokeWidth={1.25} aria-hidden />
+            </span>
+          )}
+        </span>
         {rank !== undefined && (
           <span
             className={cn(
-              "absolute left-2 top-2 grid place-items-center rounded-full font-serif font-bold leading-none [font-variant-numeric:lining-nums]",
-              "shadow-[inset_0_0_0_1px_rgba(0,0,0,0.18),inset_0_0_0_3px_rgba(255,255,255,0.28),0_3px_8px_-3px_rgba(27,31,28,0.45)]",
-              lead ? "size-9 text-base" : "size-7 text-sm",
-              MEDALS[rank - 1],
+              "pointer-events-none absolute left-0 top-0 z-[2] grid -translate-x-[18%] -translate-y-[18%] place-items-center rounded-full font-sans font-semibold leading-none tabular-nums",
+              rank === 1 ? "bg-accent text-primary" : "bg-primary text-primary-foreground",
+              "shadow-[0_0_0_2px_rgba(255,255,255,0.9),0_2px_6px_-2px_rgba(0,0,0,0.4)]",
+              lead ? "size-8 text-sm" : "size-6 text-xs",
             )}
           >
             <span className="sr-only">Место </span>
             {rank}
           </span>
         )}
+        <span
+          className={cn(
+            "absolute inset-x-0 bottom-0 flex flex-col rounded-b-lg bg-linear-to-t from-black/75 via-black/40 to-transparent font-sans text-white",
+            lead ? "gap-1 px-3 pb-2.5 pt-10" : "gap-0.5 px-2 pb-2 pt-8",
+          )}
+        >
+          <time dateTime={t.date.toISOString()} className={cn("tabular-nums uppercase tracking-wide text-white/75", lead ? "text-[0.6875rem]" : "text-[0.625rem]")}>
+            {t.datePrefix} {dayMonth.format(t.date)}
+          </time>
+          <span className={cn("font-semibold leading-none tabular-nums", lead ? "text-2xl" : "text-base")}>{formatRub(t.price)}</span>
+        </span>
       </span>
-      <div className="mt-2.5 flex flex-wrap items-baseline justify-between gap-x-2">
-        <p className={cn("font-serif font-normal leading-none [font-variant-numeric:lining-nums]", lead ? "text-[1.625rem]" : "text-xl")}>{formatRub(t.price)}</p>
-        <time dateTime={t.date.toISOString()} className="tabular whitespace-nowrap text-xs text-muted-foreground">
-          {t.datePrefix} {dayMonth.format(t.date)}
-        </time>
-      </div>
-      <h4 className={cn("mt-1 line-clamp-2 leading-snug", lead ? "text-sm font-medium" : "text-[0.8125rem] text-muted-foreground")}>{t.title}</h4>
+      {/* Высота названия и строки «как прошла» зарезервирована на две строки, чтобы нижний ряд плиток стоял ровно во всех дорожках. */}
+      <h4 className={cn("mt-2 line-clamp-2 min-h-[2lh] font-sans leading-snug text-foreground", lead ? "text-[0.9375rem] font-semibold" : "text-[0.8125rem] font-medium")}>{t.title}</h4>
       {lead && (
-        <p className="tabular mt-1.5 flex items-start gap-1.5 text-[0.8125rem] leading-snug text-muted-foreground">
+        <p className="tabular mt-1 flex min-h-[2lh] items-start gap-1.5 text-[0.8125rem] leading-snug text-muted-foreground">
           <Icon className="mt-px size-3.5 shrink-0 text-foreground" strokeWidth={1.5} aria-hidden />
-          <span>{text}</span>
+          <span className="line-clamp-2">{text}</span>
         </p>
       )}
       <Link href={`/lots/${t.lotId}`} aria-label={`Открыть лот: ${t.title}`} className="absolute inset-0 z-[1] rounded-lg" />
@@ -130,7 +130,7 @@ export type DealLane = { kind: "deals"; items: TopDeal[] } | { kind: "upcoming";
 
 /**
  * Топ сделок недели — четыре дорожки, по одной на формат торгов: в каждой до трёх самых дорогих сделок,
- * первая крупно, две под ней. Места 1–3 — «монеты»: золото, серебро, бронза. Если сделок в формате за неделю нет,
+ * первая крупно, две под ней. Место — кружок: первое жёлтое, остальные тёмно-синие; цена и дата лежат на фото. Если сделок в формате за неделю нет,
  * дорожка показывает предстоящие торги с датой окончания. На узких экранах дорожки листаются вбок.
  */
 export function TopDeals({ lanes, period }: { lanes: Record<LotFormat, DealLane>; period: string }) {
@@ -144,16 +144,16 @@ export function TopDeals({ lanes, period }: { lanes: Record<LotFormat, DealLane>
       </div>
       <div className="no-scrollbar -mx-4 flex snap-x snap-mandatory scroll-px-4 overflow-x-auto px-4 sm:-mx-5 sm:scroll-px-5 sm:px-5 lg:mx-0 lg:grid lg:grid-cols-4 lg:overflow-visible lg:px-0">
         {LANES.map(({ key, label, Icon }, i) => {
-          const [tone, rule] = LANE_TONES[i % 2]!;
+          const tone = LANE_TONES[i % 2];
           const lane = lanes[key];
           const tiles = lane.kind === "deals" ? lane.items.map(dealTile) : lane.items.map(upcomingTile);
           return (
             <section key={key} aria-label={label} className={cn("flex w-[280px] shrink-0 snap-start flex-col px-4 pb-5 first:rounded-l-lg last:rounded-r-lg sm:w-[300px] lg:w-auto", tone)}>
-              <h3 className={cn("label-caps flex items-center gap-2 border-b py-3.5 font-sans text-foreground", rule)}>
-                <Icon className="size-4 shrink-0" strokeWidth={1.5} aria-hidden />
+              <h3 className="flex items-center gap-2 pb-1.5 pt-5 font-sans text-[1.375rem] font-semibold leading-tight text-foreground">
+                <Icon className="size-6 shrink-0" strokeWidth={1.75} aria-hidden />
                 {label}
                 {lane.kind === "upcoming" && tiles.length > 0 && (
-                  <span className="ml-auto text-xs font-medium normal-case tracking-normal text-muted-foreground">{key === "fixed" ? "в продаже" : "идут торги"}</span>
+                  <span className="ml-auto text-xs font-medium text-muted-foreground">{key === "fixed" ? "в продаже" : "идут торги"}</span>
                 )}
               </h3>
               {tiles.length > 0 ? (
