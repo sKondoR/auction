@@ -1,7 +1,7 @@
 import { getSettings, lots } from "@auction/db";
-import { ENGLISH_MAX_DAYS, ENGLISH_MIN_DAYS, FIXED_MAX_DAYS, MAX_PHOTOS, formatRub } from "@auction/domain";
+import { ENGLISH_MAX_DAYS, ENGLISH_MIN_DAYS, FIXED_MAX_DAYS, LOT_FORMATS, type LotFormat, MAX_PHOTOS, formatRub } from "@auction/domain";
 import { type LotCard, lotCards, openNow } from "@auction/services";
-import { and, asc, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, sql } from "drizzle-orm";
 import { Hourglass, Lock, Percent, Smartphone, Star, Tag, TrendingUp, Zap } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -14,7 +14,7 @@ import { ButtonLink } from "@/shared/ui";
 import { CountdownRings } from "./countdown-rings";
 import { FeeCalculator } from "./fee-calculator";
 import { Hero } from "./hero";
-import { TopDeals } from "./top-deals";
+import { type DealLane, TopDeals } from "./top-deals";
 
 /* ---------- мелкие части ---------- */
 
@@ -91,7 +91,7 @@ const STEPS = [
 
 function SellBand({ calc }: { calc: ReactNode }) {
   return (
-    <section id="sell" aria-labelledby="sell-h" className="bleed mt-16 bg-p-butter py-16 lg:mt-24">
+    <section id="sell" aria-labelledby="sell-h" className="bleed mt-16 bg-p-powder py-16 lg:mt-24">
       <div className="wrap grid gap-6 lg:grid-cols-12">
         <div className="flex flex-col gap-4 pt-2 lg:col-span-4">
           <h2 id="sell-h" className="section-title">
@@ -257,6 +257,21 @@ function SearchBand({ sections }: { sections: { id: number; name: string }[] }) 
   );
 }
 
+/**
+ * Дорожки топа сделок: где за неделю сделок нет, показываем предстоящие торги —
+ * три самых дорогих открытых лота этого формата, у каждого дата окончания.
+ */
+async function dealLanes(db: ReturnType<typeof getDb>, deals: Awaited<ReturnType<typeof topDealsByFormat>>) {
+  const lanes = await Promise.all(
+    LOT_FORMATS.map(async (f): Promise<DealLane> => {
+      if (deals[f].length > 0) return { kind: "deals", items: deals[f] };
+      const items = await lotCards(db, and(openNow(), eq(lots.format, f)), [sql`coalesce(${lots.currentPrice}, ${lots.startPrice}) desc`, asc(lots.endsAt)], 3);
+      return { kind: "upcoming", items };
+    }),
+  );
+  return Object.fromEntries(LOT_FORMATS.map((f, i) => [f, lanes[i]!])) as Record<LotFormat, DealLane>;
+}
+
 /* ---------- страница ---------- */
 
 export async function HomePage() {
@@ -269,6 +284,7 @@ export async function HomePage() {
     getSettings(db),
     topDealsByFormat(),
   ]);
+  const lanes = await dealLanes(db, deals);
 
   // Лоты не повторяются между рядами: «Новые» не берут то, что уже есть в «Скоро закончатся» и «По фиксированной цене».
   const shown = new Set([...endingSoon.slice(0, 5), ...fixed].map((l) => l.id));
@@ -277,9 +293,9 @@ export async function HomePage() {
   return (
     <>
       <Hero />
-      {Object.values(deals).some((l) => l.length > 0) && (
+      {Object.values(lanes).some((l) => l.items.length > 0) && (
         <Band aria-labelledby="deals-h">
-          <TopDeals lanes={deals} period={weekPeriod(new Date())} />
+          <TopDeals lanes={lanes} period={weekPeriod(new Date())} />
         </Band>
       )}
       <TrustStrip />

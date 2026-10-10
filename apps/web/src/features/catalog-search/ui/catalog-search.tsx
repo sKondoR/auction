@@ -24,6 +24,13 @@ const isDesktop = () => matchMedia("(min-width: 48rem)").matches;
 
 const SLOT_ID = "catalog-search-panel";
 
+/**
+ * Высота панели на страницах без `SEARCH_FLOOR` — как на главной до прокрутки: строка категорий (48px + 1px рамки)
+ * и hero (`lg:min-h-[540px]`) плюс рамка шапки. Ниже lg hero выше экрана, поэтому панель — до низа окна.
+ * Поменяешь высоту hero или строки категорий — поправь и здесь.
+ */
+const STAND_IN_H = "h-[calc(100dvh-64px)] md:h-[calc(100dvh-72px)] lg:h-[min(590px,calc(100dvh-72px))]";
+
 /** Место панели поиска в шапке: во всю ширину, под строкой с логотипом. Панель раскрывается отсюда поверх страницы. */
 export function CatalogSearchSlot() {
   return <div id={SLOT_ID} className="relative" />;
@@ -37,6 +44,7 @@ export function CatalogSearchSlot() {
  *
  * Панель рендерится порталом в `CatalogSearchSlot` и раскрывается слоем поверх строки категорий и страницы — контент не сдвигается.
  * Если на странице есть блок с `SEARCH_FLOOR` (hero главной), низ панели совпадает с его низом, лишнее прокручивается внутри.
+ * На страницах без такого блока панель той же высоты, что на главной до прокрутки (`STAND_IN_H`).
  */
 export function CatalogSearch({ sections, cells }: { sections: ScopeSection[]; cells: ScopeCell[] }) {
   const router = useRouter();
@@ -50,6 +58,7 @@ export function CatalogSearch({ sections, cells }: { sections: ScopeSection[]; c
   const panelRef = useRef<HTMLDivElement>(null);
   const [slot, setSlot] = useState<HTMLElement | null>(null);
   const [floor, setFloor] = useState<number | null>(null);
+  const [hasFloor, setHasFloor] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -75,6 +84,7 @@ export function CatalogSearch({ sections, cells }: { sections: ScopeSection[]; c
     if (!open || !slot) return;
     const measure = () => {
       const el = document.querySelector(SEARCH_FLOOR_SELECTOR);
+      setHasFloor(!!el);
       const h = el ? el.getBoundingClientRect().bottom - slot.getBoundingClientRect().top : 0;
       setFloor(h >= 240 ? Math.round(h) : null);
     };
@@ -105,14 +115,15 @@ export function CatalogSearch({ sections, cells }: { sections: ScopeSection[]; c
       if (!sc || !wrap || !body || !list) return;
       const cols = Number(getComputedStyle(list).getPropertyValue("--cols")) || 1;
       const rowH = (list.firstElementChild as HTMLElement | null)?.offsetHeight ?? 0;
-      const limit = floor ?? parseFloat(getComputedStyle(sc).maxHeight);
+      const cs = getComputedStyle(sc);
+      const limit = floor ?? parseFloat(hasFloor ? cs.maxHeight : cs.height);
       const fit = rowH && Number.isFinite(limit) ? Math.floor((limit - (wrap.offsetHeight - body.offsetHeight)) / rowH) : n;
       setRows(Math.max(fit, Math.ceil(n / cols), 1));
     };
     measure();
     window.addEventListener("resize", measure);
     return () => window.removeEventListener("resize", measure);
-  }, [group, floor]);
+  }, [group, floor, hasFloor]);
 
   // Переход на другую страницу закрывает панель.
   useEffect(() => setOpen(false), [pathname]);
@@ -289,7 +300,7 @@ export function CatalogSearch({ sections, cells }: { sections: ScopeSection[]; c
                 style={floor ? { height: floor } : undefined}
                 className={cn(
                   "cloth overflow-y-auto overscroll-contain shadow-[inset_0_14px_18px_-14px_rgba(0,0,0,0.6)] [&_:focus-visible]:outline-gold-light",
-                  !floor && "max-h-[calc(100dvh-64px)] md:max-h-[calc(100dvh-72px)]",
+                  !floor && (hasFloor ? "max-h-[calc(100dvh-64px)] md:max-h-[calc(100dvh-72px)]" : STAND_IN_H),
                 )}
               >
                 <div ref={wrapRef} className="wrap flex min-h-full flex-col pb-8 pt-5 md:pb-10 md:pt-7">

@@ -94,45 +94,50 @@ export function HeroSlideshow({ className }: { className: string }) {
         })}
       </div>
 
-      <div className="absolute right-4 top-4 z-10 flex items-center gap-2 rounded-md bg-black/35 py-1 pl-2 pr-1 backdrop-blur-sm lg:bottom-8 lg:right-8 lg:top-auto">
-        <div className="flex">
-          {SLIDES.map((_, i) => (
-            <button
-              key={i}
-              type="button"
-              onClick={() => go(i)}
-              aria-label={`Фото ${i + 1} из ${SLIDES.length}`}
-              aria-current={i === index}
-              className="group grid size-7 cursor-pointer place-items-center"
-            >
-              <span
-                className={cn(
-                  "relative size-3.5 overflow-hidden rounded-xs transition-colors",
-                  i < index ? "bg-white/70" : "bg-white/25 group-hover:bg-white/50",
-                )}
-              >
-                {i === index && (
+      {/* Пульт выровнен по правому краю контента (паддинги .wrap), а не по краю окна. */}
+      <div className="pointer-events-none absolute inset-0 z-10">
+        <div className="wrap relative h-full">
+          <div className="pointer-events-auto absolute right-4 top-4 flex items-center gap-2 rounded-md bg-black/35 py-1 pl-2 pr-1 backdrop-blur-sm sm:right-5 lg:bottom-8 lg:right-6 lg:top-auto">
+            <div className="flex">
+              {SLIDES.map((_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => go(i)}
+                  aria-label={`Фото ${i + 1} из ${SLIDES.length}`}
+                  aria-current={i === index}
+                  className="group grid size-7 cursor-pointer place-items-center"
+                >
                   <span
-                    key={index}
-                    style={{
-                      animation: `fill-x ${SHOW_MS}ms linear forwards`,
-                      animationPlayState: paused || hidden ? "paused" : "running",
-                    }}
-                    className="absolute inset-0 origin-left bg-gold"
-                  />
-                )}
-              </span>
+                    className={cn(
+                      "relative size-3.5 overflow-hidden rounded-xs transition-colors",
+                      i < index ? "bg-white/70" : "bg-white/25 group-hover:bg-white/50",
+                    )}
+                  >
+                    {i === index && (
+                      <span
+                        key={index}
+                        style={{
+                          animation: `fill-x ${SHOW_MS}ms linear forwards`,
+                          animationPlayState: paused || hidden ? "paused" : "running",
+                        }}
+                        className="absolute inset-0 origin-left bg-gold"
+                      />
+                    )}
+                  </span>
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() => setPaused((p) => !p)}
+              aria-label={paused ? "Продолжить слайд-шоу" : "Остановить слайд-шоу"}
+              className="grid size-8 cursor-pointer place-items-center rounded-md text-white/85 transition-colors hover:bg-white/15 hover:text-white"
+            >
+              {paused ? <Play className="size-3.5" fill="currentColor" /> : <Pause className="size-3.5" fill="currentColor" />}
             </button>
-          ))}
+          </div>
         </div>
-        <button
-          type="button"
-          onClick={() => setPaused((p) => !p)}
-          aria-label={paused ? "Продолжить слайд-шоу" : "Остановить слайд-шоу"}
-          className="grid size-8 cursor-pointer place-items-center rounded-md text-white/85 transition-colors hover:bg-white/15 hover:text-white"
-        >
-          {paused ? <Play className="size-3.5" fill="currentColor" /> : <Pause className="size-3.5" fill="currentColor" />}
-        </button>
       </div>
     </>
   );

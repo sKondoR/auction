@@ -8,7 +8,8 @@
   },
   "scripts": {
     "test": "vitest run --passWithNoTests",
-    "typecheck": "tsc -p tsconfig.json"
+    "typecheck": "tsc -p tsconfig.json",
+    "seed:top-deals": "tsx --env-file=../../.env scripts/seed-top-deals.ts"
   },
   "dependencies": {
     "@auction/db": "workspace:*",
