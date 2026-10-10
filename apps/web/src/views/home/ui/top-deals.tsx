@@ -1,17 +1,15 @@
-"use client";
-
-import type { LotFormat } from "@auction/domain";
+import { ENABLED_FORMATS, type LotFormat } from "@auction/domain";
 import type { TopDeal } from "@/entities/deal/server";
 import { ImageIcon, type LucideIcon, Tag, TrendingDown, TrendingUp, Video, Zap } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
 import { cn, formatRub, plural } from "@/shared/lib";
 
-const FORMATS: { key: LotFormat; tab: string; badge: string; tone: string }[] = [
-  { key: "english", tab: "Английский аукцион", badge: "Английский", tone: "bg-p-powder" },
-  { key: "dutch", tab: "Голландский аукцион", badge: "Голландский", tone: "bg-p-butter" },
-  { key: "live", tab: "Живой аукцион", badge: "Живой", tone: "bg-p-blush" },
-  { key: "fixed", tab: "Фиксированная цена", badge: "Фикс. цена", tone: "bg-p-sage" },
+/** Дорожки слева направо. Пастель — та же, что у бейджей формата (DESIGN.md). */
+const LANES: { key: LotFormat; label: string; Icon: LucideIcon; tone: string; rule: string }[] = [
+  { key: "english", label: "Английский", Icon: TrendingUp, tone: "bg-p-powder", rule: "border-p-powder-deep" },
+  { key: "dutch", label: "Голландский", Icon: TrendingDown, tone: "bg-p-butter", rule: "border-p-butter-deep" },
+  { key: "live", label: "Живой", Icon: Video, tone: "bg-p-blush", rule: "border-p-blush-deep" },
+  { key: "fixed", label: "Фикс. цена", Icon: Tag, tone: "bg-p-sage", rule: "border-p-sage-deep" },
 ];
 
 const MEDALS = [
@@ -38,23 +36,20 @@ function how(d: TopDeal): [LucideIcon, string] {
   }
 }
 
-const dayMonth = new Intl.DateTimeFormat("ru-RU", { day: "2-digit", month: "2-digit", timeZone: "Europe/Moscow" });
-
-function DealCard({ d, rank, delay }: { d: TopDeal; rank: number; delay: number | null }) {
-  const f = FORMATS.find((x) => x.key === d.format)!;
+function DealTile({ d, rank }: { d: TopDeal; rank: number }) {
+  const lead = rank === 1;
   const [Icon, text] = how(d);
   return (
-    <li
-      style={delay === null ? undefined : { animationDelay: `${delay}ms` }}
-      className={cn(
-        "group relative grid grid-cols-[104px_minmax(0,1fr)] gap-4 rounded-lg border border-border bg-surface py-3 pl-3 pr-3.5 shadow-rest transition-[box-shadow,border-color,transform] duration-300 ease-soft hover:-translate-y-0.5 hover:border-transparent hover:shadow-lift sm:grid-cols-[176px_minmax(0,1fr)] sm:gap-6 sm:py-4 sm:pl-4 sm:pr-5",
-        delay !== null && "motion-safe:animate-rise",
-      )}
-    >
-      <div className="relative aspect-square self-start rounded-lg bg-well">
+    <li className={cn("group relative flex min-w-0 flex-col", lead && "col-span-2")}>
+      <span
+        className={cn(
+          "relative block overflow-hidden rounded-lg bg-surface transition-[box-shadow,transform] duration-[350ms] ease-soft group-hover:-translate-y-1 group-hover:shadow-layer",
+          lead ? "aspect-[4/3]" : "aspect-square",
+        )}
+      >
         {d.thumbUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={d.thumbUrl} alt="" loading="lazy" className="size-full rounded-lg object-cover" />
+          <img src={d.thumbUrl} alt="" loading="lazy" className="size-full object-cover transition-transform duration-700 ease-soft group-hover:scale-[1.04]" />
         ) : (
           <span className="grid size-full place-items-center text-faint">
             <ImageIcon className="size-8" strokeWidth={1.25} aria-hidden />
@@ -62,98 +57,66 @@ function DealCard({ d, rank, delay }: { d: TopDeal; rank: number; delay: number 
         )}
         <span
           className={cn(
-            "absolute -bottom-2 -left-2 grid size-[34px] place-items-center rounded-full font-serif text-base font-bold leading-none [font-variant-numeric:lining-nums] sm:-bottom-2.5 sm:-left-2.5 sm:size-[42px] sm:text-lg",
-            rank <= 3
-              ? cn(MEDALS[rank - 1], "shadow-[inset_0_0_0_1px_rgba(0,0,0,0.18),inset_0_0_0_4px_rgba(255,255,255,0.28),0_4px_10px_-3px_rgba(27,31,28,0.45)]")
-              : "border border-border-strong bg-surface text-foreground",
+            "absolute left-2 top-2 grid place-items-center rounded-full font-serif font-bold leading-none [font-variant-numeric:lining-nums]",
+            "shadow-[inset_0_0_0_1px_rgba(0,0,0,0.18),inset_0_0_0_3px_rgba(255,255,255,0.28),0_3px_8px_-3px_rgba(27,31,28,0.45)]",
+            lead ? "size-9 text-base" : "size-7 text-sm",
+            MEDALS[rank - 1],
           )}
         >
           <span className="sr-only">Место </span>
           {rank}
         </span>
-      </div>
-      <div className="flex min-w-0 flex-col">
-        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-          <span className={cn("inline-flex items-center rounded-xs px-2 py-1 text-[0.6875rem] font-semibold uppercase leading-tight tracking-[0.08em] text-foreground", f.tone)}>
-            {f.badge}
-          </span>
-          <time dateTime={new Date(d.createdAt).toISOString()} className="tabular whitespace-nowrap text-[0.8125rem] text-muted-foreground">
-            завершён {dayMonth.format(new Date(d.createdAt))}
-          </time>
-        </div>
-        <h3 className="mt-2.5 line-clamp-2 font-sans text-[0.9375rem] font-medium leading-[1.35]">{d.title}</h3>
-        <p className="tabular mt-1.5 text-xl font-semibold leading-tight sm:text-2xl">{formatRub(d.totalPrice)}</p>
-        <p className="tabular mt-1 flex items-start gap-1.5 text-sm leading-snug text-muted-foreground">
-          <Icon className="mt-px size-4 shrink-0 text-foreground" strokeWidth={1.5} aria-hidden />
+      </span>
+      <p className={cn("tabular mt-2.5 font-semibold leading-tight", lead ? "text-xl" : "text-base")}>{formatRub(d.totalPrice)}</p>
+      <h4 className={cn("mt-1 line-clamp-2 leading-snug", lead ? "text-sm font-medium" : "text-[0.8125rem] text-muted-foreground")}>{d.title}</h4>
+      {lead && (
+        <p className="tabular mt-1.5 flex items-start gap-1.5 text-[0.8125rem] leading-snug text-muted-foreground">
+          <Icon className="mt-px size-3.5 shrink-0 text-foreground" strokeWidth={1.5} aria-hidden />
           <span>{text}</span>
         </p>
-        <div className="mt-auto flex min-w-0 items-center gap-2 pt-3.5 text-sm">
-          <span aria-hidden className="grid size-7 shrink-0 place-items-center rounded-full bg-sage-mist text-xs font-semibold text-primary">
-            {d.sellerName.slice(0, 2).toUpperCase()}
-          </span>
-          <span className="truncate font-medium">{d.sellerName}</span>
-          {d.sellerScore > 0 && (
-            <span className="tabular shrink-0 rounded-xs bg-action px-[7px] py-[3px] text-xs font-semibold leading-tight text-white">
-              <span className="sr-only">рейтинг </span>
-              {d.sellerScore.toLocaleString("ru-RU")}
-            </span>
-          )}
-        </div>
-      </div>
+      )}
       <Link href={`/lots/${d.lotId}`} aria-label={`Открыть лот: ${d.title}`} className="absolute inset-0 z-[1] rounded-lg" />
     </li>
   );
 }
 
 /**
- * Топ сделок недели: до 6 самых дорогих продаж, фильтр по формату торгов.
- * Места 1–3 — «монеты»: золото, серебро, бронза. Номера мест считаются внутри формата.
+ * Топ сделок недели — четыре дорожки, по одной на формат торгов: в каждой до трёх самых дорогих сделок,
+ * первая крупно, две под ней. Места 1–3 — «монеты»: золото, серебро, бронза. На узких экранах дорожки листаются вбок.
  */
-export function TopDeals({ deals, period }: { deals: TopDeal[]; period: string }) {
-  const [format, setFormat] = useState<LotFormat | "all">("all");
-  const [swap, setSwap] = useState(0);
-  const present = FORMATS.filter((f) => deals.some((d) => d.format === f.key));
-  const rows = deals.filter((d) => format === "all" || d.format === format).slice(0, 6);
-  const tabs: [LotFormat | "all", string][] = [["all", "Все форматы"], ...present.map((f) => [f.key, f.tab] as [LotFormat, string])];
-
+export function TopDeals({ lanes, period }: { lanes: Record<LotFormat, TopDeal[]>; period: string }) {
   return (
     <>
-      <div className="mb-8 flex flex-col items-stretch gap-5 sm:items-center">
-        <div className="grid w-full grid-cols-[1fr_auto] items-end gap-4 lg:grid-cols-[1fr_auto_1fr]">
-          <h2 id="deals-h" className="section-title lg:col-start-2 lg:text-center">
-            Топ сделок недели
-          </h2>
-        </div>
-        <p className="-mt-3.5 text-sm text-muted-foreground sm:-mt-3">{period}</p>
-        {present.length > 1 && (
-          <div
-            role="group"
-            aria-label="Формат торгов"
-            className="no-scrollbar bleed flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:justify-center sm:overflow-visible sm:px-0"
-          >
-            {tabs.map(([key, label]) => (
-              <button
-                key={key}
-                type="button"
-                aria-pressed={format === key}
-                onClick={() => {
-                  if (format === key) return;
-                  setFormat(key);
-                  setSwap((s) => s + 1);
-                }}
-                className="h-9 shrink-0 cursor-pointer rounded-full border border-border bg-surface px-4 text-sm font-medium leading-none transition-colors hover:border-border-strong aria-pressed:border-action aria-pressed:bg-action aria-pressed:text-white"
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-        )}
+      <div className="mb-8 flex flex-col items-center gap-1.5 text-center">
+        <h2 id="deals-h" className="section-title">
+          Топ сделок недели
+        </h2>
+        <p className="text-sm text-muted-foreground">{period}</p>
       </div>
-      <ol key={swap} className="grid gap-x-6 gap-y-5 lg:grid-cols-2">
-        {rows.map((d, k) => (
-          <DealCard key={d.id} d={d} rank={k + 1} delay={swap ? k * 45 : null} />
-        ))}
-      </ol>
+      <div className="no-scrollbar -mx-4 flex snap-x snap-mandatory scroll-px-4 gap-4 overflow-x-auto px-4 sm:-mx-5 sm:scroll-px-5 sm:px-5 lg:mx-0 lg:grid lg:grid-cols-4 lg:gap-5 lg:overflow-visible lg:px-0">
+        {LANES.map(({ key, label, Icon, tone, rule }) => {
+          const list = lanes[key];
+          return (
+            <section key={key} aria-label={label} className={cn("flex w-[280px] shrink-0 snap-start flex-col rounded-lg px-3 pb-4 sm:w-[300px] lg:w-auto", tone)}>
+              <h3 className={cn("label-caps flex items-center gap-2 border-b py-3.5 text-foreground", rule)}>
+                <Icon className="size-4 shrink-0" strokeWidth={1.5} aria-hidden />
+                {label}
+              </h3>
+              {list.length > 0 ? (
+                <ol className="mt-3.5 grid grid-cols-2 gap-x-3 gap-y-5">
+                  {list.map((d, k) => (
+                    <DealTile key={d.id} d={d} rank={k + 1} />
+                  ))}
+                </ol>
+              ) : (
+                <p className="m-auto px-2 py-10 text-center text-sm text-muted-foreground">
+                  {ENABLED_FORMATS.includes(key) ? "За неделю сделок не было" : "Формат скоро появится"}
+                </p>
+              )}
+            </section>
+          );
+        })}
+      </div>
     </>
   );
 }

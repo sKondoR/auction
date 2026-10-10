@@ -14,6 +14,7 @@ export const buttonVariants = cva(
         outline: "border border-border bg-surface text-foreground hover:border-border-strong hover:bg-sage-mist",
         ghost: "text-foreground hover:bg-sage-mist",
         urgent: "bg-wax text-white hover:bg-wax-deep",
+        gold: "bg-gold text-[#15181f] hover:bg-gold-light",
         danger: "border border-wax bg-surface text-wax hover:bg-wax-soft",
         light: "bg-surface text-primary hover:bg-sage-mist",
         field: "border border-gold-light bg-transparent text-white text-[0.8125rem] uppercase tracking-[0.08em] hover:border-gold hover:bg-gold hover:text-primary-hover",

@@ -5,16 +5,15 @@ import { and, asc, desc, eq } from "drizzle-orm";
 import { Hourglass, Lock, Percent, Smartphone, Star, Tag, TrendingUp, Zap } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { type CategoryCover, POPULAR_CARDS, POPULAR_CELLS } from "@/entities/category";
-import { type CategoryNode, getCategoryTree } from "@/entities/category/server";
-import { topDealsOfWeek } from "@/entities/deal/server";
+import { getCategoryTree } from "@/entities/category/server";
+import { topDealsByFormat } from "@/entities/deal/server";
 import { LotRow } from "@/entities/lot";
 import { getDb } from "@/shared/api";
 import { cn, plural } from "@/shared/lib";
 import { ButtonLink } from "@/shared/ui";
-import { Finder, type FinderCell, type FinderSection } from "@/widgets/finder";
 import { CountdownRings } from "./countdown-rings";
 import { FeeCalculator } from "./fee-calculator";
+import { Hero } from "./hero";
 import { TopDeals } from "./top-deals";
 
 /* ---------- мелкие части ---------- */
@@ -70,53 +69,6 @@ function TrustStrip() {
       </ul>
     </section>
   );
-}
-
-/* ---------- C: популярные категории ---------- */
-
-type PopularCard = { id: number; name: string; section: string | null; cover: CategoryCover };
-
-function PopularCategories({ items }: { items: PopularCard[] }) {
-  return (
-    <Band>
-      <RowHead title="Популярные категории" href="/search" more="Все категории" />
-      <ul className="grid grid-cols-2 gap-x-4 gap-y-7 md:grid-cols-3 md:gap-x-6 md:gap-y-10 lg:grid-cols-4">
-        {items.map((c, i) => (
-          <li key={c.id} className={cn(i >= 6 && "md:max-lg:hidden")}>
-            <Link href={`/search?category=${c.id}`} className="group block rounded-lg text-foreground">
-              <span className="relative block aspect-[4/3] overflow-hidden rounded-lg bg-well transition-[box-shadow,transform] duration-[350ms] ease-soft group-hover:-translate-y-1 group-hover:shadow-layer">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={c.cover.src}
-                  alt=""
-                  loading="lazy"
-                  className={cn(
-                    "size-full transition-transform duration-700 ease-soft group-hover:scale-[1.04]",
-                    c.cover.contain ? "object-contain px-[12%] py-[9%]" : "object-cover",
-                  )}
-                />
-              </span>
-              <span className="mt-3 block font-serif text-[1.0625rem] font-bold leading-tight text-balance sm:mt-4 sm:text-xl">{c.name}</span>
-              <span className="mt-1 block text-sm text-muted-foreground">{c.section ?? "Раздел"}</span>
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </Band>
-  );
-}
-
-/** Узлы дерева по slug: сам узел и его раздел (корень). */
-function indexTree(tree: CategoryNode[]) {
-  const map = new Map<string, { node: CategoryNode; section: CategoryNode }>();
-  const walk = (nodes: CategoryNode[], section: CategoryNode | null) => {
-    for (const n of nodes) {
-      map.set(n.slug, { node: n, section: section ?? n });
-      walk(n.children, section ?? n);
-    }
-  };
-  walk(tree, null);
-  return map;
 }
 
 /** «с 3 по 9 октября» или «с 28 сентября по 4 октября». */
@@ -315,24 +267,8 @@ export async function HomePage() {
     lotCards(db, and(openNow(), eq(lots.format, "fixed")), [desc(lots.createdAt)], 4),
     getCategoryTree(),
     getSettings(db),
-    topDealsOfWeek(),
+    topDealsByFormat(),
   ]);
-
-  const bySlug = indexTree(tree);
-  const sections: FinderSection[] = tree.map((s) => ({
-    id: s.id,
-    slug: s.slug,
-    name: s.name,
-    children: s.children.map((c) => ({ id: c.id, slug: c.slug, name: c.name })),
-  }));
-  const cells: FinderCell[] = POPULAR_CELLS.flatMap(([slug, cover]) => {
-    const hit = bySlug.get(slug);
-    return hit ? [{ id: hit.node.id, slug, name: hit.node.name, sectionId: hit.section.id, cover }] : [];
-  });
-  const popular: PopularCard[] = POPULAR_CARDS.flatMap(([slug, cover]) => {
-    const hit = bySlug.get(slug);
-    return hit ? [{ id: hit.node.id, name: hit.node.name, section: hit.node === hit.section ? null : hit.section.name, cover }] : [];
-  }).slice(0, 8);
 
   // Лоты не повторяются между рядами: «Новые» не берут то, что уже есть в «Скоро закончатся» и «По фиксированной цене».
   const shown = new Set([...endingSoon.slice(0, 5), ...fixed].map((l) => l.id));
@@ -340,11 +276,10 @@ export async function HomePage() {
 
   return (
     <>
-      <Finder sections={sections} cells={cells} />
-      {popular.length > 0 && <PopularCategories items={popular} />}
-      {deals.length > 0 && (
+      <Hero />
+      {Object.values(deals).some((l) => l.length > 0) && (
         <Band aria-labelledby="deals-h">
-          <TopDeals deals={deals} period={weekPeriod(new Date())} />
+          <TopDeals lanes={deals} period={weekPeriod(new Date())} />
         </Band>
       )}
       <TrustStrip />
@@ -368,7 +303,7 @@ export async function HomePage() {
         </Band>
       )}
       <LastMinutes lot={endingSoon[0]} steps={settings.bidSteps.map((s) => ({ from: s.from, step: s.step }))} />
-      <SearchBand sections={sections} />
+      <SearchBand sections={tree} />
     </>
   );
 }

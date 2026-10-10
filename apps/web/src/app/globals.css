@@ -24,11 +24,11 @@
   --color-primary-foreground: #ffffff;
   --color-night: #11141d;
   --color-sage-mist: #e4e7ef; /* холодная дымка */
-  --color-cloth: #4a5372; /* подложка под плиткой сукна */
+  --color-cloth: #202433; /* подложка под плиткой сукна (концепт 08) */
 
-  /* Цвет действия: основные кнопки, выбранные чипы. Белый текст — около 5,5:1. */
-  --color-action: #4c67a6;
-  --color-action-hover: #40588f;
+  /* Цвет действия: основные кнопки, выбранные чипы — тон сукна. Белый текст — около 15:1. */
+  --color-action: #202433;
+  --color-action-hover: #353c55; /* светлее: на белом и на тёмном заметен отклик */
 
   /* Золото монеты: только на синем, на белом контраст слишком низкий */
   --color-gold: #edba3a;
@@ -112,6 +112,16 @@
   }
   @keyframes flash {
     from { background-color: var(--color-sage-mist); }
+  }
+  /* Слайд-шоу hero: медленный наезд камеры (Ken Burns); направление задают --kb-x / --kb-y слайда. */
+  @keyframes kenburns {
+    from { transform: scale(1.02) translate3d(0, 0, 0); }
+    to { transform: scale(1.14) translate3d(var(--kb-x, 0), var(--kb-y, 0), 0); }
+  }
+  /* Полоса прогресса слайда: заполняется слева направо за время показа. */
+  @keyframes fill-x {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
   }
 }
 
@@ -227,7 +237,7 @@
 
 /* Синее сукно монетного футляра: лоток поиска и «Последние пять минут». */
 @utility cloth {
-  background: var(--color-cloth) url("../shared/assets/fabric-lighter.jpg") repeat;
+  background: var(--color-cloth) url("../shared/assets/fabric-seamless.jpg") repeat;
   background-size: 80px;
   color: #fff;
 }

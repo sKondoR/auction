@@ -1,5 +1,6 @@
 import "server-only";
 import { deals, getDb, lotPhotos, lots, reviews, user } from "@auction/db";
+import { LOT_FORMATS, type LotFormat } from "@auction/domain";
 import { publicUrl } from "@auction/services";
 import { alias } from "drizzle-orm/pg-core";
 import { and, desc, eq, gte, notInArray, or, sql } from "drizzle-orm";
@@ -46,12 +47,11 @@ export async function getDeal(dealId: number) {
 }
 
 /**
- * Самые дорогие сделки за последние 7 дней — для «Топа сделок недели» на главной.
+ * Самые дорогие сделки за последние 7 дней в одном формате торгов — для «Топа сделок недели» на главной.
  * Сорванные сделки (не оплачен, не получен) не попадают. Рейтинг продавца — по формуле
  * `rating()` из domain: положительные минус отрицательные.
  */
-export async function topDealsOfWeek(limit = 40) {
-  const since = new Date(Date.now() - 7 * 86_400_000);
+async function topDealsOfFormat(format: LotFormat, limit: number, since: Date) {
   const score = sql<number>`(select count(*) filter (where ${reviews.rating} = 'positive') - count(*) filter (where ${reviews.rating} = 'negative') from ${reviews} where ${reviews.targetId} = ${deals.sellerId})`;
   const rows = await getDb()
     .select({
@@ -73,13 +73,20 @@ export async function topDealsOfWeek(limit = 40) {
     .from(deals)
     .innerJoin(lots, eq(lots.id, deals.lotId))
     .innerJoin(seller, eq(seller.id, deals.sellerId))
-    .where(and(gte(deals.createdAt, since), notInArray(deals.status, ["not_paid", "not_received"])))
+    .where(and(gte(deals.createdAt, since), eq(lots.format, format), notInArray(deals.status, ["not_paid", "not_received"])))
     .orderBy(desc(deals.totalPrice))
     .limit(limit);
   return rows.map(({ thumbKey, ...r }) => ({ ...r, sellerScore: Number(r.sellerScore), thumbUrl: thumbKey ? publicUrl(thumbKey) : null }));
 }
 
-export type TopDeal = Awaited<ReturnType<typeof topDealsOfWeek>>[number];
+/** Топ сделок недели по дорожкам: до `perFormat` самых дорогих сделок в каждом формате торгов. */
+export async function topDealsByFormat(perFormat = 3) {
+  const since = new Date(Date.now() - 7 * 86_400_000);
+  const lists = await Promise.all(LOT_FORMATS.map((f) => topDealsOfFormat(f, perFormat, since)));
+  return Object.fromEntries(LOT_FORMATS.map((f, i) => [f, lists[i]!])) as Record<LotFormat, TopDeal[]>;
+}
+
+export type TopDeal = Awaited<ReturnType<typeof topDealsOfFormat>>[number];
 
 /** Отзывы о пользователе. */
 export async function listReviewsAbout(userId: string, limit = 50) {

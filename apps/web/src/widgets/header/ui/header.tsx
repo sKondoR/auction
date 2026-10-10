@@ -1,21 +1,23 @@
 import { isStaff } from "@auction/domain";
-import { Bell, Clock, Heart, Menu, MessageCircle, Plus, Search, User } from "lucide-react";
+import { Bell, Clock, Heart, Menu, MessageCircle, User } from "lucide-react";
 import Link from "next/link";
 import { getCategoryTree } from "@/entities/category/server";
 import { unreadConversationCount } from "@/entities/conversation/server";
 import { unreadNotificationCount } from "@/entities/notification/server";
 import { SignOutButton } from "@/features/auth-by-phone";
+import { CatalogSearch, CatalogSearchSlot, buildScopes } from "@/features/catalog-search";
 import { getViewer } from "@/shared/api";
 import { ButtonLink } from "@/shared/ui";
 import { UserLive } from "./user-live";
 
-const iconBtn =
-  "relative inline-grid size-11 place-items-center rounded-full text-foreground transition-colors hover:bg-sage-mist [&_svg]:size-5";
+const roundBtn = "relative inline-grid place-items-center rounded-full text-foreground transition-colors hover:bg-sage-mist";
+/** Иконки служебной полосы — 36px, по высоте полосы. */
+const iconBtn = `${roundBtn} size-9 [&_svg]:size-[1.125rem]`;
 
 function CountDot({ n, label }: { n: number; label: string }) {
   if (n <= 0) return null;
   return (
-    <span className="tabular absolute right-0.5 top-0.5 min-w-5 rounded-full bg-primary px-1 text-center text-[0.6875rem] font-semibold leading-5 text-primary-foreground">
+    <span className="tabular absolute -right-0.5 -top-0.5 min-w-4 rounded-full bg-primary px-1 text-center text-[0.625rem] font-semibold leading-4 text-primary-foreground">
       {n > 99 ? "99+" : n}
       <span className="sr-only"> {label}</span>
     </span>
@@ -54,6 +56,7 @@ export async function Header() {
     viewer ? unreadNotificationCount(viewer.id) : 0,
     viewer ? unreadConversationCount(viewer.id) : 0,
   ]);
+  const scopes = buildScopes(tree);
 
   return (
     <>
@@ -63,20 +66,72 @@ export async function Header() {
             <span className="hidden sm:inline">Выставить лот — бесплатно. Комиссия 1% только с продажи</span>
             <span className="sm:hidden">Лот бесплатно · 1% с продажи</span>
           </span>
-          <nav aria-label="Служебное меню" className="hidden gap-6 md:flex [&>a]:text-foreground [&>a:hover]:underline">
-            <Link href="/buyout/new" className="hidden lg:inline">
-              Продать администрации
-            </Link>
-            <Link href="/rules">Помощь</Link>
-          </nav>
+          <div className="-mr-2 flex shrink-0 items-center gap-4 md:gap-6">
+            <div className="flex items-center">
+              {viewer ? (
+                <>
+                  <UserLive />
+                  <Link href="/notifications" className={iconBtn} aria-label="Уведомления">
+                    <Bell strokeWidth={1.5} />
+                    <CountDot n={notif} label="новых" />
+                  </Link>
+                  <Link href="/cabinet/favorites" className={`${iconBtn} hidden sm:inline-grid`} aria-label="Избранное">
+                    <Heart strokeWidth={1.5} />
+                  </Link>
+                  <Link href="/messages" className={iconBtn} aria-label="Сообщения">
+                    <MessageCircle strokeWidth={1.5} />
+                    <CountDot n={msgs} label="непрочитанных" />
+                  </Link>
+                  <details className="relative">
+                    <summary
+                      className="flex min-h-9 cursor-pointer list-none items-center gap-1.5 rounded-full px-2 text-foreground hover:bg-sage-mist [&::-webkit-details-marker]:hidden"
+                      aria-label="Меню пользователя"
+                    >
+                      <User className="size-[1.125rem]" strokeWidth={1.5} />
+                      <span className="hidden max-w-32 truncate font-medium md:inline">{viewer.name}</span>
+                    </summary>
+                    <div className="absolute right-0 z-40 mt-1 w-60 rounded-lg border border-border bg-surface p-2 text-[0.9375rem] text-foreground shadow-lift [&>a]:flex [&>a]:min-h-10 [&>a]:items-center [&>a]:rounded-md [&>a]:px-3 [&>a:hover]:bg-sage-mist">
+                      <Link href="/cabinet">Личный кабинет</Link>
+                      <Link href="/cabinet/bids">Мои ставки</Link>
+                      <Link href="/cabinet/lots">Мои лоты</Link>
+                      <Link href="/cabinet/deals">Сделки</Link>
+                      <Link href="/cabinet/favorites">Избранное</Link>
+                      <Link href={`/users/${viewer.id}`}>Моя страница продавца</Link>
+                      {isStaff(viewer.role) && (
+                        <Link href="/admin" className="font-semibold text-primary">
+                          Администрирование
+                        </Link>
+                      )}
+                      <Link href="/cabinet/settings">Настройки</Link>
+                      <div className="my-1 border-t border-border" />
+                      <div className="flex min-h-10 items-center rounded-md px-3 hover:bg-sage-mist">
+                        <SignOutButton />
+                      </div>
+                    </div>
+                  </details>
+                </>
+              ) : (
+                <Link href="/login" className="flex min-h-9 items-center gap-1.5 rounded-full px-2 font-medium text-foreground hover:bg-sage-mist">
+                  <User className="size-[1.125rem]" strokeWidth={1.5} />
+                  Войти
+                </Link>
+              )}
+            </div>
+            <nav aria-label="Служебное меню" className="hidden gap-6 md:flex [&>a]:text-foreground [&>a:hover]:underline">
+              <Link href="/buyout/new" className="hidden lg:inline">
+                Продать администрации
+              </Link>
+              <Link href="/rules">Помощь</Link>
+            </nav>
+          </div>
         </div>
       </div>
 
       <header className="sticky top-0 z-30 border-b border-border bg-surface">
-        <div className="wrap grid min-h-16 grid-cols-[auto_1fr_auto] items-center gap-2 md:min-h-[72px] md:gap-8">
+        <div className="wrap grid min-h-16 grid-cols-[auto_1fr_auto] items-center gap-1 md:min-h-[72px] md:gap-5">
           <div className="flex items-center gap-1">
             <details className="group relative md:hidden">
-              <summary className={`${iconBtn} cursor-pointer list-none [&::-webkit-details-marker]:hidden`} aria-label="Меню">
+              <summary className={`${roundBtn} size-11 cursor-pointer list-none [&_svg]:size-5 [&::-webkit-details-marker]:hidden`} aria-label="Меню">
                 <Menu strokeWidth={1.5} />
               </summary>
               <nav
@@ -100,88 +155,15 @@ export async function Header() {
             <Logo />
           </div>
 
-          {/* Пока на экране большой поиск главной (data-finder на <html>), поле в шапке уходит. */}
-          <form
-            action="/search"
-            role="search"
-            className="hidden w-full max-w-130 justify-self-center transition-[opacity,visibility] duration-300 md:block in-data-[finder=in]:invisible in-data-[finder=in]:opacity-0"
-          >
-            <label className="flex h-12 items-center gap-2.5 rounded-full border border-border bg-surface px-5 text-muted-foreground transition-[border-color,box-shadow] focus-within:border-primary focus-within:shadow-[0_0_0_3px_var(--color-sage-mist)]">
-              <Search className="size-5 shrink-0" strokeWidth={1.5} />
-              <span className="sr-only">Поиск лотов</span>
-              <input
-                name="q"
-                type="search"
-                placeholder="Монета 1899, самовар, марки СССР"
-                className="w-full bg-transparent text-[0.9375rem] text-foreground outline-none placeholder:text-faint"
-              />
-            </label>
-          </form>
+          <CatalogSearch {...scopes} />
 
-          <div className="flex items-center justify-end gap-1">
-            <Link href="/search" className={`${iconBtn} md:hidden`} aria-label="Поиск">
-              <Search strokeWidth={1.5} />
-            </Link>
-            {viewer ? (
-              <>
-                <UserLive />
-                <Link href="/notifications" className={iconBtn} aria-label="Уведомления">
-                  <Bell strokeWidth={1.5} />
-                  <CountDot n={notif} label="новых" />
-                </Link>
-                <Link href="/cabinet/favorites" className={`${iconBtn} hidden lg:inline-grid`} aria-label="Избранное">
-                  <Heart strokeWidth={1.5} />
-                </Link>
-                <Link href="/messages" className={`${iconBtn} hidden sm:inline-grid`} aria-label="Сообщения">
-                  <MessageCircle strokeWidth={1.5} />
-                  <CountDot n={msgs} label="непрочитанных" />
-                </Link>
-                <details className="relative">
-                  <summary
-                    className="flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-full px-2.5 hover:bg-sage-mist [&::-webkit-details-marker]:hidden"
-                    aria-label="Меню пользователя"
-                  >
-                    <User className="size-5" strokeWidth={1.5} />
-                    <span className="hidden max-w-32 truncate text-[0.9375rem] font-medium xl:inline">{viewer.name}</span>
-                  </summary>
-                  <div className="absolute right-0 z-40 mt-2 w-60 rounded-lg border border-border bg-surface p-2 text-[0.9375rem] shadow-lift [&>a]:flex [&>a]:min-h-10 [&>a]:items-center [&>a]:rounded-md [&>a]:px-3 [&>a:hover]:bg-sage-mist">
-                    <Link href="/cabinet">Личный кабинет</Link>
-                    <Link href="/cabinet/bids">Мои ставки</Link>
-                    <Link href="/cabinet/lots">Мои лоты</Link>
-                    <Link href="/cabinet/deals">Сделки</Link>
-                    <Link href="/cabinet/favorites">Избранное</Link>
-                    <Link href="/messages" className="sm:hidden">
-                      Сообщения
-                    </Link>
-                    <Link href={`/users/${viewer.id}`}>Моя страница продавца</Link>
-                    {isStaff(viewer.role) && (
-                      <Link href="/admin" className="font-semibold text-primary">
-                        Администрирование
-                      </Link>
-                    )}
-                    <Link href="/cabinet/settings">Настройки</Link>
-                    <div className="my-1 border-t border-border" />
-                    <div className="flex min-h-10 items-center rounded-md px-3 hover:bg-sage-mist">
-                      <SignOutButton />
-                    </div>
-                  </div>
-                </details>
-              </>
-            ) : (
-              <Link href="/login" className="hidden min-h-11 items-center rounded-md px-3 font-medium hover:bg-sage-mist sm:inline-flex">
-                Войти
-              </Link>
-            )}
-            <ButtonLink href="/lots/new" size="sm" className="ml-2 hidden md:inline-flex">
-              <Plus strokeWidth={1.5} /> Выставить лот
+          <div className="flex items-center justify-end">
+            <ButtonLink href="/lots/new" size="sm" variant="gold" className="hidden md:inline-flex">
+              Выставить лот
             </ButtonLink>
-            {!viewer && (
-              <Link href="/login" className={`${iconBtn} sm:hidden`} aria-label="Войти">
-                <User strokeWidth={1.5} />
-              </Link>
-            )}
           </div>
         </div>
+        <CatalogSearchSlot />
       </header>
 
       <nav aria-label="Категории" className="border-b border-border bg-surface">
@@ -191,7 +173,7 @@ export async function Header() {
               <li key={c.id}>
                 <Link
                   href={`/search?category=${c.id}`}
-                  className="flex h-12 items-center whitespace-nowrap border-b-2 border-transparent text-foreground hover:border-primary"
+                  className="relative flex h-12 items-center whitespace-nowrap after:absolute after:inset-x-0 after:bottom-0 after:h-[3px] after:scale-x-0 after:transition-transform after:duration-200 after:ease-out hover:after:scale-x-100 text-foreground after:bg-gold"
                 >
                   {c.name}
                 </Link>
@@ -200,7 +182,7 @@ export async function Header() {
             <li>
               <Link
                 href="/search?format=english&sort=ending"
-                className="flex h-12 items-center gap-1.5 whitespace-nowrap border-b-2 border-transparent text-wax hover:border-wax"
+                className="relative flex h-12 items-center whitespace-nowrap after:absolute after:inset-x-0 after:bottom-0 after:h-[3px] after:scale-x-0 after:transition-transform after:duration-200 after:ease-out hover:after:scale-x-100 gap-1.5 text-wax after:bg-gold"
               >
                 <Clock className="size-4" strokeWidth={1.5} />
                 Идут сейчас

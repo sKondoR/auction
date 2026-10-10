@@ -21,4 +21,4 @@
 | `kerosene.webp` | Unsplash | лицензия Unsplash |
 | `watch.webp` | Wikimedia Commons, «Antique pocket watch (Unsplash)» | CC0 |
 
-Текстура сукна `shared/assets/fabric-lighter.jpg` — производная плитки, подготовленной автором проекта (см. README концепта 09).
+Текстура сукна `shared/assets/fabric-seamless.jpg` — бесшовная производная плитки, подготовленной автором проекта (см. README концептов 08 и 09).
