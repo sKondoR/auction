@@ -6,8 +6,17 @@ export type ScopeCell = ScopeNode & { sectionId: number; cover: CategoryCover };
 
 type TreeNode = { id: number; slug: string; name: string; children: TreeNode[] };
 
+/** По алфавиту, «Другое» и «Разное» (`*-other`) — в конце. */
+function sortCats(cats: ScopeNode[]) {
+  return [...cats].sort((a, b) => {
+    const oa = a.slug.endsWith("-other");
+    const ob = b.slug.endsWith("-other");
+    return oa !== ob ? (oa ? 1 : -1) : a.name.localeCompare(b.name, "ru");
+  });
+}
+
 /**
- * Области поиска из дерева категорий: разделы с их категориями и фото-ячейки «Популярного»
+ * Области поиска из дерева категорий: разделы с их категориями (уже в порядке показа) и фото-ячейки «Популярного»
  * (только те, чьи slug есть в дереве). Результат сериализуем — его передают в клиентский компонент.
  */
 export function buildScopes(tree: TreeNode[]): { sections: ScopeSection[]; cells: ScopeCell[] } {
@@ -24,7 +33,7 @@ export function buildScopes(tree: TreeNode[]): { sections: ScopeSection[]; cells
     id: s.id,
     slug: s.slug,
     name: s.name,
-    children: s.children.map((c) => ({ id: c.id, slug: c.slug, name: c.name })),
+    children: sortCats(s.children.map((c) => ({ id: c.id, slug: c.slug, name: c.name }))),
   }));
   const cells = POPULAR_CELLS.flatMap(([slug, cover]) => {
     const hit = bySlug.get(slug);

@@ -1,4 +1,4 @@
-import { ENABLED_FORMATS, type LotFormat } from "@auction/domain";
+import { ENABLED_FORMATS, type LotFormat, remaining } from "@auction/domain";
 import type { LotCard } from "@auction/services";
 import type { TopDeal } from "@/entities/deal/server";
 import { Gavel, ImageIcon, type LucideIcon, Tag, TrendingDown, TrendingUp, Video, Zap } from "lucide-react";
@@ -6,12 +6,17 @@ import Link from "next/link";
 import { cn, formatRub, plural } from "@/shared/lib";
 
 /** Дорожки слева направо. Стоят вплотную, фон чередуется: пудра — масло. */
-const LANES: { key: LotFormat; label: string; Icon: LucideIcon; tone: string; rule: string }[] = [
-  { key: "english", label: "Английский", Icon: TrendingUp, tone: "bg-p-powder", rule: "border-p-powder-deep" },
-  { key: "dutch", label: "Голландский", Icon: TrendingDown, tone: "bg-p-butter", rule: "border-p-butter-deep" },
-  { key: "live", label: "Живой", Icon: Video, tone: "bg-p-powder", rule: "border-p-powder-deep" },
-  { key: "fixed", label: "Фикс. цена", Icon: Tag, tone: "bg-p-butter", rule: "border-p-butter-deep" },
+const LANES: { key: LotFormat; label: string; Icon: LucideIcon }[] = [
+  { key: "english", label: "Английский", Icon: TrendingUp },
+  { key: "dutch", label: "Голландский", Icon: TrendingDown },
+  { key: "live", label: "Живой", Icon: Video },
+  { key: "fixed", label: "Фикс. цена", Icon: Tag },
 ];
+/** Фон дорожки и цвет черты под заголовком — по чётности. */
+const LANE_TONES = [
+  ["bg-p-powder", "border-p-powder-deep"],
+  ["bg-p-butter", "border-p-butter-deep"],
+] as const;
 
 const MEDALS = [
   "bg-[radial-gradient(circle_at_34%_28%,#fbe38c,var(--color-gold)_52%,var(--color-gold-deep))] text-[#3b2a05]",
@@ -39,13 +44,13 @@ function how(d: TopDeal): [LucideIcon, string] {
 
 /** Предстоящие торги: сколько ставок или что лот продаётся по цене продавца. */
 function upcomingHow(l: LotCard): [LucideIcon, string] {
-  if (l.format === "fixed") return [Tag, l.quantity - l.quantitySold > 1 ? `Цена продавца · ${l.quantity - l.quantitySold} шт.` : "Цена продавца"];
+  if (l.format === "fixed") return [Tag, remaining(l) > 1 ? `Цена продавца · ${remaining(l)} шт.` : "Цена продавца"];
   return [Gavel, l.bidCount ? bidsText(l.bidCount) : "Ставок пока нет"];
 }
 
 const dayMonth = new Intl.DateTimeFormat("ru-RU", { day: "2-digit", month: "2-digit", timeZone: "Europe/Moscow" });
 
-type Tile = { id: number; lotId: number; title: string; thumbUrl: string | null; price: number; how: [LucideIcon, string]; date: Date; dateText: string };
+type Tile = { id: number; lotId: number; title: string; thumbUrl: string | null; price: number; how: [LucideIcon, string]; date: Date; datePrefix: string };
 
 const dealTile = (d: TopDeal): Tile => ({
   id: d.id,
@@ -55,7 +60,7 @@ const dealTile = (d: TopDeal): Tile => ({
   price: d.totalPrice,
   how: how(d),
   date: new Date(d.createdAt),
-  dateText: `завершён ${dayMonth.format(new Date(d.createdAt))}`,
+  datePrefix: "завершён",
 });
 
 const upcomingTile = (l: LotCard): Tile => ({
@@ -66,7 +71,7 @@ const upcomingTile = (l: LotCard): Tile => ({
   price: l.price,
   how: upcomingHow(l),
   date: new Date(l.endsAt),
-  dateText: `до ${dayMonth.format(new Date(l.endsAt))}`,
+  datePrefix: "до",
 });
 
 /** `rank` — место среди сделок; у предстоящих торгов мест нет. */
@@ -105,7 +110,7 @@ function DealTile({ t, lead, rank }: { t: Tile; lead: boolean; rank?: number }) 
       <div className="mt-2.5 flex flex-wrap items-baseline justify-between gap-x-2">
         <p className={cn("font-serif font-normal leading-none [font-variant-numeric:lining-nums]", lead ? "text-[1.625rem]" : "text-xl")}>{formatRub(t.price)}</p>
         <time dateTime={t.date.toISOString()} className="tabular whitespace-nowrap text-xs text-muted-foreground">
-          {t.dateText}
+          {t.datePrefix} {dayMonth.format(t.date)}
         </time>
       </div>
       <h4 className={cn("mt-1 line-clamp-2 leading-snug", lead ? "text-sm font-medium" : "text-[0.8125rem] text-muted-foreground")}>{t.title}</h4>
@@ -138,7 +143,8 @@ export function TopDeals({ lanes, period }: { lanes: Record<LotFormat, DealLane>
         <p className="text-sm text-muted-foreground">{period}</p>
       </div>
       <div className="no-scrollbar -mx-4 flex snap-x snap-mandatory scroll-px-4 overflow-x-auto px-4 sm:-mx-5 sm:scroll-px-5 sm:px-5 lg:mx-0 lg:grid lg:grid-cols-4 lg:overflow-visible lg:px-0">
-        {LANES.map(({ key, label, Icon, tone, rule }) => {
+        {LANES.map(({ key, label, Icon }, i) => {
+          const [tone, rule] = LANE_TONES[i % 2]!;
           const lane = lanes[key];
           const tiles = lane.kind === "deals" ? lane.items.map(dealTile) : lane.items.map(upcomingTile);
           return (

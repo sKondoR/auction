@@ -12,7 +12,7 @@ import { DAY_MS, type LotFormat, MINUTE_MS, rub } from "@auction/domain";
 import { inArray } from "drizzle-orm";
 import { storeImage } from "../src/infra/storage";
 
-type Source = "auction" | "blitz" | "fixed" | "offer";
+type Source = (typeof deals.$inferInsert)["source"];
 
 interface SeedDeal {
   format: LotFormat;

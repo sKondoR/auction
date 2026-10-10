@@ -1,12 +1,12 @@
 import { getSettings, lots } from "@auction/db";
-import { ENGLISH_MAX_DAYS, ENGLISH_MIN_DAYS, FIXED_MAX_DAYS, LOT_FORMATS, type LotFormat, MAX_PHOTOS, formatRub } from "@auction/domain";
-import { type LotCard, lotCards, openNow } from "@auction/services";
-import { and, asc, desc, eq, sql } from "drizzle-orm";
+import { DAY_MS, ENGLISH_MAX_DAYS, ENGLISH_MIN_DAYS, FIXED_MAX_DAYS, LOT_FORMATS, type LotFormat, MAX_PHOTOS, formatRub } from "@auction/domain";
+import { type LotCard, cardColumns, lotCards, openNow } from "@auction/services";
+import { and, asc, desc, eq } from "drizzle-orm";
 import { Hourglass, Lock, Percent, Smartphone, Star, Tag, TrendingUp, Zap } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { getCategoryTree } from "@/entities/category/server";
-import { topDealsByFormat } from "@/entities/deal/server";
+import { topDealsOfWeek } from "@/entities/deal/server";
 import { LotRow } from "@/entities/lot";
 import { getDb } from "@/shared/api";
 import { cn, plural } from "@/shared/lib";
@@ -73,7 +73,7 @@ function TrustStrip() {
 
 /** «с 3 по 9 октября» или «с 28 сентября по 4 октября». */
 function weekPeriod(now: Date) {
-  const from = new Date(now.getTime() - 6 * 86_400_000);
+  const from = new Date(now.getTime() - 6 * DAY_MS);
   const fmt = (d: Date, opts: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat("ru-RU", { ...opts, timeZone: "Europe/Moscow" }).format(d);
   const sameMonth = fmt(from, { month: "numeric" }) === fmt(now, { month: "numeric" });
   return `Самые дорогие продажи с ${fmt(from, sameMonth ? { day: "numeric" } : { day: "numeric", month: "long" })} по ${fmt(now, { day: "numeric", month: "long" })}`;
@@ -261,12 +261,12 @@ function SearchBand({ sections }: { sections: { id: number; name: string }[] }) 
  * Дорожки топа сделок: где за неделю сделок нет, показываем предстоящие торги —
  * три самых дорогих открытых лота этого формата, у каждого дата окончания.
  */
-async function dealLanes(db: ReturnType<typeof getDb>, deals: Awaited<ReturnType<typeof topDealsByFormat>>) {
+async function dealLanes(db: ReturnType<typeof getDb>) {
   const lanes = await Promise.all(
     LOT_FORMATS.map(async (f): Promise<DealLane> => {
-      if (deals[f].length > 0) return { kind: "deals", items: deals[f] };
-      const items = await lotCards(db, and(openNow(), eq(lots.format, f)), [sql`coalesce(${lots.currentPrice}, ${lots.startPrice}) desc`, asc(lots.endsAt)], 3);
-      return { kind: "upcoming", items };
+      const deals = await topDealsOfWeek(f, 3);
+      if (deals.length > 0) return { kind: "deals", items: deals };
+      return { kind: "upcoming", items: await lotCards(db, and(openNow(), eq(lots.format, f)), [desc(cardColumns.price), asc(lots.endsAt)], 3) };
     }),
   );
   return Object.fromEntries(LOT_FORMATS.map((f, i) => [f, lanes[i]!])) as Record<LotFormat, DealLane>;
@@ -276,15 +276,14 @@ async function dealLanes(db: ReturnType<typeof getDb>, deals: Awaited<ReturnType
 
 export async function HomePage() {
   const db = getDb();
-  const [endingSoon, newest, fixed, tree, settings, deals] = await Promise.all([
+  const [endingSoon, newest, fixed, tree, settings, lanes] = await Promise.all([
     lotCards(db, and(openNow(), eq(lots.format, "english")), [asc(lots.endsAt)], 10),
     lotCards(db, openNow(), [desc(lots.createdAt)], 10),
     lotCards(db, and(openNow(), eq(lots.format, "fixed")), [desc(lots.createdAt)], 4),
     getCategoryTree(),
     getSettings(db),
-    topDealsByFormat(),
+    dealLanes(db),
   ]);
-  const lanes = await dealLanes(db, deals);
 
   // Лоты не повторяются между рядами: «Новые» не берут то, что уже есть в «Скоро закончатся» и «По фиксированной цене».
   const shown = new Set([...endingSoon.slice(0, 5), ...fixed].map((l) => l.id));

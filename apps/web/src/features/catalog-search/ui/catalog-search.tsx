@@ -5,20 +5,12 @@ import { usePathname, useRouter } from "next/navigation";
 import { type ChangeEvent, type FormEvent, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { cn, plural } from "@/shared/lib";
+import { Button } from "@/shared/ui";
 import { SEARCH_FLOOR_SELECTOR } from "../model/floor";
 import { ALL_HINTS, HINTS } from "../model/hints";
 import type { ScopeCell, ScopeNode, ScopeSection } from "../model/scopes";
 
 type Picked = ScopeNode & { sectionId: number };
-
-/** По алфавиту, «Другое» и «Разное» (`*-other`) — в конце. */
-function sortCats(cats: ScopeNode[]) {
-  return [...cats].sort((a, b) => {
-    const oa = a.slug.endsWith("-other");
-    const ob = b.slug.endsWith("-other");
-    return oa !== ob ? (oa ? 1 : -1) : a.name.localeCompare(b.name, "ru");
-  });
-}
 
 const isDesktop = () => matchMedia("(min-width: 48rem)").matches;
 
@@ -82,23 +74,32 @@ export function CatalogSearch({ sections, cells }: { sections: ScopeSection[]; c
   // Высота панели до низа помеченного блока; пока он ниже шапки хотя бы на 240px, иначе — по содержимому.
   useEffect(() => {
     if (!open || !slot) return;
+    const el = document.querySelector(SEARCH_FLOOR_SELECTOR);
+    setHasFloor(!!el);
+    if (!el) {
+      setFloor(null);
+      return;
+    }
     const measure = () => {
-      const el = document.querySelector(SEARCH_FLOOR_SELECTOR);
-      setHasFloor(!!el);
-      const h = el ? el.getBoundingClientRect().bottom - slot.getBoundingClientRect().top : 0;
+      const h = el.getBoundingClientRect().bottom - slot.getBoundingClientRect().top;
       setFloor(h >= 240 ? Math.round(h) : null);
+    };
+    // Прокрутка и ресайз — не чаще кадра.
+    let frame = 0;
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(() => ((frame = 0), measure()));
     };
     measure();
     // Блок может сменить высоту и без ресайза окна: догрузились шрифты, сменилось содержимое.
-    const el = document.querySelector(SEARCH_FLOOR_SELECTOR);
-    const ro = el ? new ResizeObserver(measure) : null;
-    if (el) ro?.observe(el);
-    window.addEventListener("resize", measure);
-    window.addEventListener("scroll", measure, { passive: true });
+    const ro = new ResizeObserver(schedule);
+    ro.observe(el);
+    window.addEventListener("resize", schedule);
+    window.addEventListener("scroll", schedule, { passive: true });
     return () => {
-      ro?.disconnect();
-      window.removeEventListener("resize", measure);
-      window.removeEventListener("scroll", measure);
+      cancelAnimationFrame(frame);
+      ro.disconnect();
+      window.removeEventListener("resize", schedule);
+      window.removeEventListener("scroll", schedule);
     };
   }, [open, slot, pathname]);
 
@@ -199,6 +200,7 @@ export function CatalogSearch({ sections, cells }: { sections: ScopeSection[]; c
 
   const inputProps = {
     type: "search" as const,
+    name: "q",
     value: q,
     onChange: (e: ChangeEvent<HTMLInputElement>) => {
       setQ(e.target.value);
@@ -218,6 +220,7 @@ export function CatalogSearch({ sections, cells }: { sections: ScopeSection[]; c
     <div ref={rootRef} className="flex min-w-0 justify-end md:block">
       {/* Поле в шапке: «Искать в ⌄» | запрос | Найти */}
       <form
+        action="/search"
         role="search"
         noValidate
         onSubmit={submit}
@@ -259,12 +262,9 @@ export function CatalogSearch({ sections, cells }: { sections: ScopeSection[]; c
           {...inputProps}
           className="h-full min-w-0 flex-1 bg-transparent px-2.5 text-[0.9375rem] text-foreground outline-none placeholder:text-faint"
         />
-        <button
-          type="submit"
-          className="mr-1 inline-flex h-10 shrink-0 cursor-pointer items-center rounded-md bg-action px-4 text-[0.9375rem] font-semibold text-white transition-colors hover:bg-action-hover"
-        >
+        <Button type="submit" size="sm" className="mr-1 shrink-0">
           Найти
-        </button>
+        </Button>
       </form>
 
       {/* На телефоне — иконка, поле внутри панели */}
@@ -304,7 +304,7 @@ export function CatalogSearch({ sections, cells }: { sections: ScopeSection[]; c
                 )}
               >
                 <div ref={wrapRef} className="wrap flex min-h-full flex-col pb-8 pt-5 md:pb-10 md:pt-7">
-                  <form role="search" noValidate onSubmit={submit} className="mb-5 flex gap-2 md:hidden">
+                  <form action="/search" role="search" noValidate onSubmit={submit} className="mb-5 flex gap-2 md:hidden">
                     <label htmlFor={`${uid}-mq`} className="sr-only">
                       Что ищете
                     </label>
@@ -317,11 +317,11 @@ export function CatalogSearch({ sections, cells }: { sections: ScopeSection[]; c
                         invalid ? "border-wax" : "border-transparent",
                       )}
                     />
-                    <button type="submit" className="h-12 shrink-0 cursor-pointer rounded-md bg-white px-4 font-semibold text-primary hover:bg-sage-mist">
+                    <Button type="submit" variant="light" size="sm" className="h-12 shrink-0 text-base">
                       Найти
-                    </button>
+                    </Button>
                   </form>
-      
+
                   <div className="flex items-start justify-between gap-4">
                     <div role="group" aria-label="Искать в" className="no-scrollbar -mx-4 flex gap-1.5 overflow-x-auto px-4 md:mx-0 md:flex-wrap md:px-0">
                       {[null, ...sections].map((s) => {
@@ -334,11 +334,11 @@ export function CatalogSearch({ sections, cells }: { sections: ScopeSection[]; c
                             onClick={() => pickGroup(s?.id ?? null)}
                             className={cn(
                               "inline-flex h-10 shrink-0 cursor-pointer items-center gap-2 whitespace-nowrap rounded-full px-4 text-[0.9375rem] font-medium transition-colors",
-                              on ? "bg-gold text-[#15181f]" : "text-white/85 hover:bg-white/10 hover:text-white",
+                              on ? "bg-gold text-gold-foreground" : "text-white/85 hover:bg-white/10 hover:text-white",
                             )}
                           >
                             {s ? s.name : "Популярное"}
-                            {s && <span className={cn("tabular text-[0.8125rem] font-normal", on ? "font-semibold text-[#15181f]/70" : "text-white/55")}>{s.children.length}</span>}
+                            {s && <span className={cn("tabular text-[0.8125rem] font-normal", on ? "font-semibold text-gold-foreground/70" : "text-white/55")}>{s.children.length}</span>}
                           </button>
                         );
                       })}
@@ -355,7 +355,7 @@ export function CatalogSearch({ sections, cells }: { sections: ScopeSection[]; c
                       <ChevronDown className="size-4 rotate-180" strokeWidth={1.5} aria-hidden />
                     </button>
                   </div>
-      
+
                   <div className="mt-6 flex flex-[1_0_auto] flex-col md:mt-7 lg:flex-row lg:gap-12">
                   <div className="flex flex-[1_0_auto] flex-col lg:min-w-0 lg:flex-1">
                   <div className="mb-5 flex flex-wrap items-baseline gap-x-4 gap-y-1 md:mb-7">
@@ -377,7 +377,7 @@ export function CatalogSearch({ sections, cells }: { sections: ScopeSection[]; c
                       style={{ gridTemplateRows: `repeat(${rows ?? group.children.length}, auto)` }}
                       className="grid grid-flow-col grid-cols-[repeat(var(--cols),minmax(0,max-content))] gap-x-10 [--cols:1] motion-safe:animate-swap sm:[--cols:2] xl:[--cols:3]"
                     >
-                      {sortCats(group.children).map((c) => {
+                      {group.children.map((c) => {
                         const on = cat?.id === c.id;
                         return (
                           <li key={c.id}>

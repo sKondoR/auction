@@ -1,6 +1,6 @@
 import "server-only";
 import { deals, getDb, lotPhotos, lots, reviews, user } from "@auction/db";
-import { LOT_FORMATS, type LotFormat } from "@auction/domain";
+import { DAY_MS, type LotFormat } from "@auction/domain";
 import { publicUrl } from "@auction/services";
 import { alias } from "drizzle-orm/pg-core";
 import { and, desc, eq, gte, notInArray, or, sql } from "drizzle-orm";
@@ -51,7 +51,8 @@ export async function getDeal(dealId: number) {
  * Сорванные сделки (не оплачен, не получен) не попадают. Рейтинг продавца — по формуле
  * `rating()` из domain: положительные минус отрицательные.
  */
-async function topDealsOfFormat(format: LotFormat, limit: number, since: Date) {
+export async function topDealsOfWeek(format: LotFormat, limit: number) {
+  const since = new Date(Date.now() - 7 * DAY_MS);
   const score = sql<number>`(select count(*) filter (where ${reviews.rating} = 'positive') - count(*) filter (where ${reviews.rating} = 'negative') from ${reviews} where ${reviews.targetId} = ${deals.sellerId})`;
   const rows = await getDb()
     .select({
@@ -79,14 +80,7 @@ async function topDealsOfFormat(format: LotFormat, limit: number, since: Date) {
   return rows.map(({ thumbKey, ...r }) => ({ ...r, sellerScore: Number(r.sellerScore), thumbUrl: thumbKey ? publicUrl(thumbKey) : null }));
 }
 
-/** Топ сделок недели по дорожкам: до `perFormat` самых дорогих сделок в каждом формате торгов. */
-export async function topDealsByFormat(perFormat = 3) {
-  const since = new Date(Date.now() - 7 * 86_400_000);
-  const lists = await Promise.all(LOT_FORMATS.map((f) => topDealsOfFormat(f, perFormat, since)));
-  return Object.fromEntries(LOT_FORMATS.map((f, i) => [f, lists[i]!])) as Record<LotFormat, TopDeal[]>;
-}
-
-export type TopDeal = Awaited<ReturnType<typeof topDealsOfFormat>>[number];
+export type TopDeal = Awaited<ReturnType<typeof topDealsOfWeek>>[number];
 
 /** Отзывы о пользователе. */
 export async function listReviewsAbout(userId: string, limit = 50) {

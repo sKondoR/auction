@@ -25,13 +25,17 @@ const SLIDES = [
  * Фон hero: кадры сменяются наплывом, активный медленно приближается (Ken Burns). Кадры сменяет таймер, а не
  * анимация, поэтому автопроигрывание идёт и при prefers-reduced-motion: тогда глобально выключены только наплыв,
  * наезд и заливка индикатора. Пауза (кнопкой или скрытой вкладкой) запоминает остаток времени кадра.
+ * Кадры подгружаются по ходу показа: в DOM только уже показанные и следующий.
  */
 export function HeroSlideshow({ className }: { className: string }) {
   const [index, setIndex] = useState(0);
   const [leaving, setLeaving] = useState<number | null>(null);
   const [paused, setPaused] = useState(false);
   const [hidden, setHidden] = useState(false);
+  /** Самый дальний показанный кадр. */
+  const [reach, setReach] = useState(0);
   const remaining = useRef(SHOW_MS);
+  const running = !paused && !hidden;
 
   useEffect(() => {
     const onVisibility = () => setHidden(document.hidden);
@@ -50,6 +54,7 @@ export function HeroSlideshow({ className }: { className: string }) {
     if (next === index) return;
     setLeaving(index);
     setIndex(next);
+    setReach((r) => Math.max(r, next));
   };
 
   // Остаток сбрасывается здесь, а не в go: cleanup предыдущего запуска успевает вычесть из него прошедшее время.
@@ -59,19 +64,20 @@ export function HeroSlideshow({ className }: { className: string }) {
       timedIndex.current = index;
       remaining.current = SHOW_MS;
     }
-    if (paused || hidden) return;
+    if (!running) return;
     const start = Date.now();
     const t = setTimeout(() => go((index + 1) % SLIDES.length), remaining.current);
     return () => {
       clearTimeout(t);
       remaining.current = Math.max(0, remaining.current - (Date.now() - start));
     };
-  }, [index, paused, hidden]);
+  }, [index, running]);
 
   return (
     <>
       <div aria-hidden className={cn("overflow-hidden", className)}>
         {SLIDES.map(({ img, pos, kb }, i) => {
+          if (i > reach + 1) return null;
           const moving = i === index || i === leaving;
           return (
             // eslint-disable-next-line @next/next/no-img-element
@@ -85,9 +91,9 @@ export function HeroSlideshow({ className }: { className: string }) {
               decoding="async"
               style={{ objectPosition: pos, "--kb-x": kb[0], "--kb-y": kb[1] } as CSSProperties}
               className={cn(
-                "absolute inset-0 size-full object-cover transition-opacity duration-[1600ms] ease-in-out will-change-transform",
+                "absolute inset-0 size-full object-cover transition-opacity duration-[1600ms] ease-in-out",
                 i === index ? "opacity-100" : "opacity-0",
-                moving && "animate-[kenburns_9s_ease-out_forwards]",
+                moving && "animate-kenburns will-change-transform",
               )}
             />
           );
@@ -119,7 +125,7 @@ export function HeroSlideshow({ className }: { className: string }) {
                         key={index}
                         style={{
                           animation: `fill-x ${SHOW_MS}ms linear forwards`,
-                          animationPlayState: paused || hidden ? "paused" : "running",
+                          animationPlayState: running ? "running" : "paused",
                         }}
                         className="absolute inset-0 origin-left bg-gold"
                       />

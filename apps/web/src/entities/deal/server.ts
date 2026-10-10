@@ -1,1 +1,1 @@
-export { countActiveDeals, getDeal, listDeals, listReviewsAbout, type TopDeal, topDealsByFormat } from "./api/queries";
+export { countActiveDeals, getDeal, listDeals, listReviewsAbout, type TopDeal, topDealsOfWeek } from "./api/queries";

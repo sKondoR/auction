@@ -13,6 +13,9 @@ import { UserLive } from "./user-live";
 const roundBtn = "relative inline-grid place-items-center rounded-full text-foreground transition-colors hover:bg-sage-mist";
 /** Иконки служебной полосы — 36px, по высоте полосы. */
 const iconBtn = `${roundBtn} size-9 [&_svg]:size-[1.125rem]`;
+/** Ссылка строки категорий: золотая черта снизу выезжает при наведении. */
+const catLink =
+  "relative flex h-12 items-center whitespace-nowrap after:absolute after:inset-x-0 after:bottom-0 after:h-[3px] after:scale-x-0 after:bg-gold after:transition-transform after:duration-200 after:ease-out hover:after:scale-x-100";
 
 function CountDot({ n, label }: { n: number; label: string }) {
   if (n <= 0) return null;
@@ -157,11 +160,9 @@ export async function Header() {
 
           <CatalogSearch {...scopes} />
 
-          <div className="flex items-center justify-end">
-            <ButtonLink href="/lots/new" size="sm" variant="gold" className="hidden md:inline-flex">
-              Выставить лот
-            </ButtonLink>
-          </div>
+          <ButtonLink href="/lots/new" size="sm" variant="gold" className="hidden justify-self-end md:inline-flex">
+            Выставить лот
+          </ButtonLink>
         </div>
         <CatalogSearchSlot />
       </header>
@@ -173,7 +174,7 @@ export async function Header() {
               <li key={c.id}>
                 <Link
                   href={`/search?category=${c.id}`}
-                  className="relative flex h-12 items-center whitespace-nowrap after:absolute after:inset-x-0 after:bottom-0 after:h-[3px] after:scale-x-0 after:transition-transform after:duration-200 after:ease-out hover:after:scale-x-100 text-foreground after:bg-gold"
+                  className={`${catLink} text-foreground`}
                 >
                   {c.name}
                 </Link>
@@ -182,7 +183,7 @@ export async function Header() {
             <li>
               <Link
                 href="/search?format=english&sort=ending"
-                className="relative flex h-12 items-center whitespace-nowrap after:absolute after:inset-x-0 after:bottom-0 after:h-[3px] after:scale-x-0 after:transition-transform after:duration-200 after:ease-out hover:after:scale-x-100 gap-1.5 text-wax after:bg-gold"
+                className={`${catLink} gap-1.5 text-wax`}
               >
                 <Clock className="size-4" strokeWidth={1.5} />
                 Идут сейчас
