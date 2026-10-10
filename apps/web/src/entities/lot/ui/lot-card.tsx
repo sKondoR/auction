@@ -16,7 +16,7 @@ export function LotCard({ lot }: { lot: LotCardData }) {
   const bids = lot.bidCount > 0 ? `${lot.bidCount} ${plural(lot.bidCount, "ставка", "ставки", "ставок")}` : "Нет ставок";
   return (
     <Link href={`/lots/${lot.id}`} className="group block rounded-lg focus-visible:outline-offset-4">
-      <div className="relative aspect-square overflow-hidden rounded-lg bg-well transition-[transform,box-shadow] duration-300 ease-soft group-hover:-translate-y-[3px] group-hover:shadow-lift">
+      <div className="relative aspect-square overflow-hidden rounded-lg bg-well transition-[transform,box-shadow] duration-300 ease-soft group-hover:-translate-y-0.75 group-hover:shadow-lift">
         {lot.thumbUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -72,7 +72,7 @@ export function LotRow({ lots, columns = 5 }: { lots: LotCardData[]; columns?: 4
   return (
     <ul
       className={cn(
-        "bleed flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 [scroll-padding-inline:16px] sm:px-5 lg:mx-0 lg:grid lg:gap-6 lg:overflow-visible lg:px-0 lg:pb-0",
+        "bleed flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 scroll-px-4 sm:px-5 lg:mx-0 lg:grid lg:gap-6 lg:overflow-visible lg:px-0 lg:pb-0",
         columns === 5 ? "lg:grid-cols-4 xl:grid-cols-5" : "lg:grid-cols-4",
       )}
     >

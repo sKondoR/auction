@@ -8,7 +8,9 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "build:pages": "node demo/build-pages.mjs"
+    "build:pages": "node demo/build-pages.mjs",
+    "lint:tw": "node scripts/tw-canonical.mjs",
+    "lint:tw:fix": "node scripts/tw-canonical.mjs --fix"
   },
   "dependencies": {
     "@auction/db": "workspace:*",

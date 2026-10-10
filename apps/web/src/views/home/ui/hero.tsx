@@ -12,7 +12,7 @@ export function Hero() {
     <section {...SEARCH_FLOOR} aria-labelledby="hero-h" className="on-dark cloth bleed relative isolate -mt-8 overflow-hidden">
       <HeroSlideshow className="absolute inset-x-0 top-0 -z-10 h-[62%] w-full mask-[linear-gradient(to_bottom,#000_55%,transparent)] lg:inset-y-0 lg:left-auto lg:h-full lg:w-[72%] lg:mask-[linear-gradient(to_right,transparent_14%,#000_56%)]" />
 
-      <div className="wrap flex flex-col pb-10 pt-[min(62vw,380px)] lg:grid lg:min-h-[540px] lg:grid-cols-12 lg:items-center lg:gap-6 lg:py-16">
+      <div className="wrap flex flex-col pb-10 pt-[min(62vw,380px)] lg:grid lg:min-h-135 lg:grid-cols-12 lg:items-center lg:gap-6 lg:py-16">
         <div className="flex flex-col lg:col-span-6">
           {/* Бровь по ширине заголовка: надпись по центру, золотые линии тянутся до краёв. */}
           <div className="w-fit">
@@ -21,9 +21,9 @@ export function Hero() {
               Аукцион вещей с историей
               <span aria-hidden className="h-px min-w-4 flex-1 bg-gold" />
             </p>
-            <h1 id="hero-h" className="mt-8 font-serif text-[clamp(4.375rem,2rem+5vw,6rem)] font-normal leading-[0.88] tracking-[-0.025em]">
+            <h1 id="hero-h" className="mt-8 font-serif text-[clamp(4.375rem,2rem+5vw,6rem)] font-normal leading-[0.88] tracking-tight">
               <span className="block">Идут</span>
-              <em className="-mt-[0.04em] ml-[0.9em] block w-fit bg-[linear-gradient(170deg,var(--color-gold-light)_15%,var(--color-gold)_55%,var(--color-gold-deep))] bg-clip-text pb-[0.14em] pr-[0.1em] italic text-transparent">
+              <em className="mt-[-0.04em] ml-[0.9em] block w-fit bg-[linear-gradient(170deg,var(--color-gold-light)_15%,var(--color-gold)_55%,var(--color-gold-deep))] bg-clip-text pb-[0.14em] pr-[0.1em] italic text-transparent">
                 торги
               </em>
             </h1>

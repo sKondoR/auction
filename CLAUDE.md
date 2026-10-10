@@ -20,7 +20,7 @@ pnpm --filter @auction/web build
 pnpm --filter @auction/web build:pages   # статическое демо для GitHub Pages → apps/web/out (ADR 0009); DEMO_BASE_PATH=/auction
 ```
 
-- Линтера в проекте нет; проверка — `pnpm typecheck`.
+- Линтера в проекте нет; проверка — `pnpm typecheck` и `pnpm --filter @auction/web lint:tw` (неканонические классы Tailwind; `lint:tw:fix` исправляет).
 - Windows: если `pnpm install` падает с `EPERM … symlink`, используй `npx pnpm@10.28.1 install`.
 - Web запускается через `next dev --webpack`: Turbopack на Windows падает на junction-ссылках. При ошибке `failed to create junction point` удали `apps/web/.next`.
 - Вход по телефону; SMS-код печатается в консоли `pnpm dev`. Тестовые телефоны из сида: админ `+7 999 000-00-01`, модератор `…-02`, оценщик `…-03`, продавец с демо-лотами `+7 999 111-11-11`, покупатель `+7 999 222-22-22`. Письма — в Mailpit (http://localhost:8025).
@@ -48,6 +48,7 @@ Next.js 16 + React 19 + Tailwind 4. Это новая версия Next.js с л
 - Server actions — в `features/*/api/actions.ts`, обёрнуты в `authed(fn, { permission })` из `shared/api/action.ts`. Обёртка проверяет вход и права, возвращает `ActionResult` и переводит доменные ошибки в сообщение. На клиенте их вызывает `shared/ui/action-form.tsx`.
 - Админка `/admin` разграничена по ролям через `hasPermission` из `domain`.
 - Фото лотов в списках и карточках должны оставаться крупными; компактности добиваются за счёт остальных элементов.
+- Классы Tailwind пиши в канонической форме: значение из шкалы вместо произвольного (`w-70`, а не `w-[280px]`; `size-4.5`, `z-1`, `duration-450`, `aspect-4/3`, `tracking-tight`), минус внутри скобок (`mt-[-0.04em]`), токен темы вместо `var()` (`accent-primary`), `**:` вместо `[&_*]:`. Шаг шкалы — 4px, дробные шаги допустимы (`3px` → `0.75`). После правок вёрстки запускай `pnpm --filter @auction/web lint:tw:fix`.
 
 ### Статическое демо (GitHub Pages)
 

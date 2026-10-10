@@ -8,7 +8,7 @@ export function LotGallery({ photos, title }: { photos: { id: number; url: strin
   const [i, setI] = useState(0);
   if (photos.length === 0) {
     return (
-      <div className="flex aspect-[4/3] items-center justify-center rounded-lg bg-well text-faint">
+      <div className="flex aspect-4/3 items-center justify-center rounded-lg bg-well text-faint">
         <ImageIcon className="size-16" strokeWidth={1.25} aria-hidden />
       </div>
     );
@@ -17,7 +17,7 @@ export function LotGallery({ photos, title }: { photos: { id: number; url: strin
   const go = (d: number) => setI((x) => (x + d + photos.length) % photos.length);
   return (
     <div className="flex flex-col gap-3">
-      <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-lg bg-well">
+      <div className="relative flex aspect-4/3 items-center justify-center overflow-hidden rounded-lg bg-well">
         <a href={current.url} target="_blank" rel="noreferrer" className="h-full w-full">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={current.url} alt={title} className="h-full w-full object-contain" />

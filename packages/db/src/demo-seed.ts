@@ -50,6 +50,8 @@ interface DemoLot {
   startPrice: number;
   blitzPrice?: number;
   quantity?: number;
+  /** Сколько штук уже продано у лота, который ещё в продаже. */
+  sold?: number;
   allowOffers?: boolean;
   /** Дней до окончания; отрицательное — лот уже завершён. */
   days: number;
@@ -102,6 +104,7 @@ const LOTS: DemoLot[] = [
     format: "fixed",
     startPrice: rub(450),
     quantity: 8,
+    sold: 3,
     days: 40,
   },
   {
@@ -143,8 +146,8 @@ const LOTS: DemoLot[] = [
     attributes: { period: "1800–1917", material: "Латунь" },
     format: "english",
     startPrice: rub(6_000),
-    days: -12,
-    bids: [{ by: IGOR, amount: rub(7_400), minutesAgo: 18_000 }],
+    days: -6,
+    bids: [{ by: IGOR, amount: rub(7_400), minutesAgo: 9_000 }],
   },
   {
     key: "samovar",
@@ -174,6 +177,7 @@ const LOTS: DemoLot[] = [
     format: "fixed",
     startPrice: rub(2_300),
     quantity: 2,
+    sold: 1,
     days: 30,
   },
   {
@@ -215,7 +219,7 @@ const LOTS: DemoLot[] = [
     format: "fixed",
     startPrice: rub(14_000),
     allowOffers: true,
-    days: 20,
+    days: -1.5,
   },
   {
     key: "gramophone",
@@ -299,7 +303,7 @@ export async function seedDemo(db: Db): Promise<void> {
         bidCount: sorted.length,
         blitzPrice: l.blitzPrice ?? null,
         quantity: l.quantity ?? 1,
-        quantitySold: ended ? 1 : 0,
+        quantitySold: ended ? (l.quantity ?? 1) : (l.sold ?? 0),
         allowOffers: l.allowOffers ?? false,
         startsAt: new Date(Math.min(now, endsAt.getTime()) - 7 * DAY_MS),
         endsAt,
@@ -326,7 +330,7 @@ export async function seedDemo(db: Db): Promise<void> {
     .returning();
   const [igorPetr] = await db
     .insert(conversations)
-    .values({ buyerId: IGOR, sellerId: PETR, lastMessageAt: ago(14_000), buyerReadAt: ago(14_000), sellerReadAt: ago(14_000) })
+    .values({ buyerId: IGOR, sellerId: PETR, lastMessageAt: ago(3_000), buyerReadAt: ago(3_000), sellerReadAt: ago(3_000) })
     .returning();
   await db.insert(conversations).values({ kind: "support", buyerId: PETR, sellerId: "service", lastMessageAt: ago(3_000), buyerReadAt: ago(3_000) });
 
@@ -359,13 +363,67 @@ export async function seedDemo(db: Db): Promise<void> {
       status: "completed",
       source: "auction",
       conversationId: igorPetr!.id,
-      createdAt: ago(17_000),
-      paidAt: ago(16_000),
-      shippedAt: ago(15_500),
-      receivedAt: ago(14_000),
-      closedAt: ago(14_000),
+      createdAt: ago(8_600),
+      paidAt: ago(8_000),
+      shippedAt: ago(7_200),
+      receivedAt: ago(4_300),
+      closedAt: ago(4_300),
     })
     .returning();
+  // Сделки по фиксированной цене: Игорь купил три марки, Анна — подстаканник, матрёшку Ольга продала Игорю, приняв его предложение цены.
+  const [dStamp] = await db
+    .insert(deals)
+    .values({
+      lotId: ids.stamp!,
+      sellerId: PETR,
+      buyerId: IGOR,
+      quantity: 3,
+      unitPrice: rub(450),
+      totalPrice: rub(1_350),
+      status: "shipped",
+      source: "fixed",
+      conversationId: igorPetr!.id,
+      createdAt: ago(4_000),
+      paidAt: ago(3_900),
+      shippedAt: ago(3_000),
+    })
+    .returning();
+  await db.insert(deals).values({
+    lotId: ids.podstakannik!,
+    sellerId: OLGA,
+    buyerId: ANNA,
+    unitPrice: rub(2_300),
+    totalPrice: rub(2_300),
+    status: "paid",
+    source: "fixed",
+    createdAt: ago(1_300),
+    paidAt: ago(1_100),
+  });
+  const matryoshkaSold = (-LOTS.find((l) => l.key === "matryoshka")!.days * DAY_MS) / MINUTE_MS;
+  const [offer] = await db
+    .insert(offers)
+    .values({
+      lotId: ids.matryoshka!,
+      buyerId: IGOR,
+      price: rub(12_500),
+      message: "Готов забрать сразу.",
+      status: "accepted",
+      createdAt: ago(matryoshkaSold + 240),
+      respondedAt: ago(matryoshkaSold),
+    })
+    .returning();
+  await db.insert(deals).values({
+    lotId: ids.matryoshka!,
+    sellerId: OLGA,
+    buyerId: IGOR,
+    unitPrice: rub(12_500),
+    totalPrice: rub(12_500),
+    status: "awaiting_payment",
+    source: "offer",
+    offerId: offer!.id,
+    createdAt: ago(matryoshkaSold),
+  });
+
   await db.insert(deals).values({
     lotId: ids["watch-dome"]!,
     sellerId: OLGA,
@@ -377,7 +435,7 @@ export async function seedDemo(db: Db): Promise<void> {
     conversationId: petrOlga!.id,
     createdAt: ago(2_800),
   });
-  for (const d of [dPostcard!, dWatch!]) {
+  for (const d of [dPostcard!, dWatch!, dStamp!]) {
     await db.insert(ledgerEntries).values({
       sellerId: PETR,
       dealId: d.id,
@@ -388,8 +446,8 @@ export async function seedDemo(db: Db): Promise<void> {
     });
   }
   await db.insert(reviews).values([
-    { dealId: dWatch!.id, authorId: IGOR, targetId: PETR, targetRole: "seller", rating: "positive", text: "Часы пришли быстро, упаковка надёжная. Рекомендую.", createdAt: ago(13_900) },
-    { dealId: dWatch!.id, authorId: PETR, targetId: IGOR, targetRole: "buyer", rating: "positive", text: "Оплата в тот же день, спасибо!", createdAt: ago(13_800) },
+    { dealId: dWatch!.id, authorId: IGOR, targetId: PETR, targetRole: "seller", rating: "positive", text: "Часы пришли быстро, упаковка надёжная. Рекомендую.", createdAt: ago(4_200) },
+    { dealId: dWatch!.id, authorId: PETR, targetId: IGOR, targetRole: "buyer", rating: "positive", text: "Оплата в тот же день, спасибо!", createdAt: ago(4_100) },
   ]);
 
   await db.insert(messages).values([
@@ -399,7 +457,9 @@ export async function seedDemo(db: Db): Promise<void> {
     { conversationId: annaPetr!.id, senderId: ANNA, text: "Спасибо, жду!", createdAt: ago(90) },
     { conversationId: petrOlga!.id, senderId: PETR, lotId: ids["watch-dome"]!, text: "Ольга, добрый день. Пришлите, пожалуйста, реквизиты для оплаты.", createdAt: ago(2_000) },
     { conversationId: petrOlga!.id, senderId: OLGA, text: "Добрый! Отправила в личном сообщении, жду оплату до пятницы.", createdAt: ago(1_500) },
-    { conversationId: igorPetr!.id, senderId: IGOR, lotId: ids.watch!, text: "Часы получил, всё отлично.", createdAt: ago(14_000) },
+    { conversationId: igorPetr!.id, senderId: IGOR, lotId: ids.watch!, text: "Часы получил, всё отлично.", createdAt: ago(4_300) },
+    { conversationId: igorPetr!.id, senderId: IGOR, lotId: ids.stamp!, text: "Добавьте, пожалуйста, марки в ту же посылку, что и в прошлый раз — в кляссере.", createdAt: ago(3_950) },
+    { conversationId: igorPetr!.id, senderId: PETR, isSystem: true, dealId: dStamp!.id, text: "Продавец отметил отправку. Трек-номер: 80085234198765", createdAt: ago(3_000) },
   ]);
 
   await db.insert(questions).values([

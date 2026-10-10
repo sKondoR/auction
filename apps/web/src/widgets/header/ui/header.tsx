@@ -12,10 +12,10 @@ import { UserLive } from "./user-live";
 
 const roundBtn = "relative inline-grid place-items-center rounded-full text-foreground transition-colors hover:bg-sage-mist";
 /** Иконки служебной полосы — 36px, по высоте полосы. */
-const iconBtn = `${roundBtn} size-9 [&_svg]:size-[1.125rem]`;
+const iconBtn = `${roundBtn} size-9 [&_svg]:size-4.5`;
 /** Ссылка строки категорий: золотая черта снизу выезжает при наведении. */
 const catLink =
-  "relative flex h-12 items-center whitespace-nowrap after:absolute after:inset-x-0 after:bottom-0 after:h-[3px] after:scale-x-0 after:bg-gold after:transition-transform after:duration-200 after:ease-out hover:after:scale-x-100";
+  "relative flex h-12 items-center whitespace-nowrap after:absolute after:inset-x-0 after:bottom-0 after:h-0.75 after:scale-x-0 after:bg-gold after:transition-transform after:duration-200 after:ease-out hover:after:scale-x-100";
 
 function CountDot({ n, label }: { n: number; label: string }) {
   if (n <= 0) return null;
@@ -41,7 +41,7 @@ function Logo() {
       aucs
       <i
         aria-hidden
-        className="relative mx-0.5 ml-[3px] inline-block size-2 shrink-0 rounded-full bg-[radial-gradient(circle_at_35%_30%,#fbe38c,var(--color-gold)_55%,var(--color-gold-deep))] shadow-[inset_0_0_0_1px_rgba(150,100,10,0.55)] after:pointer-events-none after:absolute after:inset-0 after:rounded-full after:border-[1.5px] after:border-gold-deep after:opacity-0 after:content-[''] motion-safe:after:animate-online md:mx-[3px] md:ml-1 md:size-2.5"
+        className="relative mx-0.5 ml-0.75 inline-block size-2 shrink-0 rounded-full bg-[radial-gradient(circle_at_35%_30%,#fbe38c,var(--color-gold)_55%,var(--color-gold-deep))] shadow-[inset_0_0_0_1px_rgba(150,100,10,0.55)] after:pointer-events-none after:absolute after:inset-0 after:rounded-full after:border-[1.5px] after:border-gold-deep after:opacity-0 after:content-[''] motion-safe:after:animate-online md:mx-0.75 md:ml-1 md:size-2.5"
       />
       <span className="text-muted-foreground">online</span>
     </Link>
@@ -90,7 +90,7 @@ export async function Header() {
                       className="flex min-h-9 cursor-pointer list-none items-center gap-1.5 rounded-full px-2 text-foreground hover:bg-sage-mist [&::-webkit-details-marker]:hidden"
                       aria-label="Меню пользователя"
                     >
-                      <User className="size-[1.125rem]" strokeWidth={1.5} />
+                      <User className="size-4.5" strokeWidth={1.5} />
                       <span className="hidden max-w-32 truncate font-medium md:inline">{viewer.name}</span>
                     </summary>
                     <div className="absolute right-0 z-40 mt-1 w-60 rounded-lg border border-border bg-surface p-2 text-[0.9375rem] text-foreground shadow-lift [&>a]:flex [&>a]:min-h-10 [&>a]:items-center [&>a]:rounded-md [&>a]:px-3 [&>a:hover]:bg-sage-mist">
@@ -115,7 +115,7 @@ export async function Header() {
                 </>
               ) : (
                 <Link href="/login" className="flex min-h-9 items-center gap-1.5 rounded-full px-2 font-medium text-foreground hover:bg-sage-mist">
-                  <User className="size-[1.125rem]" strokeWidth={1.5} />
+                  <User className="size-4.5" strokeWidth={1.5} />
                   Войти
                 </Link>
               )}
@@ -131,7 +131,7 @@ export async function Header() {
       </div>
 
       <header className="sticky top-0 z-30 border-b border-border bg-surface">
-        <div className="wrap grid min-h-16 grid-cols-[auto_1fr_auto] items-center gap-1 md:min-h-[72px] md:gap-5">
+        <div className="wrap grid min-h-16 grid-cols-[auto_1fr_auto] items-center gap-1 md:min-h-18 md:gap-5">
           <div className="flex items-center gap-1">
             <details className="group relative md:hidden">
               <summary className={`${roundBtn} size-11 cursor-pointer list-none [&_svg]:size-5 [&::-webkit-details-marker]:hidden`} aria-label="Меню">

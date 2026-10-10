@@ -31,7 +31,7 @@ export function CountdownRings({ endsAt }: { endsAt: string }) {
         <div key={label} className="flex flex-col items-center gap-2">
           <b
             className={cn(
-              "tabular grid size-16 place-items-center rounded-full border-[1.5px] border-gold-light text-2xl font-semibold transition-colors duration-300 sm:size-[72px] sm:text-[1.75rem]",
+              "tabular grid size-16 place-items-center rounded-full border-[1.5px] border-gold-light text-2xl font-semibold transition-colors duration-300 sm:size-18 sm:text-[1.75rem]",
               hot && i >= 2 && "border-white bg-wax",
             )}
             suppressHydrationWarning

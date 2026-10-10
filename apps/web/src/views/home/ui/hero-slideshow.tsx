@@ -91,7 +91,7 @@ export function HeroSlideshow({ className }: { className: string }) {
               decoding="async"
               style={{ objectPosition: pos, "--kb-x": kb[0], "--kb-y": kb[1] } as CSSProperties}
               className={cn(
-                "absolute inset-0 size-full object-cover transition-opacity duration-[1600ms] ease-in-out",
+                "absolute inset-0 size-full object-cover transition-opacity duration-1600 ease-in-out",
                 i === index ? "opacity-100" : "opacity-0",
                 moving && "animate-kenburns will-change-transform",
               )}

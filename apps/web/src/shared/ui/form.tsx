@@ -8,7 +8,7 @@ import { Button } from "./button";
 
 /** Поле по DESIGN.md: белое, рамка line, 8px, 48px; фокус — зелёная рамка и кольцо шалфейной дымки. */
 const control =
-  "w-full rounded-md border border-border bg-surface px-4 text-base text-foreground transition-[border-color,box-shadow] duration-200 placeholder:text-faint hover:border-border-strong focus:border-primary focus:shadow-[0_0_0_3px_var(--color-sage-mist)] focus:outline-none disabled:opacity-60 aria-[invalid=true]:border-wax";
+  "w-full rounded-md border border-border bg-surface px-4 text-base text-foreground transition-[border-color,box-shadow] duration-200 placeholder:text-faint hover:border-border-strong focus:border-primary focus:shadow-[0_0_0_3px_var(--color-sage-mist)] focus:outline-none disabled:opacity-60 aria-invalid:border-wax";
 
 export function Input({ className, ...props }: ComponentProps<"input">) {
   return <input className={cn(control, "h-12", className)} {...props} />;
@@ -49,7 +49,7 @@ export function Field({
 export function Checkbox({ label, className, ...props }: ComponentProps<"input"> & { label: ReactNode }) {
   return (
     <label className={cn("inline-flex min-h-11 cursor-pointer items-center gap-2.5 text-base", className)}>
-      <input type="checkbox" className="size-5 accent-[var(--color-primary)]" {...props} />
+      <input type="checkbox" className="size-5 accent-primary" {...props} />
       {label}
     </label>
   );

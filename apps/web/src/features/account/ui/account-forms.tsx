@@ -54,10 +54,10 @@ export function NotificationPrefsForm({ prefs }: { prefs: Record<NotificationTyp
             <tr key={t}>
               <td>{NOTIFICATION_TYPE_LABELS[t]}</td>
               <td className="text-center">
-                <input type="checkbox" name={`${t}.site`} defaultChecked={prefs[t].site} className="h-4 w-4 accent-[var(--color-primary)]" />
+                <input type="checkbox" name={`${t}.site`} defaultChecked={prefs[t].site} className="h-4 w-4 accent-primary" />
               </td>
               <td className="text-center">
-                <input type="checkbox" name={`${t}.email`} defaultChecked={prefs[t].email} className="h-4 w-4 accent-[var(--color-primary)]" />
+                <input type="checkbox" name={`${t}.email`} defaultChecked={prefs[t].email} className="h-4 w-4 accent-primary" />
               </td>
             </tr>
           ))}

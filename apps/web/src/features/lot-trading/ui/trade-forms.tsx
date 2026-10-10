@@ -38,7 +38,7 @@ export function BidForm({ lotId, minBid, currentMax, urgent = false }: { lotId: 
         Сделать ставку
       </SubmitButton>
       <label className="flex min-h-11 cursor-pointer items-start gap-2.5 text-[0.9375rem]">
-        <input type="checkbox" checked={auto} onChange={(e) => setAuto(e.target.checked)} className="mt-1 size-5 shrink-0 accent-[var(--color-primary)]" />
+        <input type="checkbox" checked={auto} onChange={(e) => setAuto(e.target.checked)} className="mt-1 size-5 shrink-0 accent-primary" />
         Автоставка: система будет поднимать мою ставку на шаг до максимума
       </label>
       {auto && (

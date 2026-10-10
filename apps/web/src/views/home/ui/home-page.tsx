@@ -110,7 +110,7 @@ function SellBand({ calc }: { calc: ReactNode }) {
         <ol className="rounded-xl bg-surface px-5 py-3 sm:px-8 sm:py-6 md:col-span-1 lg:col-span-4">
           {STEPS.map(([title, text], i) => (
             <li key={title} className="grid grid-cols-[36px_1fr] gap-3 border-b border-border py-3.5 last:border-0">
-              <span className="grid size-[30px] place-items-center rounded-full border border-primary text-sm font-semibold text-primary">{i + 1}</span>
+              <span className="grid size-7.5 place-items-center rounded-full border border-primary text-sm font-semibold text-primary">{i + 1}</span>
               <div>
                 <b className="block font-semibold">{title}</b>
                 <span className="text-[0.9375rem] text-muted-foreground">{text}</span>
@@ -142,7 +142,7 @@ function LastMinutes({ lot, steps }: { lot: LotCard | undefined; steps: { from: 
             <>
               <Link href={`/lots/${lot.id}`} className="grid grid-cols-[88px_1fr] items-center gap-5 rounded-lg border border-white/18 p-5 hover:border-white/40 sm:grid-cols-[120px_1fr]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                {lot.thumbUrl ? <img src={lot.thumbUrl} alt="" className="size-[88px] rounded-md bg-well object-cover sm:size-[120px]" /> : <span className="size-[88px] rounded-md bg-white/10 sm:size-[120px]" />}
+                {lot.thumbUrl ? <img src={lot.thumbUrl} alt="" className="size-22 rounded-md bg-well object-cover sm:size-30" /> : <span className="size-22 rounded-md bg-white/10 sm:size-30" />}
                 <div>
                   <p className="line-clamp-2 text-[0.9375rem] font-medium leading-snug">{lot.title}</p>
                   <p className="tabular mt-1 text-[1.75rem] font-semibold leading-tight sm:text-4xl">{formatRub(lot.price)}</p>
@@ -180,7 +180,7 @@ function LastMinutes({ lot, steps }: { lot: LotCard | undefined; steps: { from: 
                 return (
                   <tr key={s.from} className={cn("border-b border-white/16", cur ? "font-semibold text-white" : "text-white/82")}>
                     <td className="relative py-2.5">
-                      {cur && <span aria-label="текущая цена примера" className="absolute -left-4 top-1/2 -mt-[3px] size-1.5 rounded-full bg-brass" />}
+                      {cur && <span aria-label="текущая цена примера" className="absolute -left-4 top-1/2 -mt-0.75 size-1.5 rounded-full bg-brass" />}
                       {range}
                     </td>
                     <td className="py-2.5 text-right">{formatRub(s.step)}</td>
@@ -189,7 +189,7 @@ function LastMinutes({ lot, steps }: { lot: LotCard | undefined; steps: { from: 
               })}
             </tbody>
           </table>
-          <ul className="grid gap-[18px]">
+          <ul className="grid gap-4.5">
             {(
               [
                 [TrendingUp, "Автоставка", "Укажите максимум, и система будет поднимать вашу ставку на один шаг, пока не дойдёт до него."],
@@ -216,7 +216,7 @@ function LastMinutes({ lot, steps }: { lot: LotCard | undefined; steps: { from: 
 
 function SearchBand({ sections }: { sections: { id: number; name: string }[] }) {
   return (
-    <section aria-labelledby="find-h" className="bleed -mb-16 bg-sage-mist py-[72px]">
+    <section aria-labelledby="find-h" className="bleed -mb-16 bg-sage-mist py-18">
       <div className="wrap grid items-center gap-6 lg:grid-cols-12">
         <div className="flex flex-col gap-3 lg:col-span-5">
           <h2 id="find-h" className="section-title">

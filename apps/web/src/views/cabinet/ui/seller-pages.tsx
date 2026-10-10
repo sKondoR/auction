@@ -67,7 +67,7 @@ export async function CabinetLotsPage({ tab: rawTab }: { tab?: string }) {
                   <tr key={l.id}>
                     {tab === "unsold" && (
                       <td>
-                        <input type="checkbox" name="lotIds" value={l.id} className="h-4 w-4 accent-[var(--color-primary)]" />
+                        <input type="checkbox" name="lotIds" value={l.id} className="h-4 w-4 accent-primary" />
                       </td>
                     )}
                     <td>

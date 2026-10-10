@@ -48,7 +48,7 @@ export function ReviewForm({ dealId, targetName }: { dealId: number; targetName:
       <div className="flex flex-wrap gap-4">
         {REVIEW_RATINGS.map((r) => (
           <label key={r} className="flex items-center gap-1.5 text-sm">
-            <input type="radio" name="rating" value={r} defaultChecked={r === "positive"} className="accent-[var(--color-primary)]" />
+            <input type="radio" name="rating" value={r} defaultChecked={r === "positive"} className="accent-primary" />
             {REVIEW_RATING_LABELS[r]}
           </label>
         ))}

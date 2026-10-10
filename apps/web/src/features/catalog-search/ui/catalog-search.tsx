@@ -18,7 +18,7 @@ const SLOT_ID = "catalog-search-panel";
 
 /**
  * Высота панели на страницах без `SEARCH_FLOOR` — как на главной до прокрутки: строка категорий (48px + 1px рамки)
- * и hero (`lg:min-h-[540px]`) плюс рамка шапки. Ниже lg hero выше экрана, поэтому панель — до низа окна.
+ * и hero (`lg:min-h-135`) плюс рамка шапки. Ниже lg hero выше экрана, поэтому панель — до низа окна.
  * Поменяешь высоту hero или строки категорий — поправь и здесь.
  */
 const STAND_IN_H = "h-[calc(100dvh-64px)] md:h-[calc(100dvh-72px)] lg:h-[min(590px,calc(100dvh-72px))]";
@@ -290,7 +290,7 @@ export function CatalogSearch({ sections, cells }: { sections: ScopeSection[]; c
             ref={panelRef}
             id={`${uid}-panel`}
             className={cn(
-              "absolute inset-x-0 top-0 grid transition-[grid-template-rows,box-shadow] duration-[450ms] ease-soft",
+              "absolute inset-x-0 top-0 grid transition-[grid-template-rows,box-shadow] duration-450 ease-soft",
               open ? "grid-rows-[1fr] shadow-[0_28px_48px_-16px_rgba(0,0,0,0.6)]" : "grid-rows-[0fr]",
             )}
           >
@@ -299,7 +299,7 @@ export function CatalogSearch({ sections, cells }: { sections: ScopeSection[]; c
                 ref={scrollRef}
                 style={floor ? { height: floor } : undefined}
                 className={cn(
-                  "cloth overflow-y-auto overscroll-contain shadow-[inset_0_14px_18px_-14px_rgba(0,0,0,0.6)] [&_:focus-visible]:outline-gold-light",
+                  "cloth overflow-y-auto overscroll-contain shadow-[inset_0_14px_18px_-14px_rgba(0,0,0,0.6)] **:focus-visible:outline-gold-light",
                   !floor && (hasFloor ? "max-h-[calc(100dvh-64px)] md:max-h-[calc(100dvh-72px)]" : STAND_IN_H),
                 )}
               >
@@ -386,7 +386,7 @@ export function CatalogSearch({ sections, cells }: { sections: ScopeSection[]; c
                               aria-pressed={on}
                               onClick={() => pickCat({ ...c, sectionId: group.id })}
                               className={cn(
-                                "flex min-h-10 w-full cursor-pointer items-center gap-2.5 rounded-xs px-2 py-1.5 text-left text-[0.9375rem] font-medium leading-tight transition-colors sm:min-h-[34px] sm:px-2.5",
+                                "flex min-h-10 w-full cursor-pointer items-center gap-2.5 rounded-xs px-2 py-1.5 text-left text-[0.9375rem] font-medium leading-tight transition-colors sm:min-h-8.5 sm:px-2.5",
                                 on ? "bg-gold-light/12 font-semibold text-gold-light" : "text-white/92 hover:bg-white/8 hover:text-white",
                               )}
                             >
@@ -401,7 +401,7 @@ export function CatalogSearch({ sections, cells }: { sections: ScopeSection[]; c
                     <ul
                       key={swapKey}
                       aria-labelledby={`${uid}-h`}
-                      className={cn("grid grid-cols-3 gap-x-[18px] gap-y-[26px] md:grid-cols-4 lg:grid-cols-6 lg:gap-x-8 lg:gap-y-9", swapKey > 0 && "motion-safe:animate-swap")}
+                      className={cn("grid grid-cols-3 gap-x-4.5 gap-y-6.5 md:grid-cols-4 lg:grid-cols-6 lg:gap-x-8 lg:gap-y-9", swapKey > 0 && "motion-safe:animate-swap")}
                     >
                       {cells.map((c) => {
                         const on = cat?.id === c.id;
@@ -420,13 +420,13 @@ export function CatalogSearch({ sections, cells }: { sections: ScopeSection[]; c
                                   alt=""
                                   loading="lazy"
                                   className={cn(
-                                    "absolute inset-0 size-full rounded-lg bg-well shadow-cloth transition-[transform,box-shadow] duration-[400ms] ease-soft group-hover/cell:-translate-y-1 group-hover/cell:shadow-cloth-up",
+                                    "absolute inset-0 size-full rounded-lg bg-well shadow-cloth transition-[transform,box-shadow] duration-400 ease-soft group-hover/cell:-translate-y-1 group-hover/cell:shadow-cloth-up",
                                     c.cover.contain ? "object-contain p-[6%]" : "object-cover",
                                   )}
                                 />
                                 <span
                                   className={cn(
-                                    "absolute -right-2 -top-2 z-[1] grid size-7 place-items-center rounded-full bg-gold text-primary-hover shadow-[0_2px_6px_rgba(0,0,0,0.45)] transition-[opacity,transform] duration-300 ease-soft",
+                                    "absolute -right-2 -top-2 z-1 grid size-7 place-items-center rounded-full bg-gold text-primary-hover shadow-[0_2px_6px_rgba(0,0,0,0.45)] transition-[opacity,transform] duration-300 ease-soft",
                                     on ? "scale-100 opacity-100" : "scale-[0.6] opacity-0",
                                   )}
                                 >
@@ -445,7 +445,7 @@ export function CatalogSearch({ sections, cells }: { sections: ScopeSection[]; c
 
                   {/* На десктопе — вертикальный список справа от категорий, на узких экранах — строка под ними */}
                   <div className="no-scrollbar -mx-4 mt-7 flex items-baseline gap-x-3.5 overflow-x-auto border-t border-white/14 px-4 pt-5 text-sm text-white/70 md:mx-0 md:px-0 lg:mt-0 lg:w-56 lg:shrink-0 lg:flex-col lg:items-start lg:gap-y-1 lg:self-start lg:overflow-visible lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
-                    <h2 className="shrink-0 lg:mb-[calc(1.75rem-0.25rem)] lg:font-serif lg:text-[1.875rem] lg:leading-[1.1] lg:text-white">
+                    <h2 className="shrink-0 lg:mb-6 lg:font-serif lg:text-[1.875rem] lg:leading-[1.1] lg:text-white">
                       Часто ищут<span className="lg:hidden">{group || cat ? " здесь" : ""}:</span>
                     </h2>
                     {scope.hints.map((h) => (

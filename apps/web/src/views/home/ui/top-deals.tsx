@@ -73,7 +73,7 @@ function DealTile({ t, lead, rank }: { t: Tile; lead: boolean; rank?: number }) 
       <span
         className={cn(
           "relative block rounded-lg bg-surface",
-          lead ? "aspect-[4/3]" : "aspect-square",
+          lead ? "aspect-4/3" : "aspect-square",
         )}
       >
         {/* Обрезка — только у фото: кружок места на четверть выходит за угол. */}
@@ -90,7 +90,7 @@ function DealTile({ t, lead, rank }: { t: Tile; lead: boolean; rank?: number }) 
         {rank !== undefined && (
           <span
             className={cn(
-              "pointer-events-none absolute left-0 top-0 z-[2] grid -translate-x-[18%] -translate-y-[18%] place-items-center rounded-full font-sans font-semibold leading-none tabular-nums",
+              "pointer-events-none absolute left-0 top-0 z-2 grid translate-x-[-18%] translate-y-[-18%] place-items-center rounded-full font-sans font-semibold leading-none tabular-nums",
               rank === 1 ? "bg-accent text-primary" : "bg-primary text-primary-foreground",
               "shadow-[0_0_0_2px_rgba(255,255,255,0.9),0_2px_6px_-2px_rgba(0,0,0,0.4)]",
               lead ? "size-8 text-sm" : "size-6 text-xs",
@@ -120,7 +120,7 @@ function DealTile({ t, lead, rank }: { t: Tile; lead: boolean; rank?: number }) 
           <span className="line-clamp-2">{text}</span>
         </p>
       )}
-      <Link href={`/lots/${t.lotId}`} aria-label={`Открыть лот: ${t.title}`} className="absolute inset-0 z-[1] rounded-lg" />
+      <Link href={`/lots/${t.lotId}`} aria-label={`Открыть лот: ${t.title}`} className="absolute inset-0 z-1 rounded-lg" />
     </li>
   );
 }
@@ -148,7 +148,7 @@ export function TopDeals({ lanes, period }: { lanes: Record<LotFormat, DealLane>
           const lane = lanes[key];
           const tiles = lane.kind === "deals" ? lane.items.map(dealTile) : lane.items.map(upcomingTile);
           return (
-            <section key={key} aria-label={label} className={cn("flex w-[280px] shrink-0 snap-start flex-col px-4 pb-5 first:rounded-l-lg last:rounded-r-lg sm:w-[300px] lg:w-auto", tone)}>
+            <section key={key} aria-label={label} className={cn("flex w-70 shrink-0 snap-start flex-col px-4 pb-5 first:rounded-l-lg last:rounded-r-lg sm:w-75 lg:w-auto", tone)}>
               <h3 className="flex items-center gap-2 pb-1.5 pt-5 font-sans text-[1.375rem] font-semibold leading-tight text-foreground">
                 <Icon className="size-6 shrink-0" strokeWidth={1.75} aria-hidden />
                 {label}
